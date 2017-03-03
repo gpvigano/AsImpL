@@ -1,0 +1,61 @@
+# Wavefront material file
+# Sample materials
+
+newmtl DiffBump
+Ka 0.117647 0.117647 0.117647
+Kd 0.54902 0.54902 0.54902
+Ks 0.752941 0.752941 0.752941
+illum 2
+Ns 8
+map_Kd rock2.jpg
+map_bump rock_bump2.jpg
+bump rock_bump2.jpg
+
+newmtl BumpRefl
+Ka 0.117647 0.117647 0.117647
+Kd 0.6 0.52 0
+Ks 1 1 1
+illum 2
+Ns 8
+map_bump rock_bump.jpg
+bump rock_bump.jpg
+refl REFLECT.jpg
+map_kS rock.jpg
+
+newmtl Spec
+Ka 0.117647 0.117647 0.117647
+Kd 0.752941 0.752941 0.752941
+Ks 1 1 1
+illum 2
+Ns 32
+map_Kd rust.jpg
+refl REFLECT.jpg
+map_Ns rust_spec.jpg
+
+newmtl DiffOpacity
+Ka 0.117647 0.117647 0.117647
+Kd 0.752941 0.752941 0.752941
+Ks 0.752941 0.752941 0.752941
+illum 2
+Ns 8
+map_Kd rust.jpg
+map_opacity opacity.png
+map_d opacity.png
+
+newmtl Transp
+Ka 0.117647 0.117647 0.117647
+Kd 0.752941 0.752941 0.752941
+Ks 1 1 1
+illum 2
+Ns 8
+d 0.6
+refl REFLECT.jpg
+
+newmtl Refl
+Ka 0.117647 0.117647 0.117647
+Kd 0.752941 0.752941 0.752941
+Ks 1 1 1
+illum 2
+Ns 8
+refl REFLECT.jpg
+map_kS rust_spec.jpg
