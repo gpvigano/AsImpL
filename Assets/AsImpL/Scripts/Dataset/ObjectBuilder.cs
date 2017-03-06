@@ -229,7 +229,7 @@ namespace AsImpL
                 buildStatus.subObjParent = buildStatus.currObjGameObject;
 
                 //if (od.Name != "default") go.name = od.Name;
-                Debug.Log("Object: " + objData.name);
+                //Debug.Log("Object: " + objData.name);
                 buildStatus.newObject = false;
                 buildStatus.subObjCount = 0;
                 buildStatus.idxCount = 0;

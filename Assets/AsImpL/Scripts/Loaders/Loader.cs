@@ -51,7 +51,7 @@ namespace AsImpL
 
         protected FileLoadingProgress objLoadingProgress = new FileLoadingProgress();
 
-        protected float lastTime = 0;
+        protected Stats loadStats;
 
         /// <summary>
         /// Load the file assuming its vertical axis is Z instead of Y 
@@ -137,7 +137,8 @@ namespace AsImpL
             objLoadingProgress.fileName = fileName;
             objLoadingProgress.error = false;
             objLoadingProgress.message = "Loading " + fileName + "...";
-            lastTime = Time.realtimeSinceStartup;
+            Debug.LogFormat("Loading {0}\n  from: {1}...", objName, absolutePath);
+
             yield return null;
             // if the model was already loaded duplicate the existing object
             if (buildOptions!=null &&  buildOptions.reuseLoaded && loadedModels.ContainsKey(absolutePath) && loadedModels[absolutePath] != null)
@@ -170,24 +171,35 @@ namespace AsImpL
             loadedModels[absolutePath] = null; // define a key for the dictionary
             instanceCount[absolutePath] = 0; // define a key for the dictionary
 
+            float lastTime = Time.realtimeSinceStartup;
+            float startTime = lastTime;
             yield return LoadModelFile(absolutePath);
+            loadStats.modelParseTime = Time.realtimeSinceStartup - lastTime;
 
             if (objLoadingProgress.error)
             {
                 yield break;
             }
-            lastTime = Time.realtimeSinceStartup;
 
+            lastTime = Time.realtimeSinceStartup;
             if (HasMaterialLibrary)
             {
                 yield return LoadMaterialLibrary(absolutePath);
             }
-            Debug.LogFormat("Material data parsed in {0} seconds", Time.realtimeSinceStartup - lastTime);
+            loadStats.materialsParseTime = Time.realtimeSinceStartup - lastTime;
             lastTime = Time.realtimeSinceStartup;
             yield return Build(absolutePath, objName, parentObj);
-            Debug.LogFormat("Game objects built in {0} seconds", Time.realtimeSinceStartup - lastTime);
-            lastTime = Time.realtimeSinceStartup;
-            Debug.LogFormat("Done ({0}).", objName);
+            loadStats.buildTime = Time.realtimeSinceStartup - lastTime;
+            loadStats.totalTime = Time.realtimeSinceStartup - startTime;
+            Debug.Log("Done: " + objName
+                +"\n  Loaded in " + loadStats.totalTime + " seconds"
+                +"\n  Model data parsed in " + loadStats.modelParseTime + " seconds"
+                +"\n  Material data parsed in " + loadStats.materialsParseTime + " seconds"
+                +"\n  Game objects built in " + loadStats.buildTime + " seconds"
+                + "\n    textures: " + loadStats.buildStats.texturesTime + " seconds"
+                + "\n    materials: " + loadStats.buildStats.materialsTime + " seconds"
+                + "\n    objects: " + loadStats.buildStats.objectsTime + " seconds"
+                );
             totalProgress.fileProgress.Remove(objLoadingProgress);
         }
 
@@ -337,7 +349,7 @@ namespace AsImpL
                     }
                 }
             }
-            Debug.LogFormat("Build-Textures loaded in {0} seconds", Time.realtimeSinceStartup - prevTime);
+            loadStats.buildStats.texturesTime = Time.realtimeSinceStartup - prevTime;
             prevTime = Time.realtimeSinceStartup;
 
             ObjectBuilder.ProgressInfo info = new ObjectBuilder.ProgressInfo();
@@ -355,7 +367,7 @@ namespace AsImpL
                 objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * objectBuilder.NumImportedMaterials / materialData.Count;
                 yield return null;
             }
-            Debug.LogFormat("Build-Materials built in {0} seconds ({1})", Time.realtimeSinceStartup - prevTime, info.materialsLoaded);
+            loadStats.buildStats.materialsTime = Time.realtimeSinceStartup - prevTime;
             prevTime = Time.realtimeSinceStartup;
 
             objLoadingProgress.message = "Building scene objects...";
@@ -373,7 +385,7 @@ namespace AsImpL
             }
             objLoadingProgress.percentage = 100.0f;
             loadedModels[absolutePath] = newObj;
-            Debug.LogFormat("Build-scene objects built in {0} seconds", Time.realtimeSinceStartup - prevTime);
+            loadStats.buildStats.objectsTime = Time.realtimeSinceStartup - prevTime;
         }
 
         /// <summary>
@@ -418,7 +430,6 @@ namespace AsImpL
             string texPath = basePath + texturePath;
             texPath = "file:///" + texPath.Replace("//", "/");
             objLoadingProgress.message = "Loading textures...\n" + texPath;
-            //Debug.LogFormat("Loading texture '{0}'", texPath);
             return texPath;
         }
 
@@ -458,6 +469,22 @@ namespace AsImpL
             }
 
             return tex;
+        }
+
+        protected struct BuildStats
+        {
+            public float texturesTime;
+            public float materialsTime;
+            public float objectsTime;
+        }
+
+        protected struct Stats
+        {
+            public float modelParseTime;
+            public float materialsParseTime;
+            public float buildTime;
+            public BuildStats buildStats;
+            public float totalTime;
         }
     }
 }

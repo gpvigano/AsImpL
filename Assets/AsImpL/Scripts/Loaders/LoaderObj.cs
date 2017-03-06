@@ -96,10 +96,9 @@ namespace AsImpL
                 //totalProgress.fileProgress.Remove( objLoadingProgress );
                 yield break;
             }
-            Debug.LogFormat("Parsing geometry data in {0}...", www.url);
+            //Debug.LogFormat("Parsing geometry data in {0}...", www.url);
 
             yield return ParseGeometryData(www.text);
-            Debug.LogFormat("Geometry data parsed in {0} seconds", Time.realtimeSinceStartup - lastTime);
         }
 
         protected override IEnumerator LoadMaterialLibrary(string absolutePath)
@@ -115,7 +114,7 @@ namespace AsImpL
             }
             else
             {
-                Debug.LogFormat("Parsing material libray {0}...", loader.url);
+                //Debug.LogFormat("Parsing material libray {0}...", loader.url);
                 objLoadingProgress.message = "Parsing material libray...";
                 ParseMaterialData(loader.text);
             }
@@ -255,32 +254,36 @@ namespace AsImpL
                         dataSet.AddNormal(ConvertVec3(float.Parse(p[1]), float.Parse(p[2]), float.Parse(p[3])));
                         break;
                     case "f":
-                        DataSet.FaceIndices[] faces = new DataSet.FaceIndices[p.Length - 1];
-                        if (isFirstInGroup)
                         {
-                            isFirstInGroup = false;
-                            string[] c = p[1].Trim().Split("/".ToCharArray());
-                            isFaceIndexPlus = (int.Parse(c[0]) >= 0);
-                        }
-                        GetFaceIndicesByOneFaceLine(faces, p, isFaceIndexPlus);
-                        if (p.Length == 4)
-                        {
-                            dataSet.AddFaceIndices(faces[0]);
-                            dataSet.AddFaceIndices(faces[2]);
-                            dataSet.AddFaceIndices(faces[1]);
-                        }
-                        else if (p.Length == 5)
-                        {
-                            dataSet.AddFaceIndices(faces[0]);
-                            dataSet.AddFaceIndices(faces[3]);
-                            dataSet.AddFaceIndices(faces[1]);
-                            dataSet.AddFaceIndices(faces[3]);
-                            dataSet.AddFaceIndices(faces[2]);
-                            dataSet.AddFaceIndices(faces[1]);
-                        }
-                        else
-                        {
-                            Debug.LogWarning("face vertex count :" + (p.Length - 1) + " larger than 4:");
+                            int numVerts = p.Length - 1;
+                            DataSet.FaceIndices[] faces = new DataSet.FaceIndices[numVerts];
+                            if (isFirstInGroup)
+                            {
+                                isFirstInGroup = false;
+                                string[] c = p[1].Trim().Split("/".ToCharArray());
+                                isFaceIndexPlus = (int.Parse(c[0]) >= 0);
+                            }
+                            GetFaceIndicesByOneFaceLine(faces, p, isFaceIndexPlus);
+                            if (numVerts == 3)
+                            {
+                                dataSet.AddFaceIndices(faces[0]);
+                                dataSet.AddFaceIndices(faces[2]);
+                                dataSet.AddFaceIndices(faces[1]);
+                            }
+                            else if (numVerts == 4)
+                            {
+                                dataSet.AddFaceIndices(faces[0]);
+                                dataSet.AddFaceIndices(faces[3]);
+                                dataSet.AddFaceIndices(faces[1]);
+                                dataSet.AddFaceIndices(faces[3]);
+                                dataSet.AddFaceIndices(faces[2]);
+                                dataSet.AddFaceIndices(faces[1]);
+                            }
+                            else
+                            {
+                                Debug.LogWarning("face vertex count :" + (p.Length - 1) + " larger than 4");
+                                // TODO: support for faces with more than 4 vertices
+                            }
                         }
                         break;
                     case "mtllib":
