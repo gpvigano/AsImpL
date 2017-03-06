@@ -14,11 +14,19 @@ created in the project).
 *OBJ model imported with AsImpL*
 
 Some improvements are made in OBJ import compared with the current version of Unity:
-* bump maps
-* specular maps
+* bump map
+  * bump map is converted into a normal map
+  * computation of normal maps and tangents
+* specular map
+  * specular map is converted to glossness map (metallic texture)
 * reflection map
+  * reflection map is replaced with the ambient reflection
+    (skybox or reflection probes, if available)
+* opacity map
+  * diffuse and opacity maps are blended together in the albedo texture
+* flag to use an Unlit shader for materials withe the lighting rendered to the diffuse texture
 * vertical axis conversion
- 
+
  ![image](https://raw.githubusercontent.com/gpvigano/AsImpL/master/images/unity_vs_AsImpL_Zup.png)
  
 *Example of a model imported with AsImpL (left) and Unity 5.5 (right)*
@@ -26,6 +34,14 @@ Some improvements are made in OBJ import compared with the current version of Un
  ![image](https://raw.githubusercontent.com/gpvigano/AsImpL/master/images/AsImpLvsUnity.png)
  
  *Example of models imported with AsImpL (above) and Unity 5.5 (below)*
+
+Even if other OBJ loaders already exist,
+this was started as a separate projects project because of these requirements:
+* load models in an asynchronous way (without "freezing" the scene during loading)
+* load more models concurrently
+* show the loading progress on a UI
+* import the loaded models as assets into Unity projects
+* prepare the loader to be extended with different file formats
  
 ## Features
 * OBJ format import/loading:
@@ -84,7 +100,8 @@ The import process is divided into separate phases:
 * game object creation in Unity scene
 * *materials, meshes and prefab assets creation (if importing assets)*
 
-You can find the complete [AsImpL documentation] in `Documentation` folder.
+You can find the complete AsImpL documentation in `Documentation` folder
+both as [compressed HTML] and [zipped HTML].
 
 To load some OBJ files you can add a ObjectImporter to a game object and
 call its ImportModelAsync() method from a MonoBehavior,
@@ -95,7 +112,7 @@ you can find also a more advanced example in `002_Import_CustomImporter`.
 
 This work started looking at the [Runtime OBJ Loader],
 from which some source code (in particular TextureLoader.cs and parts of LoaderObj) came.
-The OBJ format loader is inspired by [Runtime OBJ Loader], [unity-obj-loader], [unity-remote-obj-loader] and all the guys that shared their ideas.
+The OBJ file loader is inspired by [Runtime OBJ Loader], [unity-obj-loader], [unity-remote-obj-loader] and all the people who shared their ideas (e.g. [Bartek Drozdz]).
 Thanks in advance to all the people who will contribute in any way to this project.
 
 
@@ -116,4 +133,7 @@ This is [on GitHub](https://github.com/gpvigano/AsImpL).
 [Runtime OBJ Loader]: http://forum.unity3d.com/threads/free-runtime-obj-loader.365884/
 [unity-obj-loader]: https://github.com/hammmm/unity-obj-loader
 [unity-remote-obj-loader]: https://github.com/cmdr2/unity-remote-obj-loader
-[AsImpL documentation]: https://github.com/gpvigano/AsImpL/blob/master/Documentation/AsImpL.chm
+[compressed HTML]: https://raw.githubusercontent.com/gpvigano/AsImpL/master/Documentation/AsImpL.chm
+[zipped HTML]: https://raw.githubusercontent.com/gpvigano/AsImpL/master/Documentation/AsImpL_html.zip
+[Bartek Drozdz]: http://www.everyday3d.com/blog/index.php/2010/05/24/loading-3d-models-runtime-unity3d/
+
