@@ -9,10 +9,14 @@ namespace AsImpL
         /// </summary>
         public class AsImpLSample : MonoBehaviour
         {
+            public string filePath = "models/OBJ_test/objtest_zup.obj";
             private ObjectImporter objImporter;
 
             private void Awake()
             {
+#if (UNITY_ANDROID || UNITY_IPHONE)
+                filePath = Application.persistentDataPath + "/" + filePath;
+#endif
                 objImporter = gameObject.AddComponent<ObjectImporter>();
             }
 
@@ -22,7 +26,7 @@ namespace AsImpL
                 options = new ImportOptions();
                 options.modelScaling = 1f;
                 options.zUp = true;
-                objImporter.ImportModelAsync("MyObject", "models/OBJ_test/objtest_zup.obj", null, options);
+                objImporter.ImportModelAsync("MyObject", filePath, null, options);
             }
         }
     }

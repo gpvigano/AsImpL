@@ -51,11 +51,14 @@ namespace AsImpL
                     if (modelsInfo[i].skip) continue;
                     string objName = modelsInfo[i].name;
                     string filePath = modelsInfo[i].path;
-                    if (filePath == null)
+                    if (string.IsNullOrEmpty(filePath))
                     {
                         Debug.LogWarning("File path missing");
                         continue;
                     }
+#if (UNITY_ANDROID || UNITY_IPHONE)
+                    filePath = Application.persistentDataPath + "/" + filePath;
+#endif
                     ImportOptions options = modelsInfo[i].loaderOptions;
                     if (options == null)
                     {
@@ -70,15 +73,18 @@ namespace AsImpL
 
             private void Awake()
             {
-                //configFile = Application.dataPath + "/" + configFile;
-                configFile = Application.streamingAssetsPath + "/" + configFile;
+#if (UNITY_ANDROID || UNITY_IPHONE)
+                configFile = Application.persistentDataPath + "/" + configFile;
+#endif
+                ////configFile = Application.dataPath + "/" + configFile;
+                //configFile = Application.streamingAssetsPath + "/" + configFile;
             }
 
             private void Start()
             {
                 string[] args = Environment.GetCommandLineArgs();
 
-                if (args.Length > 1)
+                if (args!=null && args.Length > 1)
                 {
                     int numImports = args.Length - 1;
                     for (int i = 0; i < numImports; i++)
@@ -111,7 +117,7 @@ namespace AsImpL
             public void SetScaling(float scl)
             {
                 scl = Mathf.Pow(10.0f, scl);
-                objScalingText.text = "Overall scaling: " + scl;
+                objScalingText.text = "Scaling: " + scl;
                 transform.localScale = new Vector3(scl, scl, scl);
             }
 
