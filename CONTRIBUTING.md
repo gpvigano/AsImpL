@@ -102,7 +102,7 @@ do not use comments to explain obvious code.
 Place a proper tag (`TODO:`, `NOTE:`, `HACK:`, `UNDONE:`) before the comments inside a method implementation for
 annotating and documenting tasks.
 These annotations are collected by Visual Studio to show a 
-[task list](https://msdn.microsoft.com/en-us/library/txtwdysk(v=vs.140).aspx)..
+[task list](https://msdn.microsoft.com/en-us/library/txtwdysk(v=vs.140).aspx).
 
 ### Ordering
 The ordering of fields, methods, etc. should follow the [StyleCop Rules], see the answer of [Jonathan Wright] in [StackOverflow].
@@ -237,7 +237,7 @@ Here is a sample workflow with [SourceTree].
   * Getting started (assuming you already forked the AsImplLodr project in GitHub to *mygitaccount*, your Git account):
     * **File|Clone/New**
       * **Source Path/URL:** https://github.com/*mygitaccount*/AsImpL
-      * **Destination path:** *whateverfolderyoulike*/AsImpL
+      * **Destination path:** *(whateverfolderyoulike)*/AsImpL
       * **Clone**
       * wait...
     * **Repository|Repository Settings...**
@@ -257,38 +257,38 @@ Here is a sample workflow with [SourceTree].
       * **Branches to push:** select **master**
       * **Push**
       * wait and you'll get your repository updated on GitHub
-   * Make changes
-     * select **master** branch
-     * **Repository|Branch...**
-       * **New name:** *your_new_branch* (e.g. `fix/suspended_on_focus_lost`)
-       * **Create Branch**
-     * *Make your changes*
-     * Select **File Status** tab
-       * Stage files (e.g. **Stage All**)
-       * Enter a message (see **Commit Messages**, above in this document
-         * If you must fix a wrong commit (before pushing to server)
-           choose **Amend latest commit** in **Commit options...**
-       * **Commit**
-     * Push to remote
-       * check everything is OK
-       * **Repository|Push...**
-         * **Push to repository:** select **origin**
-         * **Branches to push:** select your branch(e.g. `fix/suspended_on_focus_lost`)
-         * if you already pushed your commit to GitHub
-           (before your branch has been merged) you can check **Force Push**
-           (to enable it select **Tools|Options|Git**,
-           check **Enable Force Push**, leaving the option
-           `Use Safe Force Push (--force-with-lease)`)
-         * **Push**
-     * Create a pull request (after pushing your changes)
-       * *[SourceTree has a proper interface](https://confluence.atlassian.com/bitbucket/work-with-pull-requests-223220593.html) for this, but here is another way.* Open your Internet browser and browse to your project on GitHub, then press the [button to create a new pull request]
-     * Some other hints:
-       * [squashing and rebasing](http://blogs.atlassian.com/2014/06/interactive-rebase-sourcetree/) is a way of changing your commit history
-         * do not push before squashing commits
-         * always check remote repository before rebasing to master
-         * do not rebase while editing commit messages (do it in 2 steps)
-       * to undo last commit select it in **Log/History**, right click the previous commit and select **Reset current branch to this commit**
-       * be careful... ;-)
+  * Make changes
+   * select **master** branch
+   * **Repository|Branch...**
+     * **New name:** *your_new_branch* (e.g. `fix/suspended_on_focus_lost`)
+     * **Create Branch**
+   * *Make your changes*
+   * Select **File Status** tab
+     * Stage files (e.g. **Stage All**)
+     * Enter a message (see **Commit Messages**, above in this document
+       * If you must fix a wrong commit (before pushing to server)
+         choose **Amend latest commit** in **Commit options...**
+     * **Commit**
+   * Push to remote
+     * check everything is OK
+     * **Repository|Push...**
+       * **Push to repository:** select **origin**
+       * **Branches to push:** select your branch(e.g. `fix/suspended_on_focus_lost`)
+       * if you already pushed your commit to GitHub
+         (before your branch has been merged) you can check **Force Push**
+         (to enable it select **Tools|Options|Git**,
+         check **Enable Force Push**, leaving the option
+         `Use Safe Force Push (--force-with-lease)`)
+       * **Push**
+   * Create a pull request (after pushing your changes)
+     * *[SourceTree has a proper interface](https://confluence.atlassian.com/bitbucket/work-with-pull-requests-223220593.html) for this, but here is another way.* Open your Internet browser and browse to your project on GitHub, then press the [button to create a new pull request]
+   * Some other hints:
+     * [squashing and rebasing](http://blogs.atlassian.com/2014/06/interactive-rebase-sourcetree/) is a way of changing your commit history
+       * do not push before squashing commits
+       * always check remote repository before rebasing to master
+       * do not rebase while editing commit messages (do it in 2 steps)
+     * to undo last commit select it in **Log/History**, right click the previous commit and select **Reset current branch to this commit**
+     * be careful... ;-)
 
 [Fork]: http://help.github.com/fork-a-repo/
 [SourceTree]: https://www.sourcetreeapp.com/

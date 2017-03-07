@@ -35,14 +35,13 @@ Some improvements are made in OBJ import compared with the current version of Un
  
  *Example of models imported with AsImpL (above) and Unity 5.5 (below)*
 
-Even if other OBJ loaders already exist,
-this was started as a separate projects project because of these requirements:
+This project was started because of these requirements (partly addressed by some existing projects):
 * load models in an asynchronous way (without "freezing" the scene during loading)
 * load more models concurrently
 * show the loading progress on a UI
 * import the loaded models as assets into Unity projects
 * prepare the loader to be extended with different file formats
- 
+
 ## Features
 * OBJ format import/loading:
   * meshes with more than 65K vertices/indices are splitted and loaded
