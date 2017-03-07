@@ -107,12 +107,14 @@ To load some OBJ files you can add a ObjectImporter to a game object and
 call its ImportModelAsync() method from a MonoBehavior,
 see `001_Import_SimpleTest` example scene in `Assets/AsImpL/Examples`, where
 you can find also a more advanced example in `002_Import_CustomImporter`.
+In [EXAMPLES.md](https://github.com/gpvigano/AsImpL/blob/master/EXAMPLES.md) you can find details about each example.
 
 ### Acknowledgements:
 
 This work started looking at the [Runtime OBJ Loader],
 from which some source code (in particular TextureLoader.cs and parts of LoaderObj) came.
 The OBJ file loader is inspired by [Runtime OBJ Loader], [unity-obj-loader], [unity-remote-obj-loader] and all the people who shared their ideas (e.g. [Bartek Drozdz]).
+The first asynchronous loading implementation comes from [unity-remote-obj-loader].
 Thanks in advance to all the people who will contribute in any way to this project.
 
 
@@ -133,7 +135,7 @@ This is [on GitHub](https://github.com/gpvigano/AsImpL).
 [Runtime OBJ Loader]: http://forum.unity3d.com/threads/free-runtime-obj-loader.365884/
 [unity-obj-loader]: https://github.com/hammmm/unity-obj-loader
 [unity-remote-obj-loader]: https://github.com/cmdr2/unity-remote-obj-loader
-[compressed HTML]: https://raw.githubusercontent.com/gpvigano/AsImpL/master/Documentation/AsImpL.chm
-[zipped HTML]: https://raw.githubusercontent.com/gpvigano/AsImpL/master/Documentation/AsImpL_html.zip
+[compressed HTML]: https://github.com/gpvigano/AsImpL/blob/master/Documentation/AsImpL.chm
+[zipped HTML]: https://github.com/gpvigano/AsImpL/blob/master/Documentation/AsImpL_html.zip
 [Bartek Drozdz]: http://www.everyday3d.com/blog/index.php/2010/05/24/loading-3d-models-runtime-unity3d/
 
