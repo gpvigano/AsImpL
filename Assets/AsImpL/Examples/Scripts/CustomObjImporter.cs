@@ -84,7 +84,7 @@ namespace AsImpL
             {
                 string[] args = Environment.GetCommandLineArgs();
 
-                if (args!=null && args.Length > 1)
+                if (args != null && args.Length > 1)
                 {
                     int numImports = args.Length - 1;
                     for (int i = 0; i < numImports; i++)
@@ -103,15 +103,21 @@ namespace AsImpL
                         }
                         ModelImportInfo modelToImport = new ModelImportInfo();
                         modelToImport.path = args[i + 1];
+                        modelToImport.name = Path.GetFileNameWithoutExtension(modelToImport.path);
                         modelToImport.loaderOptions = new ImportOptions();
                         modelToImport.loaderOptions.modelScaling = defaultScale;
                         modelToImport.loaderOptions.zUp = defaultZUp;
-                        modelToImport.loaderOptions.reuseLoaded = true;
+                        modelToImport.loaderOptions.reuseLoaded = false;
                         objectList.Add(modelToImport);
                     }
+                    configFile = "";
 
+                    ImportModelListAsync(objectList.ToArray());
                 }
-                Reload();
+                else
+                {
+                    Reload();
+                }
             }
 
             public void SetScaling(float scl)

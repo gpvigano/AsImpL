@@ -131,6 +131,8 @@ Code released under the [MIT License](https://github.com/gpvigano/AsImpL/blob/ma
 ---
 This is [on GitHub](https://github.com/gpvigano/AsImpL).
 
+To try this project with Unity press the button **Clone or download** and choose [**Download ZIP**](https://github.com/gpvigano/AsImpL/archive/master.zip). Save and unzip the archive to your hard disk and then you can open it with Unity.
+
 [Runtime OBJ Loader]: http://forum.unity3d.com/threads/free-runtime-obj-loader.365884/
 [unity-obj-loader]: https://github.com/hammmm/unity-obj-loader
 [unity-remote-obj-loader]: https://github.com/cmdr2/unity-remote-obj-loader

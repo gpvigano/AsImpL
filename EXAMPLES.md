@@ -19,3 +19,5 @@ Some models (as described in `models/object_list_test.xml`) are loaded when you 
 The XML file describing which and how the models are loaded is in the folder `models` and must be manually copied along with that folder to a proper location (executable path for standalone, `Application.persistentDataPath` for mobile).
 
 The camera can be moved using almost the same control as in Unity Scene Editor. This works only in Unity Editor or in standalone version, not for mobile devices (for mobile devices you can use the assets provided by Unity Standard Assets).
+
+If you build this example for Windows you can drag and drop OBJ files onto the executable to load them into the scene (with default settings).
