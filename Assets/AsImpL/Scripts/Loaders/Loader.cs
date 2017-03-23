@@ -427,8 +427,12 @@ namespace AsImpL
         /// <returns>URL of the texture</returns>
         private string GetTextureUrl(string basePath, string texturePath)
         {
-            string texPath = basePath + texturePath;
-            texPath = "file:///" + texPath.Replace("//", "/");
+            string texPath = texturePath.Replace("\\", "/").Replace("//", "/");
+            if (!Path.IsPathRooted(texPath))
+            {
+                texPath = basePath + texturePath;
+            }
+            texPath = "file:///" + texPath;
             objLoadingProgress.message = "Loading textures...\n" + texPath;
             return texPath;
         }

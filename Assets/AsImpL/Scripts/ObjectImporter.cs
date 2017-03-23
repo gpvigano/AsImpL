@@ -199,9 +199,13 @@ namespace AsImpL
                 string destBasePath = Application.dataPath + "/../" + prefabPath;
                 foreach (string texPath in texturePaths)
                 {
-                    FileInfo textFileInfo = new FileInfo(texPath);
-                    string source = sourceBasePath + texPath;
-                    string dest = destBasePath + "/Textures/" + textFileInfo.Name;
+                    string source = texPath;
+                    if (!Path.IsPathRooted(source))
+                    {
+                        source = sourceBasePath + texPath;
+                    }
+                    FileInfo texFileInfo = new FileInfo(source);
+                    string dest = destBasePath + "/Textures/" + texFileInfo.Name;
                     importMessage = "Copying texture " + source + "...";
                     File.Copy(source, dest, true);
                     Debug.LogFormat("Texture {0} copied to {1}", source, dest);
