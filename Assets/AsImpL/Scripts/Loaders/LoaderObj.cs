@@ -84,7 +84,7 @@ namespace AsImpL
 
         protected override IEnumerator LoadModelFile(string absolutePath)
         {
-            string url = "file:///" + absolutePath;
+            string url = absolutePath.Contains("//") ? absolutePath : "file:///" + absolutePath;
             WWW www = new WWW(url);
             yield return www;
 
@@ -103,8 +103,16 @@ namespace AsImpL
 
         protected override IEnumerator LoadMaterialLibrary(string absolutePath)
         {
-            string basePath = GetDirName(absolutePath);
-            string mtlPath = "file:///" + basePath + mtlLib;
+            string mtlPath;
+            if(absolutePath.Contains("//"))
+            {
+                mtlPath = absolutePath.Remove(absolutePath.LastIndexOf('/')+1) + mtlLib;
+            }
+            else
+            {
+                string basePath = GetDirName(absolutePath);
+                mtlPath = "file:///" + basePath + mtlLib;
+            }
             WWW loader = new WWW(mtlPath);
             yield return loader;
 
@@ -229,7 +237,7 @@ namespace AsImpL
                     continue;
                 }
                 string parameters = null;
-                if (line.Length>p[0].Length)
+                if (line.Length > p[0].Length)
                 {
                     parameters = line.Substring(p[0].Length + 1).Trim();
                 }
@@ -376,7 +384,7 @@ namespace AsImpL
                 string[] p = line.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 if (p.Length == 0 || string.IsNullOrEmpty(p[0])) continue;
                 string parameters = null;
-                if (line.Length>p[0].Length)
+                if (line.Length > p[0].Length)
                 {
                     parameters = line.Substring(p[0].Length + 1).Trim();
                 }

@@ -120,7 +120,7 @@ namespace AsImpL
 
 
         /// <summary>
-        /// Load an OBJ model.
+        /// Load a model.
         /// </summary>
         /// <param name="objName">name of the GameObject, if empty use file name</param>
         /// <param name="absolutePath">absolute file path</param>
@@ -395,11 +395,19 @@ namespace AsImpL
         /// <returns>the directory name ending with `/`</returns>
         protected string GetDirName(string absolutePath)
         {
-            string dirName = Path.GetDirectoryName(absolutePath);
-            string basePath = string.IsNullOrEmpty(dirName) ? "" : dirName;
-            if (!basePath.EndsWith("/"))
+            string basePath;
+            if (absolutePath.Contains("//"))
             {
-                basePath += "/";
+                basePath = absolutePath.Remove(absolutePath.LastIndexOf('/') + 1);
+            }
+            else
+            {
+                string dirName = Path.GetDirectoryName(absolutePath);
+                basePath = string.IsNullOrEmpty(dirName) ? "" : dirName;
+                if (!basePath.EndsWith("/"))
+                {
+                    basePath += "/";
+                }
             }
             return basePath;
         }
@@ -432,7 +440,10 @@ namespace AsImpL
             {
                 texPath = basePath + texturePath;
             }
-            texPath = "file:///" + texPath;
+            if (!texPath.Contains("//"))
+            {
+                texPath = "file:///" + texPath;
+            }
             objLoadingProgress.message = "Loading textures...\n" + texPath;
             return texPath;
         }

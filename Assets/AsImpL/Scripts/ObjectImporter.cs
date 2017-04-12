@@ -338,7 +338,7 @@ namespace AsImpL
                     ImportingStart();
                 }
             }
-            string absolutePath = Path.GetFullPath(filePath);
+            string absolutePath = filePath.Contains("//") ? filePath : Path.GetFullPath(filePath);
             absolutePath = absolutePath.Replace('\\', '/');
             Loader loader = CreateLoader(absolutePath);
             if (loader == null)
