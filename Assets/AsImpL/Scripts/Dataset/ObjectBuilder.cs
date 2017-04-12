@@ -126,6 +126,11 @@ namespace AsImpL
         /// TODO: move this to a general utility class?
         public static void Solve(Mesh origMesh)
         {
+            if(origMesh.uv==null)
+            {
+                Debug.LogWarning("Unable too compute tangent space vectors - texture coordinates not defined.");
+                return;
+            }
             int vertexCount = origMesh.vertexCount;
             Vector3[] vertices = origMesh.vertices;
             Vector3[] normals = origMesh.normals;
