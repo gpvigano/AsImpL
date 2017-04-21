@@ -9,6 +9,7 @@ To build on Android open *Edit/Project Settings/Player/* (Settings for Android) 
 ## 001_Import_SimpleTest
 
 This is the basic example, with a simple script (`AsImpLSample.cs`) attached to a scene game object (`Test`). This script simply loads a sample model on start.
+You can change the `File Path` in `Test` game object to load a different model, **also an URL can be used**.
 
 ## 002_Import_CustomImporter
 

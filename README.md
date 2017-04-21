@@ -9,6 +9,8 @@ To exploit the same features implemented in the run-time loader it can
 also be used as asset importer (a prefab with its dependencies is
 created in the project).
 
+**3D models can be loaded both from files and from URLs.**
+
  ![image](https://raw.githubusercontent.com/gpvigano/AsImpL/master/images/test_AsImpL.jpg)
 
 *OBJ model imported with AsImpL*
