@@ -97,7 +97,7 @@ namespace AsImpL
         {
             currDataSet = dataSet;
             currParentObj = parentObj;
-            if (materials!=null)
+            if (materials != null)
             {
                 currMaterials = materials;
             }
@@ -126,9 +126,24 @@ namespace AsImpL
         /// TODO: move this to a general utility class?
         public static void Solve(Mesh origMesh)
         {
-            if(origMesh.uv==null)
+            if (origMesh.uv == null || origMesh.uv.Length == 0)
             {
-                Debug.LogWarning("Unable too compute tangent space vectors - texture coordinates not defined.");
+                Debug.LogWarning("Unable to compute tangent space vectors - texture coordinates not defined.");
+                return;
+            }
+            if (origMesh.vertices == null || origMesh.vertices.Length == 0)
+            {
+                Debug.LogWarning("Unable to compute tangent space vectors - vertices not defined.");
+                return;
+            }
+            if (origMesh.normals == null || origMesh.normals.Length == 0)
+            {
+                Debug.LogWarning("Unable to compute tangent space vectors - normals not defined.");
+                return;
+            }
+            if (origMesh.triangles == null || origMesh.triangles.Length == 0)
+            {
+                Debug.LogWarning("Unable to compute tangent space vectors - triangles not defined.");
                 return;
             }
             int vertexCount = origMesh.vertexCount;
@@ -136,6 +151,12 @@ namespace AsImpL
             Vector3[] normals = origMesh.normals;
             Vector2[] texcoords = origMesh.uv;
             int[] triangles = origMesh.triangles;
+            int triVertCount = origMesh.triangles.Length;
+            if (vertices.Length < triVertCount || normals.Length < vertexCount || texcoords.Length < triVertCount || vertexCount < triVertCount)
+            {
+                Debug.LogWarning("Unable to compute tangent space vectors - not enough data.");
+                return;
+            }
             int triangleCount = triangles.Length / 3;
 
             Vector4[] tangents = new Vector4[vertexCount];
@@ -187,7 +208,6 @@ namespace AsImpL
 
             for (int i = 0; i < (vertexCount); i++)
             {
-
                 Vector3 n = normals[i];
                 Vector3 t = tan1[i];
 
@@ -200,7 +220,6 @@ namespace AsImpL
 
                 // Calculate handedness
                 tangents[i].w = (Vector3.Dot(Vector3.Cross(n, t), tan2[i]) < 0.0f) ? -1.0f : 1.0f;
-
             }
 
             origMesh.tangents = tangents;
