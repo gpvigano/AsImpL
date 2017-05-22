@@ -26,7 +26,17 @@ namespace AsImpL
         /// <returns>The loaded texture or null on error.</returns>
         public static Texture2D LoadTexture(WWW www)
         {
-            return LoadTexture(Path.GetFullPath(www.url));
+            string fullPath = www.url;
+            const string prefix = "file:///";
+            if(fullPath.StartsWith(prefix))
+            {
+                fullPath = fullPath.Substring(prefix.Length);
+            }
+            else
+            {
+                fullPath = Path.GetFullPath(fullPath);
+            }
+            return LoadTexture(fullPath);
         }
 
         /// <summary>
