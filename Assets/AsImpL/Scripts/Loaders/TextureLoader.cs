@@ -189,7 +189,7 @@ namespace AsImpL
                                 int idx;
                                 if (vflip) idx = length - row * width + col;
                                 else idx = length - ((height - row + 1) * width) + col;
-                                pulledColors[idx] = new Color32(blue, green, red, 1);
+                                pulledColors[idx] = new Color32(blue, green, red, 255);
                             }
                         }
                     }
