@@ -54,6 +54,21 @@ namespace AsImpL
         /// </summary>
         public event Action ImportingComplete;
 
+        /// <summary>
+        /// Event triggered when a single model has been created and before it is imported.
+        /// </summary>
+        public event Action<GameObject, string> CreatedModel;
+
+        /// <summary>
+        /// Event triggered when a single model has been successfully imported.
+        /// </summary>
+        public event Action<GameObject, string> ImportedModel;
+
+        /// <summary>
+        /// Event triggered when an error occurred importing a model.
+        /// </summary>
+        public event Action<string> ImportError;
+
         private enum ImportPhase { Idle, TextureImport, ObjLoad, AssetBuild, Done }
 
         /// <summary>
@@ -161,9 +176,9 @@ namespace AsImpL
         private IEnumerator ImportFileAsync(string absolutePath, Transform parentObject)
         {
             Loader loader = CreateLoader(absolutePath);
-            if(loader==null)
+            if (loader == null)
             {
-                yield  break;
+                yield break;
             }
             loader.buildOptions = buildOptions;
             Debug.Log("Loading: " + absolutePath);
@@ -306,15 +321,23 @@ namespace AsImpL
                 Debug.LogError("No extension defined, unable to detect file format");
                 return null;
             }
+            Loader loader = null;
             ext = ext.ToLower();
-            if (ext == ".obj")
+            switch (ext)
             {
-                return gameObject.AddComponent<LoaderObj>();
+                case ".obj":
+                    loader = gameObject.AddComponent<LoaderObj>();
+                    break;
+                // TODO: add mode formats here...
+                default:
+                    Debug.LogErrorFormat("File format not supported ({0})", ext);
+                    return null;
             }
-            // TODO: add mode formats here...
+            loader.ModelCreated += OnModelCreated;
+            loader.ModelLoaded += OnImported;
+            loader.ModelError += OnImportError;
 
-            Debug.LogErrorFormat("File format not supported ({0})", ext);
-            return null;
+            return loader;
         }
 
         /// <summary>
@@ -386,13 +409,46 @@ namespace AsImpL
         }
 
         /// <summary>
-        /// Called when an import is complete. It triggers ImportingComplete event, if it was set.
+        /// Called when finished importing. It triggers ImportingComplete event, if it was set.
         /// </summary>
         protected virtual void OnImportingComplete()
         {
             if (ImportingComplete != null)
             {
                 ImportingComplete();
+            }
+        }
+
+        /// <summary>
+        /// Called when each model has been created and before it is imported. It triggers CreatedModel event, if it was set.
+        /// </summary>
+        protected virtual void OnModelCreated(GameObject obj, string absolutePath)
+        {
+            if (CreatedModel != null)
+            {
+                CreatedModel(obj, absolutePath);
+            }
+        }
+
+        /// <summary>
+        /// Called when each model has been imported. It triggers ImportedModel event, if it was set.
+        /// </summary>
+        protected virtual void OnImported(GameObject obj, string absolutePath)
+        {
+            if (ImportedModel != null)
+            {
+                ImportedModel(obj, absolutePath);
+            }
+        }
+
+        /// <summary>
+        /// Called when a model import fails. It triggers ImportError event, if it was set.
+        /// </summary>
+        protected virtual void OnImportError(string absolutePath)
+        {
+            if (ImportError != null)
+            {
+                ImportError(absolutePath);
             }
         }
     }

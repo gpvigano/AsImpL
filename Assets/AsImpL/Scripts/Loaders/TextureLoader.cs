@@ -18,7 +18,6 @@ namespace AsImpL
     /// </remarks>
     public class TextureLoader : MonoBehaviour
     {
-
         /// <summary>
         /// Load an image from a file into a Texture2D.
         /// </summary>

@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -105,6 +106,21 @@ namespace AsImpL
 #endif
 
         /// <summary>
+        /// Event triggered when an object is created.
+        /// </summary>
+        public event Action<GameObject, string> ModelCreated;
+
+        /// <summary>
+        /// Event triggered when an object is successfully loaded.
+        /// </summary>
+        public event Action<GameObject, string> ModelLoaded;
+
+        /// <summary>
+        /// Event triggered if failed to load an object
+        /// </summary>
+        public event Action<string> ModelError;
+
+        /// <summary>
         /// Get a previusly loaded model by its absolute path
         /// </summary>
         /// <param name="absolutePath">absolute path used to load the model</param>
@@ -128,8 +144,8 @@ namespace AsImpL
         /// <returns>You can use StartCoroutine( loader.Load(...) )</returns>
         public IEnumerator Load(string objName, string absolutePath, Transform parentObj)
         {
-            string fileName = Path.GetFileName(absolutePath);//absolutePath.Substring(absolutePath.LastIndexOf("/") + 1);
-            string fileNameNoExt = Path.GetFileNameWithoutExtension(absolutePath);// fileName.IndexOf(".") == -1) ? fileName : fileName.Substring(0, fileName.LastIndexOf("."));
+            string fileName = Path.GetFileName(absolutePath);
+            string fileNameNoExt = Path.GetFileNameWithoutExtension(absolutePath);
             string name = objName;
             if (name == null || name == "") objName = fileNameNoExt;
 
@@ -141,7 +157,7 @@ namespace AsImpL
 
             yield return null;
             // if the model was already loaded duplicate the existing object
-            if (buildOptions!=null &&  buildOptions.reuseLoaded && loadedModels.ContainsKey(absolutePath) && loadedModels[absolutePath] != null)
+            if (buildOptions != null && buildOptions.reuseLoaded && loadedModels.ContainsKey(absolutePath) && loadedModels[absolutePath] != null)
             {
                 Debug.LogFormat("File {0} already loaded, creating instance.", absolutePath);
                 instanceCount[absolutePath]++;
@@ -156,16 +172,12 @@ namespace AsImpL
 
                 GameObject newObj = Instantiate(loadedModels[absolutePath]);
                 yield return newObj;
+                OnCreated(newObj, absolutePath);
                 newObj.name = objName;
-                if (buildOptions != null)
-                {
-                    newObj.transform.localPosition = buildOptions.localPosition;
-                    newObj.transform.localRotation = Quaternion.Euler(buildOptions.localEulerAngles); ;
-                    newObj.transform.localScale = buildOptions.localScale;
-                }
 
                 if (parentObj != null) newObj.transform.parent = parentObj.transform;
                 totalProgress.fileProgress.Remove(objLoadingProgress);
+                OnLoaded(newObj, absolutePath);
                 yield break;
             }
             loadedModels[absolutePath] = null; // define a key for the dictionary
@@ -178,6 +190,7 @@ namespace AsImpL
 
             if (objLoadingProgress.error)
             {
+                OnLoadFailed(absolutePath);
                 yield break;
             }
 
@@ -192,15 +205,16 @@ namespace AsImpL
             loadStats.buildTime = Time.realtimeSinceStartup - lastTime;
             loadStats.totalTime = Time.realtimeSinceStartup - startTime;
             Debug.Log("Done: " + objName
-                +"\n  Loaded in " + loadStats.totalTime + " seconds"
-                +"\n  Model data parsed in " + loadStats.modelParseTime + " seconds"
-                +"\n  Material data parsed in " + loadStats.materialsParseTime + " seconds"
-                +"\n  Game objects built in " + loadStats.buildTime + " seconds"
+                + "\n  Loaded in " + loadStats.totalTime + " seconds"
+                + "\n  Model data parsed in " + loadStats.modelParseTime + " seconds"
+                + "\n  Material data parsed in " + loadStats.materialsParseTime + " seconds"
+                + "\n  Game objects built in " + loadStats.buildTime + " seconds"
                 + "\n    textures: " + loadStats.buildStats.texturesTime + " seconds"
                 + "\n    materials: " + loadStats.buildStats.materialsTime + " seconds"
                 + "\n    objects: " + loadStats.buildStats.objectsTime + " seconds"
                 );
             totalProgress.fileProgress.Remove(objLoadingProgress);
+            OnLoaded(loadedModels[absolutePath], absolutePath);
         }
 
         /// <summary>
@@ -374,6 +388,7 @@ namespace AsImpL
 
             GameObject newObj = new GameObject(objName);
             if (parentTransform != null) newObj.transform.SetParent(parentTransform.transform, false);
+            OnCreated(newObj, absolutePath);
             ////newObj.transform.localScale = Vector3.one * Scaling;
             float initProgress = objLoadingProgress.percentage;
             objectBuilder.StartBuildObjectAsync(dataSet, newObj);
@@ -410,6 +425,56 @@ namespace AsImpL
                 }
             }
             return basePath;
+        }
+
+        protected virtual void OnLoaded(GameObject obj, string absolutePath)
+        {
+            if (obj == null)
+            {
+                if (ModelError != null)
+                {
+                    ModelError(absolutePath);
+                }
+            }
+            else
+            {
+                if (buildOptions != null)
+                {
+                    obj.transform.localPosition = buildOptions.localPosition;
+                    obj.transform.localRotation = Quaternion.Euler(buildOptions.localEulerAngles); ;
+                    obj.transform.localScale = buildOptions.localScale;
+                }
+                if (ModelLoaded != null)
+                {
+                    ModelLoaded(obj, absolutePath);
+                }
+            }
+        }
+
+        protected virtual void OnCreated(GameObject obj, string absolutePath)
+        {
+            if (obj == null)
+            {
+                if (ModelError != null)
+                {
+                    ModelError(absolutePath);
+                }
+            }
+            else
+            {
+                if (ModelCreated != null)
+                {
+                    ModelCreated(obj, absolutePath);
+                }
+            }
+        }
+
+        protected virtual void OnLoadFailed(string absolutePath)
+        {
+            if (ModelError != null)
+            {
+                ModelError(absolutePath);
+            }
         }
 
 #if UNITY_EDITOR
