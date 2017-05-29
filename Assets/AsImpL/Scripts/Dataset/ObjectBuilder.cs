@@ -146,26 +146,44 @@ namespace AsImpL
                 Debug.LogWarning("Unable to compute tangent space vectors - triangles not defined.");
                 return;
             }
-            int vertexCount = origMesh.vertexCount;
             Vector3[] vertices = origMesh.vertices;
             Vector3[] normals = origMesh.normals;
             Vector2[] texcoords = origMesh.uv;
             int[] triangles = origMesh.triangles;
             int triVertCount = origMesh.triangles.Length;
-            if (vertices.Length < triVertCount || normals.Length < vertexCount || texcoords.Length < triVertCount || vertexCount < triVertCount)
+            int maxVertIdx = -1;
+            for (int i = 0; i < triangles.Length; i++)
             {
-                Debug.LogWarning("Unable to compute tangent space vectors - not enough data.");
+                if (maxVertIdx<triangles[i])
+                {
+                    maxVertIdx = triangles[i];
+                }
+            }
+            if (vertices.Length <= maxVertIdx)
+            {
+                Debug.LogWarning("Unable to compute tangent space vectors - not enough vertices: "+vertices.Length.ToString());
                 return;
             }
-            int triangleCount = triangles.Length / 3;
+            if (normals.Length <= maxVertIdx)
+            {
+                Debug.LogWarning("Unable to compute tangent space vectors - not enough normals.");
+                return;
+            }
+            if (texcoords.Length <= maxVertIdx)
+            {
+                Debug.LogWarning("Unable to compute tangent space vectors - not enough UVs.");
+                return;
+            }
 
+            int vertexCount = origMesh.vertexCount;
             Vector4[] tangents = new Vector4[vertexCount];
             Vector3[] tan1 = new Vector3[vertexCount];
             Vector3[] tan2 = new Vector3[vertexCount];
 
+            int triangleCount = triangles.Length / 3;
             int tri = 0;
 
-            for (int i = 0; i < (triangleCount); i++)
+            for (int i = 0; i < triangleCount; i++)
             {
                 int i1 = triangles[tri];
                 int i2 = triangles[tri + 1];
@@ -206,7 +224,7 @@ namespace AsImpL
                 tri += 3;
             }
 
-            for (int i = 0; i < (vertexCount); i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 Vector3 n = normals[i];
                 Vector3 t = tan1[i];

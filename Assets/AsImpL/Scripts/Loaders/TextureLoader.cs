@@ -27,7 +27,7 @@ namespace AsImpL
         {
             string fullPath = www.url;
             const string prefix = "file:///";
-            if(fullPath.StartsWith(prefix))
+            if (fullPath.StartsWith(prefix))
             {
                 fullPath = fullPath.Substring(prefix.Length);
             }
