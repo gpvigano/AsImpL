@@ -23,13 +23,13 @@ namespace AsImpL
         private GameObject objObject;
         private ObjectImporter objImporter;
 
-        [MenuItem("AsImpL/Import OBJ model", false)]
+        [MenuItem("Assets/Import OBJ model... [AsImpL]", false,20)]
         private static void ShowWindow()
         {
             GetWindow<ObjImportWindow>(false, "OBJ import", true);
         }
 
-        [MenuItem("AsImpL/Capture screenshot", false)]
+        [MenuItem("Window/Capture screenshot [AsImpL]", false)]
         private static void Screenshot()
         {
             EditorUtil.AutoCaptureScreenshot("AsImpL");
