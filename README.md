@@ -1,6 +1,6 @@
 # AsImpL (OBJ)
 ### Asynchronous Importer and run-time Loader for Unity
-**Requires Unity 5.5.0 or higher.**
+**Requires Unity 5.5.3 or higher.**
 
 Load 3D models (currently **only OBJ**) into Unity scene,
 both at run-time and in Editor mode, importing them into unity project
@@ -69,8 +69,9 @@ This project was started because of these requirements (partly addressed by some
   * option to convert vertical axis (from Z to Y)
   * object scaling
   * option to consider diffuse texture as diffuse + precomputed lightmap
+  * option to get a full double-sided geometry (faces cloned&flipped)
   * file browser both for the model path and a default folder path
-  * option to  store the loaded files as assets in the project
+  * option to store the loaded files as assets in the project
   * settings can be saved and restored
   * progress bar with messages displayed while importing OBJ files
   * cancel button to abort importing process

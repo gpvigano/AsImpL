@@ -14,6 +14,7 @@ namespace AsImpL
         private string lastPath = string.Empty;
         private float scale = 1f;
         private bool convertUpAxis = false;
+        private bool convertToDoubleSided = false;
         private bool litDiffuseMap = false;
         private bool importAssets = false;
         private string importAssetPath = "ImportedOBJ";
@@ -44,6 +45,7 @@ namespace AsImpL
             EditorPrefs.SetString("AsImpL_LastPath", lastPath);
             EditorPrefs.SetFloat("AsImpL_AssetScale", scale);
             EditorPrefs.SetBool("AsImpL_AssetVertAxis", convertUpAxis);
+            EditorPrefs.SetBool("AsImpL_AssetDoubleSided", convertToDoubleSided);
             EditorPrefs.SetBool("AsImpL_DiffuseHasLightMap", litDiffuseMap);
             EditorPrefs.SetBool("AsImpL_ImportAssets", importAssets);
             EditorPrefs.SetString("AsImpL_AssetPath", importAssetPath);
@@ -66,6 +68,10 @@ namespace AsImpL
             if (EditorPrefs.HasKey("AsImpL_AssetVertAxis"))
             {
                 convertUpAxis = EditorPrefs.GetBool("AsImpL_AssetVertAxis");
+            }
+            if (EditorPrefs.HasKey("AsImpL_AssetDoubleSided"))
+            {
+                convertToDoubleSided = EditorPrefs.GetBool("AsImpL_AssetDoubleSided");
             }
             if (EditorPrefs.HasKey("AsImpL_DiffuseHasLightMap"))
             {
@@ -123,6 +129,7 @@ namespace AsImpL
 
             scale = EditorGUILayout.FloatField("Scale:", scale);
             convertUpAxis = EditorGUILayout.Toggle("Convert vertical axis", convertUpAxis);
+            convertToDoubleSided = EditorGUILayout.Toggle("Convert to double-sided (duplicate&flip polygons)", convertToDoubleSided);
             litDiffuseMap = EditorGUILayout.Toggle("Lit diffuse map", litDiffuseMap);
             importAssets = EditorGUILayout.Toggle("Import assets", importAssets);
             if (importAssets)
@@ -162,6 +169,7 @@ namespace AsImpL
                     ImportOptions opt = new ImportOptions();
                     opt.zUp = convertUpAxis;
                     opt.litDiffuse = litDiffuseMap;
+                    opt.convertToDoubleSided = convertToDoubleSided;
                     opt.modelScaling = scale;
                     objImporter.ImportFile(absolute_path, parentObject ? parentObject.transform : null, opt);
                     //ObjLoader loader = new ObjLoader();

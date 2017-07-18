@@ -47,7 +47,7 @@ namespace AsImpL
         /// Initialize the importing of materials
         /// </summary>
         /// <param name="materialData"></param>
-        public void InitBuilMaterials(List<MaterialData> materialData)
+        public void InitBuildMaterials(List<MaterialData> materialData)
         {
             this.materialData = materialData;
             currMaterials = new Dictionary<string, Material>();
@@ -154,14 +154,14 @@ namespace AsImpL
             int maxVertIdx = -1;
             for (int i = 0; i < triangles.Length; i++)
             {
-                if (maxVertIdx<triangles[i])
+                if (maxVertIdx < triangles[i])
                 {
                     maxVertIdx = triangles[i];
                 }
             }
             if (vertices.Length <= maxVertIdx)
             {
-                Debug.LogWarning("Unable to compute tangent space vectors - not enough vertices: "+vertices.Length.ToString());
+                Debug.LogWarning("Unable to compute tangent space vectors - not enough vertices: " + vertices.Length.ToString());
                 return;
             }
             if (normals.Length <= maxVertIdx)
@@ -294,11 +294,15 @@ namespace AsImpL
             grp.name = objData.faceGroups[buildStatus.grpIdx].name;
             grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
 
+            bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
+
+            int maxIdx4mesh = conv2sided ? MAX_INDICES_LIMIT_FOR_A_MESH / 2 : MAX_INDICES_LIMIT_FOR_A_MESH;
+
             // copy blocks of face indices to each sub-object data
             for (int f = buildStatus.grpFaceIdx; f < objData.faceGroups[buildStatus.grpIdx].faces.Count; f++)
             {
                 // if passed the max num of vertices and not at the last iteration
-                if (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > MAX_INDICES_LIMIT_FOR_A_MESH / 3)
+                if (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3)
                 {
                     // split the group across more objects
                     splitGrp = true;
@@ -367,6 +371,7 @@ namespace AsImpL
 
         private GameObject ImportSubObject(GameObject parentObj, DataSet.ObjectData objData, Dictionary<string, Material> mats)
         {
+            bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
             GameObject go = new GameObject();
             go.name = objData.name;
             int count = 0;
@@ -395,16 +400,36 @@ namespace AsImpL
                 }
             }
 
-            Vector3[] newVertices = new Vector3[vcount];
-            Vector2[] newUVs = new Vector2[vcount];
-            Vector3[] newNormals = new Vector3[vcount];
+            int arraySize = conv2sided ? vcount * 2 : vcount;
+
+            Vector3[] newVertices = new Vector3[arraySize];
+            Vector2[] newUVs = new Vector2[arraySize];
+            Vector3[] newNormals = new Vector3[arraySize];
 
             foreach (DataSet.FaceIndices fi in objData.allFaces)
             {
                 int k = vIdxCont[fi];
                 newVertices[k] = currDataSet.vertList[fi.vertIdx];
-                if (currDataSet.uvList.Count > 0) newUVs[k] = currDataSet.uvList[fi.uvIdx];
-                if (currDataSet.normalList.Count > 0 && fi.normIdx >= 0) newNormals[k] = currDataSet.normalList[fi.normIdx];
+                if (conv2sided)
+                {
+                    newVertices[vcount + k] = newVertices[k];
+                }
+                if (currDataSet.uvList.Count > 0)
+                {
+                    newUVs[k] = currDataSet.uvList[fi.uvIdx];
+                    if (conv2sided)
+                    {
+                        newUVs[vcount + k] = newUVs[k];
+                    }
+                }
+                if (currDataSet.normalList.Count > 0 && fi.normIdx >= 0)
+                {
+                    newNormals[k] = currDataSet.normalList[fi.normIdx];
+                    if (conv2sided)
+                    {
+                        newNormals[vcount + k] = -newNormals[k];
+                    }
+                }
             }
 
             MeshFilter meshFilter = go.AddComponent<MeshFilter>();
@@ -437,9 +462,19 @@ namespace AsImpL
                 Debug.LogWarning("ImportSubObject mat:" + matName + " not found.");
             }
 
-            int[] indices = new int[n];
+            int[] indices = new int[conv2sided ? n * 2 : n];
 
-            for (int s = 0; s < n; s++) indices[s] = vIdxCont[objData.faceGroups[0].faces[s]];
+            for (int s = 0; s < n; s++)
+            {
+                indices[s] = vIdxCont[objData.faceGroups[0].faces[s]];
+            }
+            if (conv2sided)
+            {
+                for (int s = 0; s < n; s++)
+                {
+                    indices[s + n] = vcount+indices[s/3*3+2-s%3];
+                }
+            }
 
             mesh.SetTriangles(indices, 0);
 

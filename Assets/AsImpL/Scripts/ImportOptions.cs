@@ -14,6 +14,9 @@ namespace AsImpL
         [Tooltip("Consider diffuse map as already lit (disable lighting) if no other texture is present")]
         public bool litDiffuse = false;
 
+        [Tooltip("Consider to double-sided (duplicate and flip faces and normals")]
+        public bool convertToDoubleSided = false;
+
         [Tooltip("Rescaling for the model (1 = no rescaling)")]
         public float modelScaling = 1f;
 

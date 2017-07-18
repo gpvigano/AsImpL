@@ -374,7 +374,7 @@ namespace AsImpL
             objectBuilder.alternativeTexPath = altTexPath;
 #endif
             objectBuilder.buildOptions = buildOptions;
-            objectBuilder.InitBuilMaterials(materialData);
+            objectBuilder.InitBuildMaterials(materialData);
             float objInitPerc = objLoadingProgress.percentage;
             while (objectBuilder.BuildMaterials(info))
             {
