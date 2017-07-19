@@ -82,6 +82,7 @@ namespace AsImpL
 
             private void Start()
             {
+#if UNITY_STANDALONE
                 string[] args = Environment.GetCommandLineArgs();
 
                 if (args != null && args.Length > 1)
@@ -118,6 +119,10 @@ namespace AsImpL
                 {
                     Reload();
                 }
+#else
+                Debug.Log("Command line arguments not available, using default settings.");
+                Reload();
+#endif
             }
 
             public void SetScaling(float scl)
@@ -153,7 +158,7 @@ namespace AsImpL
                 XmlWriter w = XmlWriter.Create(stream, settings);
 
                 serializer.Serialize(w, objectList);
-                stream.Close();
+                stream.Dispose();
             }
 
             public void Reload()
@@ -168,7 +173,7 @@ namespace AsImpL
                     XmlSerializer serializer = new XmlSerializer(typeof(List<ModelImportInfo>));
                     FileStream stream = new FileStream(configFile, FileMode.Open);
                     objectList = (List<ModelImportInfo>)serializer.Deserialize(stream);
-                    stream.Close();
+                    stream.Dispose();
                     UpdateScene();
                     ImportModelListAsync(modelsToImport.ToArray());
                 }
