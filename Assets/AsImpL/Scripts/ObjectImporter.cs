@@ -201,10 +201,17 @@ namespace AsImpL
                 importMessage = "Creating folders...";
                 FileInfo fileInfo = new FileInfo(absolutePath);
                 string fileName = fileInfo.Name;
-                EditorUtil.CreateAssetFolder("Assets", importAssetPath);
-                EditorUtil.CreateAssetFolder("Assets/" + importAssetPath, fileName);
+                if (!string.IsNullOrEmpty(importAssetPath))
+                {
+                    EditorUtil.CreateAssetFolder("Assets", importAssetPath);
+                    EditorUtil.CreateAssetFolder("Assets/" + importAssetPath, fileName);
+                }
+                else
+                {
+                    EditorUtil.CreateAssetFolder("Assets", fileName);
+                }
 
-                string prefabRelPath = importAssetPath + "/" + fileName;
+                string prefabRelPath = (!string.IsNullOrEmpty(importAssetPath)) ? importAssetPath + "/" + fileName : fileName;
                 string prefabPath = "Assets/" + prefabRelPath;
                 string prefabName = prefabPath + "/" + fileName.Replace('.', '_') + ".prefab";
 
