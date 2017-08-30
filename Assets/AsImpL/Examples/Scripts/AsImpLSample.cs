@@ -10,6 +10,7 @@ namespace AsImpL
         public class AsImpLSample : MonoBehaviour
         {
             public string filePath = "models/OBJ_test/objtest_zup.obj";
+            public ImportOptions importOptions = new ImportOptions();
             private ObjectImporter objImporter;
 
             private void Awake()
@@ -22,11 +23,7 @@ namespace AsImpL
 
             private void Start()
             {
-                ImportOptions options = new ImportOptions();
-                options = new ImportOptions();
-                options.modelScaling = 1f;
-                options.zUp = true;
-                objImporter.ImportModelAsync("MyObject", filePath, null, options);
+                objImporter.ImportModelAsync("MyObject", filePath, null, importOptions);
             }
         }
     }
