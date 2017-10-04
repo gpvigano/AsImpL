@@ -303,7 +303,7 @@ namespace AsImpL
                     case "usemtl":
                         if (!string.IsNullOrEmpty(parameters))
                         {
-                            dataSet.AddMaterialName(parameters);
+                            dataSet.AddMaterialName(DataSet.FixMaterialName(parameters));
                         }
                         break;
                 }
@@ -394,7 +394,7 @@ namespace AsImpL
                     {
                         case "newmtl":
                             current = new MaterialData();
-                            current.materialName = parameters;
+                            current.materialName = DataSet.FixMaterialName(parameters);
                             mtlData.Add(current);
                             break;
                         case "Ka": // Ambient component (not supported)

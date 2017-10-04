@@ -52,6 +52,24 @@ namespace AsImpL
         }
 
         /// <summary>
+        /// Change the material name to be compliant with Unity material asset naming.
+        /// </summary>
+        /// <param name="mtlName">original material name</param>
+        /// <returns>Returns the name modified to be compliant with Unity material asset naming.</returns>
+        public static string FixMaterialName(string mtlName)
+        {
+            return mtlName
+                .Replace(':', '_')
+                .Replace('\\', '_')
+                .Replace('/', '_')
+                .Replace('*', '_')
+                .Replace('?', '_')
+                .Replace('<', '_')
+                .Replace('>', '_')
+                .Replace('|', '_');
+        }
+
+        /// <summary>
         /// Constructor: create data lists and initialzize the default object.
         /// </summary>
         public DataSet()
