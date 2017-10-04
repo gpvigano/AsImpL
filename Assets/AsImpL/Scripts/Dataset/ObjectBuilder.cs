@@ -388,14 +388,16 @@ namespace AsImpL
             //Debug.Log( "Importing sub object:" + objData.Name );
 
             // count vertices needed for all the faces and map face indices to new vertices
-            Dictionary<DataSet.FaceIndices, int> vIdxCont = new Dictionary<DataSet.FaceIndices, int>();
+            Dictionary<string, int> vIdxCount = new Dictionary<string, int>();
             int vcount = 0;
             foreach (DataSet.FaceIndices fi in objData.allFaces)
             {
+                string key = DataSet.GetFaceIndicesKey(fi);
+                int idx;
                 // avoid duplicates
-                if (!vIdxCont.ContainsKey(fi))
+                if (!vIdxCount.TryGetValue(key, out idx))
                 {
-                    vIdxCont[fi] = vcount;
+                    vIdxCount.Add(key, vcount);
                     vcount++;
                 }
             }
@@ -408,7 +410,8 @@ namespace AsImpL
 
             foreach (DataSet.FaceIndices fi in objData.allFaces)
             {
-                int k = vIdxCont[fi];
+                string key = DataSet.GetFaceIndicesKey(fi);
+                int k = vIdxCount[key];
                 newVertices[k] = currDataSet.vertList[fi.vertIdx];
                 if (conv2sided)
                 {
@@ -466,7 +469,9 @@ namespace AsImpL
 
             for (int s = 0; s < n; s++)
             {
-                indices[s] = vIdxCont[objData.faceGroups[0].faces[s]];
+                DataSet.FaceIndices fi = objData.faceGroups[0].faces[s];
+                string key = DataSet.GetFaceIndicesKey(fi);
+                indices[s] = vIdxCount[key];
             }
             if (conv2sided)
             {

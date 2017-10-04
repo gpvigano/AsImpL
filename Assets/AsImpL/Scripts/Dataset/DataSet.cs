@@ -42,6 +42,16 @@ namespace AsImpL
         public bool IsEmpty { get { return vertList.Count == 0; } }
 
         /// <summary>
+        /// Get a string key based on the given face indices
+        /// </summary>
+        /// <param name="fi">face indices structure</param>
+        /// <returns></returns>
+        public static string GetFaceIndicesKey(FaceIndices fi)
+        {
+            return fi.vertIdx.ToString() + "/" + fi.uvIdx.ToString() + "/" + fi.normIdx.ToString();
+        }
+
+        /// <summary>
         /// Constructor: create data lists and initialzize the default object.
         /// </summary>
         public DataSet()
