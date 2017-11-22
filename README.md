@@ -1,6 +1,6 @@
 # AsImpL (OBJ)
 ### Asynchronous Importer and run-time Loader for Unity
-**Requires Unity 5.5.3 or higher.**
+**Requires Unity 5.5.4 or higher.**
 
 Load 3D models (currently **only OBJ**) into Unity scene,
 both at run-time and in Editor mode, importing them into unity project
@@ -26,7 +26,7 @@ Some improvements are made in OBJ import compared with the current version of Un
     (skybox or reflection probes, if available)
 * opacity map
   * diffuse and opacity maps are blended together in the albedo texture
-* flag to use an Unlit shader for materials withe the lighting rendered to the diffuse texture
+* flag to use an Unlit shader for materials with the lighting rendered to the diffuse texture
 * vertical axis conversion
 
  ![image](https://raw.githubusercontent.com/gpvigano/AsImpL/master/images/unity_vs_AsImpL_Zup.png)

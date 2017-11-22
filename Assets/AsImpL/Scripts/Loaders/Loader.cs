@@ -156,6 +156,9 @@ namespace AsImpL
             Debug.LogFormat("Loading {0}\n  from: {1}...", objName, absolutePath);
 
             yield return null;
+
+            // TODO: implementation of a caching mechanism for models downloaded from an URL
+
             // if the model was already loaded duplicate the existing object
             if (buildOptions != null && buildOptions.reuseLoaded && loadedModels.ContainsKey(absolutePath) && loadedModels[absolutePath] != null)
             {
@@ -168,7 +171,6 @@ namespace AsImpL
                     yield return null;
                 }
 
-                // TODO: option to reload the object
 
                 GameObject newObj = Instantiate(loadedModels[absolutePath]);
                 yield return newObj;

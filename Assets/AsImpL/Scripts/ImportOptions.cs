@@ -20,7 +20,7 @@ namespace AsImpL
         [Tooltip("Rescaling for the model (1 = no rescaling)")]
         public float modelScaling = 1f;
 
-        [Header("Loacal Transform for the imported game object")]
+        [Header("Local Transform for the imported game object")]
         [Tooltip("Position of the object")]
         public Vector3 localPosition = Vector3.zero;
 
