@@ -10,9 +10,11 @@ Make sure you have a GitHub account
 Before creating a new issue please look for similar issues already exists:
   * in case you found it
     * read it carefully
-    * add your comments to the existing issue.
+    * add your comments to the existing issue
+	* add comment to an issue only if related to it (otherwise choose a different issue or create a new one).
   * otherwise create a new issue on the GitHub repository
      * Clearly describe the issue
+	 * do not write long text in issue title, choose a short title for the topic, then add your text to the issue body
      * if it's a bug include also steps to reproduce it
      * Make sure you fill in the earliest version that you know has
    the issue

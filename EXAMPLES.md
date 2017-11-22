@@ -25,10 +25,9 @@ If you build this example for Windows you can drag and drop OBJ files onto the e
 
 ## 003_Import_URLTest
 
-This is the same basic example as `001_Import_SimpleTest`, but with an URL already set to an URL.
 This example, like `002_Import_CustomImporter`, demonstrates how a customized loader can be created from the `ObjectImporter` and linked to a UI through a `ObjectImporterUI` script attached to the same game object. The difference here is that models are downloaded from URLs.
 
-Two models are downloaded frome the same URL when you run the example, to demonstrate how the reuseLoaded flag works.
+Two models are downloaded from the same URL when you run the example, to demonstrate how the reuseLoaded flag works.
 
 The camera can be moved using almost the same control as in Unity Scene Editor. This works only in Unity Editor or in standalone version, not for mobile devices (for mobile devices you can use the assets provided by Unity Standard Assets).
 

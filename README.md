@@ -69,8 +69,9 @@ This project was started because of these requirements (partly addressed by some
   * option to convert vertical axis (from Z to Y)
   * object scaling
   * option to consider diffuse texture as diffuse + precomputed lightmap
-  * option to get a full double-sided geometry (faces cloned&flipped)
+  * option to get a full double-sided geometry (faces cloned & flipped before being imported)
   * file browser both for the model path and a default folder path
+  (**note: a file browser is available only in Editor**)
   * option to store the loaded files as assets in the project
   * settings can be saved and restored
   * progress bar with messages displayed while importing OBJ files
@@ -87,6 +88,14 @@ and import settings, then you can press *Import* to start importing the
 selected model. A progress bar shows the import progress and phase until
 the model has been loaded (or until you press *Cancel* to abort the
 process). A utility menu item `Capture screenshot` was added to take
+a screenshot, the file is named automatically and saved into the main
+project folder, then the folder is opened in your file manager.
+
+A sub-menu *Import OBJ model [AsImpL]* is added to the Unity Editor Asset menu.
+It opens a window where you can set paths and import settings, then you can press *Import* to start importing the
+selected model. A progress bar shows the import progress and phase until
+the model has been loaded (or until you press *Cancel* to abort the
+process). To the Window menu a sub-menu item `Capture screenshot [AsImpL]` is added to take
 a screenshot, the file is named automatically and saved into the main
 project folder, then the folder is opened in your file manager.
 
@@ -124,7 +133,7 @@ Thanks in advance to all the people who will contribute in any way to this proje
 
 Contributions from you are welcome!
 
-If you find bugs or you have any new idea for improvements and new features you can raise an issue on GitHub. To open issues or make pull requests please follow the instructions in [CONTRIBUTING.md](https://github.com/gpvigano/AsImpL/blob/master/CONTRIBUTING.md).
+If you find bugs or you have any new idea for improvements and new features you can raise an issue on GitHub (please follow the suggested template, filling the proper sections). To open issues or make pull requests please follow the instructions in [CONTRIBUTING.md](https://github.com/gpvigano/AsImpL/blob/master/CONTRIBUTING.md).
 
 ### License
 
