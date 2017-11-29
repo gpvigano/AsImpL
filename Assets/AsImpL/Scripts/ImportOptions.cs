@@ -32,5 +32,16 @@ namespace AsImpL
 
         [Tooltip("Reuse a model in memory if already loaded")]
         public bool reuseLoaded = false;
+
+        [Tooltip("Generate mesh colliders")]
+        public bool buildColliders = false;
+        [Tooltip("Generate convex mesh colliders (only active if buildColliders = true)\nNote: it could not work for meshes with too many smooth surface regions.")]
+        public bool colliderConvex = false;
+        [Tooltip("Mesh colliders as trigger (only active if colliderConvex = true)")]
+        public bool colliderTrigger = false;
+        [Tooltip("Mesh colliders inflated (only active if colliderConvex = true)")]
+        public bool colliderInflate = false;
+        [Tooltip("Mesh colliders inflation amount (only active if colliderInflate = true)")]
+        public float colliderSkinWidth = 0.01f;
     }
 }

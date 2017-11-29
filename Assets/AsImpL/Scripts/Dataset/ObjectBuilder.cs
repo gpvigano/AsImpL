@@ -244,6 +244,34 @@ namespace AsImpL
         }
 
         /// <summary>
+        /// Build mesh colliders for objects with a mesh filter.
+        /// </summary>
+        /// <param name="targetObject">Game object to process (if it hasn't a mesh filter nothing happens)</param>
+        /// <param name="convex">Build a convex mesh collider.</param>
+        /// <param name="isTrigger">Set collider as "trigger"</param>
+        /// <param name="inflateMesh">Inflate the convex mesh</param>
+        /// <param name="skinWidth">Amout to be inflated</param>
+        public static void BuildMeshCollider(GameObject targetObject, bool convex = false, bool isTrigger = false, bool inflateMesh = false, float skinWidth = 0.01f)
+        {
+            MeshFilter meshFilter = targetObject.GetComponent<MeshFilter>();
+            if (meshFilter != null && meshFilter.sharedMesh != null)
+            {
+                Mesh objectMesh = meshFilter.sharedMesh;
+                MeshCollider meshCollider = targetObject.AddComponent<MeshCollider>();
+
+                // Note: the order of these assignments is important
+                meshCollider.sharedMesh = objectMesh;
+                if (convex)
+                {
+                    meshCollider.skinWidth = skinWidth;
+                    meshCollider.inflateMesh = inflateMesh;
+                    meshCollider.convex = convex;
+                    meshCollider.isTrigger = isTrigger;
+                }
+            }
+        }
+
+        /// <summary>
         /// Build an object once at a time, to be reiterated until false is returned.
         /// </summary>
         /// <param name="parentObj">Game object to which the new objects will be attached</param>
@@ -477,7 +505,7 @@ namespace AsImpL
             {
                 for (int s = 0; s < n; s++)
                 {
-                    indices[s + n] = vcount+indices[s/3*3+2-s%3];
+                    indices[s + n] = vcount + indices[s / 3 * 3 + 2 - s % 3];
                 }
             }
 
@@ -489,6 +517,10 @@ namespace AsImpL
                 mesh.RecalculateNormals();
             }
             Solve(mesh);
+            if (buildOptions != null && buildOptions.buildColliders)
+            {
+                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger, buildOptions.colliderInflate, buildOptions.colliderSkinWidth);
+            }
             return go;
         }
 

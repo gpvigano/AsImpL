@@ -16,6 +16,11 @@ namespace AsImpL
         private bool convertUpAxis = false;
         private bool convertToDoubleSided = false;
         private bool litDiffuseMap = false;
+        private bool buildColliders = false;
+        private bool colliderConvex = false;
+        private bool colliderTrigger = false;
+        private bool colliderInflate = false;
+        public float colliderSkinWidth = 0.01f;
         private bool importAssets = false;
         private string importAssetPath = "ImportedOBJ";
 
@@ -23,7 +28,7 @@ namespace AsImpL
         private GameObject objObject;
         private ObjectImporter objImporter;
 
-        [MenuItem("Assets/Import OBJ model... [AsImpL]", false,20)]
+        [MenuItem("Assets/Import OBJ model... [AsImpL]", false, 20)]
         private static void ShowWindow()
         {
             GetWindow<ObjImportWindow>(false, "OBJ import", true);
@@ -47,6 +52,11 @@ namespace AsImpL
             EditorPrefs.SetBool("AsImpL_AssetVertAxis", convertUpAxis);
             EditorPrefs.SetBool("AsImpL_AssetDoubleSided", convertToDoubleSided);
             EditorPrefs.SetBool("AsImpL_DiffuseHasLightMap", litDiffuseMap);
+            EditorPrefs.SetBool("AsImpL_BuildColliders", buildColliders);
+            EditorPrefs.SetBool("AsImpL_ColliderConvex", colliderConvex);
+            EditorPrefs.SetBool("AsImpL_ColliderTrigger", colliderTrigger);
+            EditorPrefs.SetBool("AsImpL_ColliderInflate", colliderInflate);
+            EditorPrefs.SetFloat("AsImpL_ColliderSkinWidth", colliderSkinWidth);
             EditorPrefs.SetBool("AsImpL_ImportAssets", importAssets);
             EditorPrefs.SetString("AsImpL_AssetPath", importAssetPath);
         }
@@ -76,6 +86,26 @@ namespace AsImpL
             if (EditorPrefs.HasKey("AsImpL_DiffuseHasLightMap"))
             {
                 litDiffuseMap = EditorPrefs.GetBool("AsImpL_DiffuseHasLightMap");
+            }
+            if (EditorPrefs.HasKey("AsImpL_BuildColliders"))
+            {
+                buildColliders = EditorPrefs.GetBool("AsImpL_BuildColliders");
+            }
+            if (EditorPrefs.HasKey("AsImpL_ColliderConvex"))
+            {
+                colliderConvex = EditorPrefs.GetBool("AsImpL_ColliderConvex");
+            }
+            if (EditorPrefs.HasKey("AsImpL_ColliderTrigger"))
+            {
+                colliderTrigger = EditorPrefs.GetBool("AsImpL_ColliderTrigger");
+            }
+            if (EditorPrefs.HasKey("AsImpL_ColliderInflate"))
+            {
+                colliderInflate = EditorPrefs.GetBool("AsImpL_ColliderInflate");
+            }
+            if (EditorPrefs.HasKey("AsImpL_ColliderSkinWidth"))
+            {
+                colliderSkinWidth = EditorPrefs.GetFloat("AsImpL_ColliderSkinWidth");
             }
             if (EditorPrefs.HasKey("AsImpL_ImportAssets"))
             {
@@ -131,12 +161,29 @@ namespace AsImpL
             convertUpAxis = EditorGUILayout.Toggle("Convert vertical axis", convertUpAxis);
             convertToDoubleSided = EditorGUILayout.Toggle("Convert to double-sided (duplicate&flip polygons)", convertToDoubleSided);
             litDiffuseMap = EditorGUILayout.Toggle("Lit diffuse map", litDiffuseMap);
+            buildColliders = EditorGUILayout.Toggle("Generate mesh colliders", buildColliders);
+            if (buildColliders)
+            {
+                colliderConvex = EditorGUILayout.Toggle("Convex mesh colliders", colliderConvex);
+                if (colliderConvex)
+                {
+                    EditorGUILayout.HelpBox(
+                        "Building convex meshes may not work for meshes with too many smooth surface regions.\n"+
+                        "If you get errors find each involved object and fix its mesh collider (e.g. remove it or uncheck \"Convex\").",
+                        MessageType.Warning);
+                    colliderTrigger = EditorGUILayout.Toggle("Mesh colliders as trigger", colliderTrigger);
+                    colliderInflate = EditorGUILayout.Toggle("Mesh colliders inflated", colliderInflate);
+                    colliderSkinWidth = EditorGUILayout.FloatField("Mesh colliders inflation amount", colliderSkinWidth);
+                }
+            }
+
             importAssets = EditorGUILayout.Toggle("Import assets", importAssets);
             if (importAssets)
             {
                 importAssetPath = EditorGUILayout.TextField("OBJ asset path:", importAssetPath);
                 importAssetPath = importAssetPath.Replace('\\', '/');
             }
+            EditorGUILayout.Separator();
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Reset settings", GUILayout.Width(100), GUILayout.Height(24)))
             {
@@ -171,6 +218,11 @@ namespace AsImpL
                     opt.litDiffuse = litDiffuseMap;
                     opt.convertToDoubleSided = convertToDoubleSided;
                     opt.modelScaling = scale;
+                    opt.buildColliders = buildColliders;
+                    opt.colliderTrigger = colliderTrigger;
+                    opt.colliderConvex = colliderConvex;
+                    opt.colliderInflate = colliderInflate;
+                    opt.colliderSkinWidth = colliderSkinWidth;
                     objImporter.ImportFile(absolute_path, parentObject ? parentObject.transform : null, opt);
                     //ObjLoader loader = new ObjLoader();
                     //loader.zUpToYUp = false;
