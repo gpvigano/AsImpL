@@ -104,9 +104,9 @@ namespace AsImpL
         protected override IEnumerator LoadMaterialLibrary(string absolutePath)
         {
             string mtlPath;
-            if(absolutePath.Contains("//"))
+            if (absolutePath.Contains("//"))
             {
-                mtlPath = absolutePath.Remove(absolutePath.LastIndexOf('/')+1) + mtlLib;
+                mtlPath = absolutePath.Remove(absolutePath.LastIndexOf('/') + 1) + mtlLib;
             }
             else
             {
@@ -254,6 +254,15 @@ namespace AsImpL
                         break;
                     case "v":
                         dataSet.AddVertex(ConvertVec3(float.Parse(p[1]), float.Parse(p[2]), float.Parse(p[3])));
+                        if (p.Length >= 7)
+                        {
+                            // 7 for "v x y z r g b"
+                            // 8 for "v x y z r g b w"
+                            // w is the weight required for rational curves and surfaces. It is
+                            // not required for non - rational curves and surfaces.If you do not
+                            // specify a value for w, the default is 1.0. [http://paulbourke.net/dataformats/obj/]
+                            dataSet.AddColor(new Color(float.Parse(p[4]), float.Parse(p[5]), float.Parse(p[6]), 1f));
+                        }
                         break;
                     case "vt":
                         dataSet.AddUV(new Vector2(float.Parse(p[1]), float.Parse(p[2])));

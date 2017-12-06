@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 namespace AsImpL
@@ -18,17 +18,22 @@ namespace AsImpL
         /// <summary>
         /// List of vertices
         /// </summary>
-        public List<Vector3> vertList;
+        public List<Vector3> vertList = new List<Vector3>();
 
         /// <summary>
         /// List of texture coordinates (UV)
         /// </summary>
-        public List<Vector2> uvList;
+        public List<Vector2> uvList = new List<Vector2>();
 
         /// <summary>
         /// List of normals
         /// </summary>
-        public List<Vector3> normalList;
+        public List<Vector3> normalList = new List<Vector3>();
+
+        /// <summary>
+        /// List of colors
+        /// </summary>
+        public List<Color> colorList = new List<Color>();
 
         // naming index for unnamed group (e.g. "Unnamed-1")
         private int unnamedGroupIndex = 1;
@@ -84,10 +89,6 @@ namespace AsImpL
             g.name = "default";
             d.faceGroups.Add(g);
             currGroup = g;
-
-            vertList = new List<Vector3>();
-            uvList = new List<Vector2>();
-            normalList = new List<Vector3>();
         }
 
         /// <summary>
@@ -176,6 +177,16 @@ namespace AsImpL
         }
 
         /// <summary>
+        /// Add a new color to the global list
+        /// </summary>
+        /// <param name="color">color</param>
+        public void AddColor(Color color)
+        {
+            colorList.Add(color);
+            currObjData.hasColors = true;
+        }
+
+        /// <summary>
         /// Add a new face indices entry to the current faces group
         /// </summary>
         /// <param name="faceIdx">new vertex indices</param>
@@ -226,14 +237,12 @@ namespace AsImpL
         public class ObjectData
         {
             public string name;
-            public List<FaceGroupData> faceGroups;
-            public List<FaceIndices> allFaces;
-            public bool hasNormals;
+            public List<FaceGroupData> faceGroups = new List<FaceGroupData>();
+            public List<FaceIndices> allFaces = new List<FaceIndices>();
+            public bool hasNormals = false;
+            public bool hasColors = false;
             public ObjectData()
             {
-                faceGroups = new List<FaceGroupData>();
-                allFaces = new List<FaceIndices>();
-                hasNormals = false;
             }
         }
 
