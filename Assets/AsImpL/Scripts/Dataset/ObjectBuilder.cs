@@ -46,14 +46,29 @@ namespace AsImpL
         /// <summary>
         /// Initialize the importing of materials
         /// </summary>
-        /// <param name="materialData"></param>
-        public void InitBuildMaterials(List<MaterialData> materialData)
+        /// <param name="materialData">List of material data</param>
+        /// <param name="hasColors">If true and materialData is null and vertex colors are available, then use them</param>
+        public void InitBuildMaterials(List<MaterialData> materialData, bool hasColors)
         {
             this.materialData = materialData;
             currMaterials = new Dictionary<string, Material>();
             if (materialData == null)
             {
-                currMaterials.Add("default", new Material(Shader.Find("VertexLit")));
+                string shaderName = "VertexLit";
+                if (hasColors)
+                {
+                    shaderName = "Unlit/Simple Vertex Colors Shader";
+                    if (Shader.Find(shaderName) == null)
+                    {
+                        shaderName = "Mobile/Particles/Alpha Blended";
+                    }
+                    Debug.Log("No material library defined. Using vertex colors.");
+                }
+                else
+                {
+                    Debug.LogWarning("No material library defined. Using a default material.");
+                }
+                currMaterials.Add("default", new Material(Shader.Find(shaderName)));
             }
         }
 
@@ -66,7 +81,7 @@ namespace AsImpL
         {
             if (materialData == null)
             {
-                Debug.LogWarning("No material library defined");
+                Debug.LogWarning("No material library defined.");
                 return false;
             }
             if (info.materialsLoaded >= materialData.Count)
@@ -313,6 +328,7 @@ namespace AsImpL
             // data for sub-object
             DataSet.ObjectData subObjData = new DataSet.ObjectData();
             subObjData.hasNormals = objData.hasNormals;
+            subObjData.hasColors = objData.hasColors;
 
             HashSet<int> vertIdxSet = new HashSet<int>();
 
@@ -435,6 +451,9 @@ namespace AsImpL
             Vector3[] newVertices = new Vector3[arraySize];
             Vector2[] newUVs = new Vector2[arraySize];
             Vector3[] newNormals = new Vector3[arraySize];
+            Color32[] newColors = new Color32[arraySize];
+
+            bool hasColors = currDataSet.colorList.Count>0;
 
             foreach (DataSet.FaceIndices fi in objData.allFaces)
             {
@@ -444,6 +463,14 @@ namespace AsImpL
                 if (conv2sided)
                 {
                     newVertices[vcount + k] = newVertices[k];
+                }
+                if (hasColors)
+                {
+                    newColors[k] = currDataSet.colorList[fi.vertIdx];
+                    if (conv2sided)
+                    {
+                        newColors[vcount + k] = newColors[k];
+                    }
                 }
                 if (currDataSet.uvList.Count > 0)
                 {
@@ -474,6 +501,8 @@ namespace AsImpL
             if (currDataSet.uvList.Count > 0) mesh.uv = newUVs;
             bool objectHasNormals = (currDataSet.normalList.Count > 0 && objData.hasNormals);
             if (objectHasNormals) mesh.normals = newNormals;
+            bool objectHasColors = (currDataSet.colorList.Count > 0 && objData.hasColors);
+            if (objectHasColors) mesh.colors32 = newColors;
 
             Material material;
 

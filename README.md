@@ -26,8 +26,14 @@ Some improvements are made in OBJ import compared with the current version of Un
     (skybox or reflection probes, if available)
 * opacity map
   * diffuse and opacity maps are blended together in the albedo texture
+* vertex colors
+  * if vertex colors are available (and no material library is defined) they are loaded and used to color the mesh
 * flag to use an Unlit shader for materials with the lighting rendered to the diffuse texture
 * vertical axis conversion
+* mesh colliders
+  * mesh colliders can optionally be generated from the loaded mesh,
+  even with convex mesh generation
+
 
  ![image](https://raw.githubusercontent.com/gpvigano/AsImpL/master/images/unity_vs_AsImpL_Zup.png)
  
@@ -58,6 +64,7 @@ This project was started because of these requirements (partly addressed by some
     * specular map is converted to glossness map (metallic texture)
     * bump map is converted into a normal map
   * computation of normal maps and tangents
+  * automatic generation of mesh colliders (even convex)
   * progressive loading (using Unity coroutines)
   * reusing data for instancing multiple objects (at run-time)
 * Separate import manager:
@@ -126,7 +133,7 @@ This work started looking at the [Runtime OBJ Loader],
 from which some source code (in particular TextureLoader.cs and parts of LoaderObj) came.
 The OBJ file loader is inspired by [Runtime OBJ Loader], [unity-obj-loader], [unity-remote-obj-loader] and all the people who shared their ideas (e.g. [Bartek Drozdz]).
 The first asynchronous loading implementation comes from [unity-remote-obj-loader].
-Thanks in advance to all the people who will contribute in any way to this project.
+Thanks in advance to all the people who contributed and will contribute in any way to this project.
 
 
 ### Contributing

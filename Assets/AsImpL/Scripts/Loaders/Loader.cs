@@ -376,15 +376,20 @@ namespace AsImpL
             objectBuilder.alternativeTexPath = altTexPath;
 #endif
             objectBuilder.buildOptions = buildOptions;
-            objectBuilder.InitBuildMaterials(materialData);
+            bool hasColors = dataSet.colorList.Count > 0;
+            bool hasMaterials = materialData != null;
+            objectBuilder.InitBuildMaterials(materialData, hasColors);
             float objInitPerc = objLoadingProgress.percentage;
-            while (objectBuilder.BuildMaterials(info))
+            if (hasMaterials)
             {
-                objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * objectBuilder.NumImportedMaterials / materialData.Count;
-                yield return null;
+                while (objectBuilder.BuildMaterials(info))
+                {
+                    objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * objectBuilder.NumImportedMaterials / materialData.Count;
+                    yield return null;
+                }
+                loadStats.buildStats.materialsTime = Time.realtimeSinceStartup - prevTime;
+                prevTime = Time.realtimeSinceStartup;
             }
-            loadStats.buildStats.materialsTime = Time.realtimeSinceStartup - prevTime;
-            prevTime = Time.realtimeSinceStartup;
 
             objLoadingProgress.message = "Building scene objects...";
 
