@@ -39,6 +39,7 @@ namespace AsImpL
             protected override void Start()
             {
 #if UNITY_STANDALONE
+#if !UNITY_EDITOR
                 string[] args = Environment.GetCommandLineArgs();
 
                 if (args != null && args.Length > 1)
@@ -72,6 +73,7 @@ namespace AsImpL
                     ImportModelListAsync(objectList.ToArray());
                 }
                 else
+#endif
                 {
                     Reload();
                 }
