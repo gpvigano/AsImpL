@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Globalization;
+
 #if UNITY_EDITOR
 #endif
 
@@ -38,6 +40,7 @@ namespace AsImpL
     public class LoaderObj : Loader
     {
         private string mtlLib;
+        private  CultureInfo objCultureInfo = new CultureInfo("en-US", false);
 
         /// <summary>
         /// Parse dependencies of the given OBJ file.
@@ -253,7 +256,7 @@ namespace AsImpL
                         dataSet.AddGroup(parameters);
                         break;
                     case "v":
-                        dataSet.AddVertex(ConvertVec3(float.Parse(p[1]), float.Parse(p[2]), float.Parse(p[3])));
+                        dataSet.AddVertex(ConvertVec3(float.Parse(p[1], objCultureInfo.NumberFormat), float.Parse(p[2], objCultureInfo.NumberFormat), float.Parse(p[3], objCultureInfo.NumberFormat)));
                         if (p.Length >= 7)
                         {
                             // 7 for "v x y z r g b"
@@ -261,14 +264,14 @@ namespace AsImpL
                             // w is the weight required for rational curves and surfaces. It is
                             // not required for non - rational curves and surfaces.If you do not
                             // specify a value for w, the default is 1.0. [http://paulbourke.net/dataformats/obj/]
-                            dataSet.AddColor(new Color(float.Parse(p[4]), float.Parse(p[5]), float.Parse(p[6]), 1f));
+                            dataSet.AddColor(new Color(float.Parse(p[4], objCultureInfo.NumberFormat), float.Parse(p[5], objCultureInfo.NumberFormat), float.Parse(p[6], objCultureInfo.NumberFormat), 1f));
                         }
                         break;
                     case "vt":
-                        dataSet.AddUV(new Vector2(float.Parse(p[1]), float.Parse(p[2])));
+                        dataSet.AddUV(new Vector2(float.Parse(p[1], objCultureInfo.NumberFormat), float.Parse(p[2], objCultureInfo.NumberFormat)));
                         break;
                     case "vn":
-                        dataSet.AddNormal(ConvertVec3(float.Parse(p[1]), float.Parse(p[2]), float.Parse(p[3])));
+                        dataSet.AddNormal(ConvertVec3(float.Parse(p[1], objCultureInfo.NumberFormat), float.Parse(p[2], objCultureInfo.NumberFormat), float.Parse(p[3], objCultureInfo.NumberFormat)));
                         break;
                     case "f":
                         {
@@ -416,13 +419,13 @@ namespace AsImpL
                             current.specularColor = StringsToColor(p);
                             break;
                         case "Ns": // Specular exponent --> shininess
-                            current.shininess = float.Parse(p[1]);
+                            current.shininess = float.Parse(p[1], objCultureInfo.NumberFormat);
                             break;
                         case "d": // dissolve into the background (1=opaque, 0=transparent)
-                            current.overallAlpha = p.Length > 1 && p[1] != "" ? float.Parse(p[1]) : 1.0f;
+                            current.overallAlpha = p.Length > 1 && p[1] != "" ? float.Parse(p[1], objCultureInfo.NumberFormat) : 1.0f;
                             break;
                         case "Tr": // Transparency
-                            current.overallAlpha = p.Length > 1 && p[1] != "" ? 1.0f - float.Parse(p[1]) : 1.0f;
+                            current.overallAlpha = p.Length > 1 && p[1] != "" ? 1.0f - float.Parse(p[1], objCultureInfo.NumberFormat) : 1.0f;
                             break;
                         case "map_Kd": // Color texture, diffuse reflectivity
                             if (!string.IsNullOrEmpty(parameters))
@@ -572,7 +575,7 @@ namespace AsImpL
 
         private Color StringsToColor(string[] p)
         {
-            return new Color(float.Parse(p[1]), float.Parse(p[2]), float.Parse(p[3]));
+            return new Color(float.Parse(p[1],objCultureInfo.NumberFormat), float.Parse(p[2],objCultureInfo.NumberFormat), float.Parse(p[3],objCultureInfo.NumberFormat));
         }
 
         /// <summary>
