@@ -40,7 +40,6 @@ namespace AsImpL
     public class LoaderObj : Loader
     {
         private string mtlLib;
-        private  CultureInfo objCultureInfo = new CultureInfo("en-US", false);
 
         /// <summary>
         /// Parse dependencies of the given OBJ file.
@@ -210,6 +209,16 @@ namespace AsImpL
         }
 
         /// <summary>
+        /// Parse a string to get a floating point number using the invariant culture.
+        /// </summary>
+        /// <param name="floatString">String with the number to be parsed</param>
+        /// <returns>The parsed floating point number.</returns>
+        private float ParseFloat(string floatString)
+        {
+            return float.Parse(floatString, CultureInfo.InvariantCulture.NumberFormat);
+        }
+
+        /// <summary>
         /// Parse the OBJ file to extract geometry data.
         /// </summary>
         /// <param name="objDataText">OBJ file text</param>
@@ -256,7 +265,7 @@ namespace AsImpL
                         dataSet.AddGroup(parameters);
                         break;
                     case "v":
-                        dataSet.AddVertex(ConvertVec3(float.Parse(p[1], objCultureInfo.NumberFormat), float.Parse(p[2], objCultureInfo.NumberFormat), float.Parse(p[3], objCultureInfo.NumberFormat)));
+                        dataSet.AddVertex(ConvertVec3(ParseFloat(p[1]), ParseFloat(p[2]), ParseFloat(p[3])));
                         if (p.Length >= 7)
                         {
                             // 7 for "v x y z r g b"
@@ -264,14 +273,14 @@ namespace AsImpL
                             // w is the weight required for rational curves and surfaces. It is
                             // not required for non - rational curves and surfaces.If you do not
                             // specify a value for w, the default is 1.0. [http://paulbourke.net/dataformats/obj/]
-                            dataSet.AddColor(new Color(float.Parse(p[4], objCultureInfo.NumberFormat), float.Parse(p[5], objCultureInfo.NumberFormat), float.Parse(p[6], objCultureInfo.NumberFormat), 1f));
+                            dataSet.AddColor(new Color(ParseFloat(p[4]), ParseFloat(p[5]), ParseFloat(p[6]), 1f));
                         }
                         break;
                     case "vt":
-                        dataSet.AddUV(new Vector2(float.Parse(p[1], objCultureInfo.NumberFormat), float.Parse(p[2], objCultureInfo.NumberFormat)));
+                        dataSet.AddUV(new Vector2(ParseFloat(p[1]), ParseFloat(p[2])));
                         break;
                     case "vn":
-                        dataSet.AddNormal(ConvertVec3(float.Parse(p[1], objCultureInfo.NumberFormat), float.Parse(p[2], objCultureInfo.NumberFormat), float.Parse(p[3], objCultureInfo.NumberFormat)));
+                        dataSet.AddNormal(ConvertVec3(ParseFloat(p[1]), ParseFloat(p[2]), ParseFloat(p[3])));
                         break;
                     case "f":
                         {
@@ -419,13 +428,13 @@ namespace AsImpL
                             current.specularColor = StringsToColor(p);
                             break;
                         case "Ns": // Specular exponent --> shininess
-                            current.shininess = float.Parse(p[1], objCultureInfo.NumberFormat);
+                            current.shininess = ParseFloat(p[1]);
                             break;
                         case "d": // dissolve into the background (1=opaque, 0=transparent)
-                            current.overallAlpha = p.Length > 1 && p[1] != "" ? float.Parse(p[1], objCultureInfo.NumberFormat) : 1.0f;
+                            current.overallAlpha = p.Length > 1 && p[1] != "" ? ParseFloat(p[1]) : 1.0f;
                             break;
                         case "Tr": // Transparency
-                            current.overallAlpha = p.Length > 1 && p[1] != "" ? 1.0f - float.Parse(p[1], objCultureInfo.NumberFormat) : 1.0f;
+                            current.overallAlpha = p.Length > 1 && p[1] != "" ? 1.0f - ParseFloat(p[1]) : 1.0f;
                             break;
                         case "map_Kd": // Color texture, diffuse reflectivity
                             if (!string.IsNullOrEmpty(parameters))
@@ -575,7 +584,7 @@ namespace AsImpL
 
         private Color StringsToColor(string[] p)
         {
-            return new Color(float.Parse(p[1],objCultureInfo.NumberFormat), float.Parse(p[2],objCultureInfo.NumberFormat), float.Parse(p[3],objCultureInfo.NumberFormat));
+            return new Color(ParseFloat(p[1]), ParseFloat(p[2]), ParseFloat(p[3]));
         }
 
         /// <summary>
