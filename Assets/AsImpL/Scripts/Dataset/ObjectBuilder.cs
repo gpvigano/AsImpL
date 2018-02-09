@@ -1,9 +1,18 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_2017_3_OR_NEWER
+// GPU support for 32 bit indices is not guaranteed on all platforms;
+// for example Android devices with Mali-400 GPU do not support them.
+// TODO: improve this 32 bit compatibility check, e.g. with a test:
+// if (graphicsDeviceName.Contains("Mali") && graphicsDeviceName.Contains("400"))...
+// or something like that...
+// For now simply comment the following line if nothing is rendered on your device:
+#define USE_32BIT_INDICES
+#endif
+
+using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
 namespace AsImpL
 {
     /// <summary>
@@ -325,18 +334,28 @@ namespace AsImpL
                 buildStatus.numGroups = Mathf.Max(1, objData.faceGroups.Count);
             }
 
+#if USE_32BIT_INDICES
+            // TODO: implement a more efficient version if the 65K limit does not exist
+            buildStatus.totFaceIdxCount += objData.allFaces.Count;
+            GameObject subobj = ImportSubObject(parentObj, objData, mats);
+            if (subobj == null)
+            {
+                Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
+            }
+#else
+            bool splitGrp = false;
+
+            DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
+            grp.name = objData.faceGroups[buildStatus.grpIdx].name;
+            grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
+
+
             // data for sub-object
             DataSet.ObjectData subObjData = new DataSet.ObjectData();
             subObjData.hasNormals = objData.hasNormals;
             subObjData.hasColors = objData.hasColors;
 
             HashSet<int> vertIdxSet = new HashSet<int>();
-
-            bool splitGrp = false;
-
-            DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
-            grp.name = objData.faceGroups[buildStatus.grpIdx].name;
-            grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
 
             bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
 
@@ -399,6 +418,7 @@ namespace AsImpL
             //else Debug.LogFormat( "Imported face indices: {0} to {1}", buildStatus.totFaceIdxCount - sub_od.AllFaces.Count, buildStatus.totFaceIdxCount );
 
             buildStatus.subObjCount++;
+#endif
 
             if (buildStatus.totFaceIdxCount >= objData.allFaces.Count || buildStatus.grpIdx >= objData.faceGroups.Count)
             {
@@ -421,7 +441,7 @@ namespace AsImpL
             int count = 0;
             if (parentObj.transform)
             {
-                while (parentObj.transform.FindChild(go.name))
+                while (parentObj.transform.Find(go.name))
                 {
                     count++;
                     go.name = objData.name + count;
@@ -453,7 +473,7 @@ namespace AsImpL
             Vector3[] newNormals = new Vector3[arraySize];
             Color32[] newColors = new Color32[arraySize];
 
-            bool hasColors = currDataSet.colorList.Count>0;
+            bool hasColors = currDataSet.colorList.Count > 0;
 
             foreach (DataSet.FaceIndices fi in objData.allFaces)
             {
@@ -490,23 +510,32 @@ namespace AsImpL
                 }
             }
 
+            bool objectHasNormals = (currDataSet.normalList.Count > 0 && objData.hasNormals);
+            bool objectHasColors = (currDataSet.colorList.Count > 0 && objData.hasColors);
+
+            int n = objData.faceGroups[0].faces.Count;
+
+            int numIndices = conv2sided ? n * 2 : n;
+
             MeshFilter meshFilter = go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
 
             Mesh mesh = new Mesh();
+#if USE_32BIT_INDICES
+            if (arraySize > MAX_VERT_COUNT || numIndices>MAX_INDICES_LIMIT_FOR_A_MESH)
+            {
+                mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            }
+#endif
             mesh.name = go.name;
             meshFilter.sharedMesh = mesh;
 
             mesh.vertices = newVertices;
             if (currDataSet.uvList.Count > 0) mesh.uv = newUVs;
-            bool objectHasNormals = (currDataSet.normalList.Count > 0 && objData.hasNormals);
             if (objectHasNormals) mesh.normals = newNormals;
-            bool objectHasColors = (currDataSet.colorList.Count > 0 && objData.hasColors);
             if (objectHasColors) mesh.colors32 = newColors;
 
             Material material;
-
-            int n = objData.faceGroups[0].faces.Count;
 
             string matName = (objData.faceGroups[0].materialName != null) ? objData.faceGroups[0].materialName : "default";
 
@@ -522,7 +551,7 @@ namespace AsImpL
                 Debug.LogWarning("ImportSubObject mat:" + matName + " not found.");
             }
 
-            int[] indices = new int[conv2sided ? n * 2 : n];
+            int[] indices = new int[numIndices];
 
             for (int s = 0; s < n; s++)
             {
