@@ -1,18 +1,9 @@
-﻿#if UNITY_2017_3_OR_NEWER
-// GPU support for 32 bit indices is not guaranteed on all platforms;
-// for example Android devices with Mali-400 GPU do not support them.
-// TODO: improve this 32 bit compatibility check, e.g. with a test:
-// if (graphicsDeviceName.Contains("Mali") && graphicsDeviceName.Contains("400"))...
-// or something like that...
-// For now simply comment the following line if nothing is rendered on your device:
-#define USE_32BIT_INDICES
-#endif
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 namespace AsImpL
 {
     /// <summary>
@@ -334,90 +325,100 @@ namespace AsImpL
                 buildStatus.numGroups = Mathf.Max(1, objData.faceGroups.Count);
             }
 
-#if USE_32BIT_INDICES
-            // TODO: implement a more efficient version if the 65K limit does not exist
-            buildStatus.totFaceIdxCount += objData.allFaces.Count;
-            GameObject subobj = ImportSubObject(parentObj, objData, mats);
-            if (subobj == null)
+#if UNITY_2017_3_OR_NEWER
+            // GPU support for 32 bit indices is not guaranteed on all platforms;
+            // for example Android devices with Mali-400 GPU do not support them.
+            // This check is performed in Using32bitIndices().
+            // If nothing is rendered on your device problably Using32bitIndices() must be updated.
+            if (Using32bitIndices())
             {
-                Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
+                buildStatus.totFaceIdxCount += objData.allFaces.Count;
+                GameObject subobj = ImportSubObject(parentObj, objData, mats);
+                if (subobj == null)
+                {
+                    Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
+                }
             }
-#else
+            else
+            {
+#endif
             bool splitGrp = false;
 
-            DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
-            grp.name = objData.faceGroups[buildStatus.grpIdx].name;
-            grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
+                DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
+                grp.name = objData.faceGroups[buildStatus.grpIdx].name;
+                grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
 
 
-            // data for sub-object
-            DataSet.ObjectData subObjData = new DataSet.ObjectData();
-            subObjData.hasNormals = objData.hasNormals;
-            subObjData.hasColors = objData.hasColors;
+                // data for sub-object
+                DataSet.ObjectData subObjData = new DataSet.ObjectData();
+                subObjData.hasNormals = objData.hasNormals;
+                subObjData.hasColors = objData.hasColors;
 
-            HashSet<int> vertIdxSet = new HashSet<int>();
+                HashSet<int> vertIdxSet = new HashSet<int>();
 
-            bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
+                bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
 
-            int maxIdx4mesh = conv2sided ? MAX_INDICES_LIMIT_FOR_A_MESH / 2 : MAX_INDICES_LIMIT_FOR_A_MESH;
+                int maxIdx4mesh = conv2sided ? MAX_INDICES_LIMIT_FOR_A_MESH / 2 : MAX_INDICES_LIMIT_FOR_A_MESH;
 
-            // copy blocks of face indices to each sub-object data
-            for (int f = buildStatus.grpFaceIdx; f < objData.faceGroups[buildStatus.grpIdx].faces.Count; f++)
-            {
-                // if passed the max num of vertices and not at the last iteration
-                if (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3)
+                // copy blocks of face indices to each sub-object data
+                for (int f = buildStatus.grpFaceIdx; f < objData.faceGroups[buildStatus.grpIdx].faces.Count; f++)
                 {
-                    // split the group across more objects
-                    splitGrp = true;
-                    buildStatus.grpFaceIdx = f;
-                    Debug.LogWarningFormat("Maximum vertex number for a mesh exceeded.\nSplitting object {0} ({1}th group, starting from index {2})...", grp.name, buildStatus.grpIdx, f);
-                    break;
+                    // if passed the max num of vertices and not at the last iteration
+                    if (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3)
+                    {
+                        // split the group across more objects
+                        splitGrp = true;
+                        buildStatus.grpFaceIdx = f;
+                        Debug.LogWarningFormat("Maximum vertex number for a mesh exceeded.\nSplitting object {0} (group {1}, starting from index {2})...", grp.name, buildStatus.grpIdx, f);
+                        break;
+                    }
+                    DataSet.FaceIndices fi = objData.faceGroups[buildStatus.grpIdx].faces[f];
+                    subObjData.allFaces.Add(fi);
+                    grp.faces.Add(fi);
+                    vertIdxSet.Add(fi.vertIdx);
                 }
-                DataSet.FaceIndices fi = objData.faceGroups[buildStatus.grpIdx].faces[f];
-                subObjData.allFaces.Add(fi);
-                grp.faces.Add(fi);
-                vertIdxSet.Add(fi.vertIdx);
-            }
-            if (splitGrp || buildStatus.meshPartIdx > 0)
-            {
-                buildStatus.meshPartIdx++;
-            }
-            // create an empty (group) object in case the group has been splitted
-            if (buildStatus.meshPartIdx == 1)
-            {
-                GameObject grpObj = new GameObject();
-                grpObj.transform.SetParent(buildStatus.currObjGameObject.transform, false);
-                grpObj.name = grp.name;
-                buildStatus.subObjParent = grpObj;
-            }
+                if (splitGrp || buildStatus.meshPartIdx > 0)
+                {
+                    buildStatus.meshPartIdx++;
+                }
+                // create an empty (group) object in case the group has been splitted
+                if (buildStatus.meshPartIdx == 1)
+                {
+                    GameObject grpObj = new GameObject();
+                    grpObj.transform.SetParent(buildStatus.currObjGameObject.transform, false);
+                    grpObj.name = grp.name;
+                    buildStatus.subObjParent = grpObj;
+                }
 
-            // add a suffix to the group name in case the group has been splitted
-            if (buildStatus.meshPartIdx > 0)
-            {
-                grp.name = buildStatus.subObjParent.name + "_MeshPart" + buildStatus.meshPartIdx;
+                // add a suffix to the group name in case the group has been splitted
+                if (buildStatus.meshPartIdx > 0)
+                {
+                    grp.name = buildStatus.subObjParent.name + "_MeshPart" + buildStatus.meshPartIdx;
+                }
+                subObjData.name = grp.name;
+
+                // add the group to the sub object data
+                subObjData.faceGroups.Add(grp);
+
+                // update the start index
+                buildStatus.idxCount += subObjData.allFaces.Count;
+
+                if (!splitGrp)
+                {
+                    buildStatus.grpFaceIdx = 0;
+                    buildStatus.grpIdx++;
+                }
+                buildStatus.totFaceIdxCount += subObjData.allFaces.Count;
+                GameObject subobj = ImportSubObject(buildStatus.subObjParent, subObjData, mats);
+                if (subobj == null)
+                {
+                    Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
+                }
+                //else Debug.LogFormat( "Imported face indices: {0} to {1}", buildStatus.totFaceIdxCount - sub_od.AllFaces.Count, buildStatus.totFaceIdxCount );
+
+                buildStatus.subObjCount++;
+#if UNITY_2017_3_OR_NEWER
             }
-            subObjData.name = grp.name;
-
-            // add the group to the sub object data
-            subObjData.faceGroups.Add(grp);
-
-            // update the start index
-            buildStatus.idxCount += subObjData.allFaces.Count;
-
-            if (!splitGrp)
-            {
-                buildStatus.grpFaceIdx = 0;
-                buildStatus.grpIdx++;
-            }
-            buildStatus.totFaceIdxCount += subObjData.allFaces.Count;
-            GameObject subobj = ImportSubObject(buildStatus.subObjParent, subObjData, mats);
-            if (subobj == null)
-            {
-                Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
-            }
-            //else Debug.LogFormat( "Imported face indices: {0} to {1}", buildStatus.totFaceIdxCount - sub_od.AllFaces.Count, buildStatus.totFaceIdxCount );
-
-            buildStatus.subObjCount++;
 #endif
 
             if (buildStatus.totFaceIdxCount >= objData.allFaces.Count || buildStatus.grpIdx >= objData.faceGroups.Count)
@@ -512,6 +513,7 @@ namespace AsImpL
 
             bool objectHasNormals = (currDataSet.normalList.Count > 0 && objData.hasNormals);
             bool objectHasColors = (currDataSet.colorList.Count > 0 && objData.hasColors);
+            bool objectHasUVs = (currDataSet.uvList.Count > 0);
 
             int n = objData.faceGroups[0].faces.Count;
 
@@ -521,17 +523,20 @@ namespace AsImpL
             go.AddComponent<MeshRenderer>();
 
             Mesh mesh = new Mesh();
-#if USE_32BIT_INDICES
-            if (arraySize > MAX_VERT_COUNT || numIndices>MAX_INDICES_LIMIT_FOR_A_MESH)
+#if UNITY_2017_3_OR_NEWER
+            if (Using32bitIndices())
             {
-                mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                if (arraySize > MAX_VERT_COUNT || numIndices > MAX_INDICES_LIMIT_FOR_A_MESH)
+                {
+                    mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                }
             }
 #endif
             mesh.name = go.name;
             meshFilter.sharedMesh = mesh;
 
             mesh.vertices = newVertices;
-            if (currDataSet.uvList.Count > 0) mesh.uv = newUVs;
+            if (objectHasUVs) mesh.uv = newUVs;
             if (objectHasNormals) mesh.normals = newNormals;
             if (objectHasColors) mesh.colors32 = newColors;
 
@@ -542,9 +547,13 @@ namespace AsImpL
             if (mats.ContainsKey(matName))
             {
                 material = mats[matName];
-
-                go.GetComponent<Renderer>().sharedMaterial = material;
-                DynamicGI.UpdateMaterials(go.GetComponent<Renderer>());
+                Renderer renderer = go.GetComponent<Renderer>();
+                renderer.sharedMaterial = material;
+#if UNITY_5_6_OR_NEWER
+                RendererExtensions.UpdateGIMaterials(renderer);
+#else
+                DynamicGI.UpdateMaterials(renderer);
+#endif
             }
             else
             {
@@ -574,7 +583,10 @@ namespace AsImpL
             {
                 mesh.RecalculateNormals();
             }
-            Solve(mesh);
+            if (objectHasUVs)
+            {
+                Solve(mesh);
+            }
             if (buildOptions != null && buildOptions.buildColliders)
             {
                 BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger, buildOptions.colliderInflate, buildOptions.colliderSkinWidth);
@@ -851,6 +863,30 @@ namespace AsImpL
             return newMaterial;
         }
 
+
+#if UNITY_2017_3_OR_NEWER
+        /// <summary>
+        /// Check if the GPU support for 32 bit indices is enabled and available.
+        /// </summary>
+        /// <remarks>
+        /// GPU support for 32 bit indices is not guaranteed on all platforms;
+        /// for example Android devices with Mali-400 GPU do not support them.
+        /// </remarks>
+        /// <returns>True if the GPU support for 32 bit indices is enabled and available.</returns>
+        private bool Using32bitIndices()
+        {
+#if UNITY_ANDROID
+            string graphicsDeviceName = SystemInfo.graphicsDeviceName;
+            // If nothing is rendered on your device problably a new device check must be added here.
+            if (graphicsDeviceName.Contains("Mali") && graphicsDeviceName.Contains("400"))
+            {
+                // Android devices with Mali-400 GPU do not support 32 bit indices
+                return false;
+            }
+#endif
+            return true;
+        }
+#endif
 
         public class ProgressInfo
         {
