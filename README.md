@@ -52,8 +52,10 @@ This project was started because of these requirements (partly addressed by some
 
 ## Features
 * OBJ format import/loading:
-  * meshes with more than 65K vertices/indices are splitted and loaded
-    as children of the same game object (like Unity importer does)
+  * for Unity up to 2017.2 meshes with more than 65K vertices/indices
+    are splitted and loaded as children of the same game object
+  * in Unity 2017.3 and above 32 bit indices are used, but only for
+    meshes with more than 65K vertices (like Unity importer does)
   * groups are loaded into game (sub) objects
     * if no sub object is defined faces are grouped by material
       into sub-objects
