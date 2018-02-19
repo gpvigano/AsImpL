@@ -28,9 +28,13 @@ namespace AsImpL
         /// <param name="prefix">prefix at the beginning of the file name</param>
         public static void AutoCaptureScreenshot(string prefix)
         {
-            string fileName = prefix+"-"+DateTime.Now.ToString("s").Replace('T','_').Replace(':','-')+".png";
+            string fileName = prefix + "-" + DateTime.Now.ToString("s").Replace('T', '_').Replace(':', '-') + ".png";
+#if UNITY_2017_1_OR_NEWER
+            ScreenCapture.CaptureScreenshot(fileName);
+#else
             Application.CaptureScreenshot(fileName);
-            Debug.Log("Screenshot saved to " + Application.dataPath+"/" + fileName);
+#endif
+            Debug.Log("Screenshot saved to " + Application.dataPath + "/" + fileName);
             EditorUtility.RevealInFinder(Application.dataPath);
         }
 

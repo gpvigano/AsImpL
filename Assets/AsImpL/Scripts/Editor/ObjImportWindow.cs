@@ -168,7 +168,7 @@ namespace AsImpL
                 if (colliderConvex)
                 {
                     EditorGUILayout.HelpBox(
-                        "Building convex meshes may not work for meshes with too many smooth surface regions.\n"+
+                        "Building convex meshes may not work for meshes with too many smooth surface regions.\n" +
                         "If you get errors find each involved object and fix its mesh collider (e.g. remove it or uncheck \"Convex\").",
                         MessageType.Warning);
                     colliderTrigger = EditorGUILayout.Toggle("Mesh colliders as trigger", colliderTrigger);

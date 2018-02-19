@@ -6,9 +6,6 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Globalization;
 
-#if UNITY_EDITOR
-#endif
-
 namespace AsImpL
 {
     /// <summary>
