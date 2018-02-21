@@ -424,6 +424,9 @@ namespace AsImpL
                         case "Ks": // Specular component
                             current.specularColor = StringsToColor(p);
                             break;
+                        case "Ke": // Specular component
+                            current.emissiveColor = StringsToColor(p);
+                            break;
                         case "Ns": // Specular exponent --> shininess
                             current.shininess = ParseFloat(p[1]);
                             break;

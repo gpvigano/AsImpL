@@ -342,7 +342,7 @@ namespace AsImpL
             else
             {
 #endif
-            bool splitGrp = false;
+                bool splitGrp = false;
 
                 DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
                 grp.name = objData.faceGroups[buildStatus.grpIdx].name;
@@ -737,6 +737,13 @@ namespace AsImpL
 
             md.diffuseColor.a = md.overallAlpha;
             newMaterial.SetColor("_Color", md.diffuseColor);
+
+            md.emissiveColor.a = md.overallAlpha;
+            newMaterial.SetColor("_EmissionColor", md.emissiveColor);
+            if (md.emissiveColor.r > 0 || md.emissiveColor.g > 0 || md.emissiveColor.b > 0)
+            {
+                newMaterial.EnableKeyword("_EMISSION");
+            }
 
             if (md.bumpTex != null)
             {

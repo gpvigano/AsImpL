@@ -14,6 +14,7 @@ namespace AsImpL
         public Color ambientColor;
         public Color diffuseColor;
         public Color specularColor;
+        public Color emissiveColor;
         public float shininess = 0.0f;
         public float overallAlpha = 1.0f;
         public int illumType = 0;
