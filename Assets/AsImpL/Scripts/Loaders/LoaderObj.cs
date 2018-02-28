@@ -117,7 +117,7 @@ namespace AsImpL
 
             if (loader.error != null)
             {
-                Debug.LogError(loader.error);
+                Debug.LogError("Error loading "+mtlPath+"\n"+loader.error);
             }
             else
             {

@@ -543,11 +543,11 @@ namespace AsImpL
             Material material;
 
             string matName = (objData.faceGroups[0].materialName != null) ? objData.faceGroups[0].materialName : "default";
+            Renderer renderer = go.GetComponent<Renderer>();
 
             if (mats.ContainsKey(matName))
             {
                 material = mats[matName];
-                Renderer renderer = go.GetComponent<Renderer>();
                 renderer.sharedMaterial = material;
 #if UNITY_5_6_OR_NEWER
                 RendererExtensions.UpdateGIMaterials(renderer);
@@ -557,7 +557,16 @@ namespace AsImpL
             }
             else
             {
-                Debug.LogWarning("ImportSubObject mat:" + matName + " not found.");
+                if (mats.ContainsKey("default"))
+                {
+                    material = mats["default"];
+                    renderer.sharedMaterial = material;
+                    Debug.LogWarning("Material: " + matName + " not found. Using the default material.");
+                }
+                else
+                {
+                    Debug.LogError("Material: " + matName + " not found.");
+                }
             }
 
             int[] indices = new int[numIndices];
