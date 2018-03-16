@@ -443,7 +443,8 @@ namespace AsImpL
                             }
                             break;
                         // TODO: different processing needed, options not supported
-                        case "map_kS": // specular reflectivity of the material
+                        case "map_Ks": // specular reflectivity of the material
+                        case "map_kS":
                         case "map_Ns": // Scalar texture for specular exponent
                             if (!string.IsNullOrEmpty(parameters))
                             {
@@ -475,6 +476,7 @@ namespace AsImpL
                                 current.hasReflectionTex = true;
                             }
                             break;
+                        case "map_Ka": // ambient reflectivity color texture
                         case "map_kA":
                             if (!string.IsNullOrEmpty(parameters))
                             {
