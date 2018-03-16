@@ -309,6 +309,12 @@ namespace AsImpL
                             {
                                 Debug.LogWarning("face vertex count :" + (p.Length - 1) + " larger than 4");
                                 // TODO: support for faces with more than 4 vertices
+                                // Introducing a new vertex could break texturing details.
+                                // Texturing and lighting work better with a triangulation
+                                // that maximizes triangles areas.
+                                // See http://vterrain.org/Implementation/Libs/triangulate.html
+                                // and http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml.
+                                // Maybe triangulation could be done in ObjectImporter instead.
                             }
                         }
                         break;

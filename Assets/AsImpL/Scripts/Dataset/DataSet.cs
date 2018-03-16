@@ -41,10 +41,18 @@ namespace AsImpL
 
         private FaceGroupData currGroup;
 
+        private bool noFaceDefined = true;
+
         /// <summary>
         /// Check if there is no vertex defined.
         /// </summary>
-        public bool IsEmpty { get { return vertList.Count == 0; } }
+        public bool IsEmpty
+        {
+            get
+            {
+                return vertList.Count == 0;
+            }
+        }
 
         /// <summary>
         /// Get a string key based on the given face indices
@@ -100,7 +108,7 @@ namespace AsImpL
             //Debug.Log("Adding new object " + name + ". Current is empty: " + isEmpty);
             string currentMaterial = currObjData.faceGroups[currObjData.faceGroups.Count - 1].materialName;
 
-            if (IsEmpty) objectList.Remove(currObjData);
+            if (noFaceDefined) objectList.Remove(currObjData);
 
             ObjectData objData = new ObjectData();
             objData.name = objectName;
@@ -192,6 +200,7 @@ namespace AsImpL
         /// <param name="faceIdx">new vertex indices</param>
         public void AddFaceIndices(FaceIndices faceIdx)
         {
+            noFaceDefined = false;
             currGroup.faces.Add(faceIdx);
             currObjData.allFaces.Add(faceIdx);
             if (faceIdx.normIdx >= 0)

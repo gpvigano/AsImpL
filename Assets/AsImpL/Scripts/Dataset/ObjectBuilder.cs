@@ -7,7 +7,7 @@ using UnityEditor;
 namespace AsImpL
 {
     /// <summary>
-    /// Build the game onject hierarchy with meshes and materials from a DataSet and a MaterialData list.
+    /// Build the game object hierarchy with meshes and materials from a DataSet and a MaterialData list.
     /// </summary>
     public class ObjectBuilder
     {
@@ -52,7 +52,7 @@ namespace AsImpL
         {
             this.materialData = materialData;
             currMaterials = new Dictionary<string, Material>();
-            if (materialData == null)
+            if (materialData == null || materialData.Count == 0)
             {
                 string shaderName = "VertexLit";
                 if (hasColors)
@@ -342,81 +342,81 @@ namespace AsImpL
             else
             {
 #endif
-                bool splitGrp = false;
+            bool splitGrp = false;
 
-                DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
-                grp.name = objData.faceGroups[buildStatus.grpIdx].name;
-                grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
+            DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
+            grp.name = objData.faceGroups[buildStatus.grpIdx].name;
+            grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
 
 
-                // data for sub-object
-                DataSet.ObjectData subObjData = new DataSet.ObjectData();
-                subObjData.hasNormals = objData.hasNormals;
-                subObjData.hasColors = objData.hasColors;
+            // data for sub-object
+            DataSet.ObjectData subObjData = new DataSet.ObjectData();
+            subObjData.hasNormals = objData.hasNormals;
+            subObjData.hasColors = objData.hasColors;
 
-                HashSet<int> vertIdxSet = new HashSet<int>();
+            HashSet<int> vertIdxSet = new HashSet<int>();
 
-                bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
+            bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
 
-                int maxIdx4mesh = conv2sided ? MAX_INDICES_LIMIT_FOR_A_MESH / 2 : MAX_INDICES_LIMIT_FOR_A_MESH;
+            int maxIdx4mesh = conv2sided ? MAX_INDICES_LIMIT_FOR_A_MESH / 2 : MAX_INDICES_LIMIT_FOR_A_MESH;
 
-                // copy blocks of face indices to each sub-object data
-                for (int f = buildStatus.grpFaceIdx; f < objData.faceGroups[buildStatus.grpIdx].faces.Count; f++)
+            // copy blocks of face indices to each sub-object data
+            for (int f = buildStatus.grpFaceIdx; f < objData.faceGroups[buildStatus.grpIdx].faces.Count; f++)
+            {
+                // if passed the max num of vertices and not at the last iteration
+                if (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3)
                 {
-                    // if passed the max num of vertices and not at the last iteration
-                    if (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3)
-                    {
-                        // split the group across more objects
-                        splitGrp = true;
-                        buildStatus.grpFaceIdx = f;
-                        Debug.LogWarningFormat("Maximum vertex number for a mesh exceeded.\nSplitting object {0} (group {1}, starting from index {2})...", grp.name, buildStatus.grpIdx, f);
-                        break;
-                    }
-                    DataSet.FaceIndices fi = objData.faceGroups[buildStatus.grpIdx].faces[f];
-                    subObjData.allFaces.Add(fi);
-                    grp.faces.Add(fi);
-                    vertIdxSet.Add(fi.vertIdx);
+                    // split the group across more objects
+                    splitGrp = true;
+                    buildStatus.grpFaceIdx = f;
+                    Debug.LogWarningFormat("Maximum vertex number for a mesh exceeded.\nSplitting object {0} (group {1}, starting from index {2})...", grp.name, buildStatus.grpIdx, f);
+                    break;
                 }
-                if (splitGrp || buildStatus.meshPartIdx > 0)
-                {
-                    buildStatus.meshPartIdx++;
-                }
-                // create an empty (group) object in case the group has been splitted
-                if (buildStatus.meshPartIdx == 1)
-                {
-                    GameObject grpObj = new GameObject();
-                    grpObj.transform.SetParent(buildStatus.currObjGameObject.transform, false);
-                    grpObj.name = grp.name;
-                    buildStatus.subObjParent = grpObj;
-                }
+                DataSet.FaceIndices fi = objData.faceGroups[buildStatus.grpIdx].faces[f];
+                subObjData.allFaces.Add(fi);
+                grp.faces.Add(fi);
+                vertIdxSet.Add(fi.vertIdx);
+            }
+            if (splitGrp || buildStatus.meshPartIdx > 0)
+            {
+                buildStatus.meshPartIdx++;
+            }
+            // create an empty (group) object in case the group has been splitted
+            if (buildStatus.meshPartIdx == 1)
+            {
+                GameObject grpObj = new GameObject();
+                grpObj.transform.SetParent(buildStatus.currObjGameObject.transform, false);
+                grpObj.name = grp.name;
+                buildStatus.subObjParent = grpObj;
+            }
 
-                // add a suffix to the group name in case the group has been splitted
-                if (buildStatus.meshPartIdx > 0)
-                {
-                    grp.name = buildStatus.subObjParent.name + "_MeshPart" + buildStatus.meshPartIdx;
-                }
-                subObjData.name = grp.name;
+            // add a suffix to the group name in case the group has been splitted
+            if (buildStatus.meshPartIdx > 0)
+            {
+                grp.name = buildStatus.subObjParent.name + "_MeshPart" + buildStatus.meshPartIdx;
+            }
+            subObjData.name = grp.name;
 
-                // add the group to the sub object data
-                subObjData.faceGroups.Add(grp);
+            // add the group to the sub object data
+            subObjData.faceGroups.Add(grp);
 
-                // update the start index
-                buildStatus.idxCount += subObjData.allFaces.Count;
+            // update the start index
+            buildStatus.idxCount += subObjData.allFaces.Count;
 
-                if (!splitGrp)
-                {
-                    buildStatus.grpFaceIdx = 0;
-                    buildStatus.grpIdx++;
-                }
-                buildStatus.totFaceIdxCount += subObjData.allFaces.Count;
-                GameObject subobj = ImportSubObject(buildStatus.subObjParent, subObjData, mats);
-                if (subobj == null)
-                {
-                    Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
-                }
-                //else Debug.LogFormat( "Imported face indices: {0} to {1}", buildStatus.totFaceIdxCount - sub_od.AllFaces.Count, buildStatus.totFaceIdxCount );
+            if (!splitGrp)
+            {
+                buildStatus.grpFaceIdx = 0;
+                buildStatus.grpIdx++;
+            }
+            buildStatus.totFaceIdxCount += subObjData.allFaces.Count;
+            GameObject subobj = ImportSubObject(buildStatus.subObjParent, subObjData, mats);
+            if (subobj == null)
+            {
+                Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
+            }
+            //else Debug.LogFormat( "Imported face indices: {0} to {1}", buildStatus.totFaceIdxCount - sub_od.AllFaces.Count, buildStatus.totFaceIdxCount );
 
-                buildStatus.subObjCount++;
+            buildStatus.subObjCount++;
 #if UNITY_2017_3_OR_NEWER
             }
 #endif
@@ -449,6 +449,13 @@ namespace AsImpL
                 }
             }
             go.transform.SetParent(parentObj.transform, false);
+
+            if (objData.allFaces.Count == 0)
+            {
+                Debug.LogWarning("Sub object: " + objData.name + " has no face defined. Creating empty game object.");
+
+                return go;
+            }
 
             //Debug.Log( "Importing sub object:" + objData.Name );
 
