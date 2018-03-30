@@ -898,6 +898,11 @@ namespace AsImpL
         /// <returns>True if the GPU support for 32 bit indices is enabled and available.</returns>
         private bool Using32bitIndices()
         {
+            if(currDataSet.HasPolygons)
+            {
+                // TODO: This is a workaround. The issue with Unity 2017.3 must ber fixed.
+                return false;
+            }
 #if UNITY_ANDROID
             string graphicsDeviceName = SystemInfo.graphicsDeviceName;
             // If nothing is rendered on your device problably a new device check must be added here.
