@@ -117,7 +117,7 @@ namespace AsImpL
 
             if (loader.error != null)
             {
-                Debug.LogError("Error loading "+mtlPath+"\n"+loader.error);
+                Debug.LogError("Error loading " + mtlPath + "\n" + loader.error);
             }
             else
             {
@@ -296,25 +296,18 @@ namespace AsImpL
                                 dataSet.AddFaceIndices(faces[2]);
                                 dataSet.AddFaceIndices(faces[1]);
                             }
-                            else if (numVerts == 4)
-                            {
-                                dataSet.AddFaceIndices(faces[0]);
-                                dataSet.AddFaceIndices(faces[3]);
-                                dataSet.AddFaceIndices(faces[1]);
-                                dataSet.AddFaceIndices(faces[3]);
-                                dataSet.AddFaceIndices(faces[2]);
-                                dataSet.AddFaceIndices(faces[1]);
-                            }
                             else
                             {
-                                Debug.LogWarning("face vertex count :" + (p.Length - 1) + " larger than 4");
-                                // TODO: support for faces with more than 4 vertices
-                                // Introducing a new vertex could break texturing details.
-                                // Texturing and lighting work better with a triangulation
-                                // that maximizes triangles areas.
-                                // See http://vterrain.org/Implementation/Libs/triangulate.html
-                                // and http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml.
+                                // Triangulate the polygon
+                                // (assuming it is a simple convex polygon)
+                                // TODO: Texturing and lighting work better with a triangulation that maximizes triangles areas.
                                 // Maybe triangulation could be done in ObjectImporter instead.
+                                for (int q = 1; q < numVerts - 1; q++)
+                                {
+                                    dataSet.AddFaceIndices(faces[0]);
+                                    dataSet.AddFaceIndices(faces[q + 1]);
+                                    dataSet.AddFaceIndices(faces[q]);
+                                }
                             }
                         }
                         break;
