@@ -54,8 +54,6 @@ namespace AsImpL
             }
         }
 
-        public bool HasPolygons { get; set; }
-
         /// <summary>
         /// Get a string key based on the given face indices
         /// </summary>
@@ -99,8 +97,6 @@ namespace AsImpL
             g.name = "default";
             d.faceGroups.Add(g);
             currGroup = g;
-
-            HasPolygons = false;
         }
 
         /// <summary>

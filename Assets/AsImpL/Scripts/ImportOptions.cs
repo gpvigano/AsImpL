@@ -43,5 +43,7 @@ namespace AsImpL
         public bool colliderInflate = false;
         [Tooltip("Mesh colliders inflation amount (only active if colliderInflate = true)")]
         public float colliderSkinWidth = 0.01f;
+        [Tooltip("Use 32 bit indices when needed, if available")]
+        public bool use32bitIndices = false;
     }
 }

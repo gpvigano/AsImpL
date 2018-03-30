@@ -898,9 +898,9 @@ namespace AsImpL
         /// <returns>True if the GPU support for 32 bit indices is enabled and available.</returns>
         private bool Using32bitIndices()
         {
-            if(currDataSet.HasPolygons)
+            if(buildOptions==null || !buildOptions.use32bitIndices)
             {
-                // TODO: This is a workaround. The issue with Unity 2017.3 must ber fixed.
+                // TODO: This is a workaround. The issue with Unity 2017.3 must be fixed.
                 return false;
             }
 #if UNITY_ANDROID

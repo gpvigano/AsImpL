@@ -298,7 +298,6 @@ namespace AsImpL
                             }
                             else
                             {
-                                dataSet.HasPolygons = true;
                                 // Triangulate the polygon
                                 // (assuming it is a simple convex polygon)
                                 // TODO: Texturing and lighting work better with a triangulation that maximizes triangles areas.
