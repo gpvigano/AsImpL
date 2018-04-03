@@ -294,7 +294,10 @@ namespace AsImpL
         /// <returns>Return true until no more objects can be added, then false.</returns>
         protected bool BuildNextObject(GameObject parentObj, Dictionary<string, Material> mats)
         {
+            // if all the objects were built stop here
             if (buildStatus.objCount >= currDataSet.objectList.Count) return false;
+
+            // get the next object in the list
             DataSet.ObjectData objData = currDataSet.objectList[buildStatus.objCount];
 
             if (buildStatus.newObject)
@@ -325,6 +328,7 @@ namespace AsImpL
                 buildStatus.numGroups = Mathf.Max(1, objData.faceGroups.Count);
             }
 
+            bool splitLargeMeshes = true;
 #if UNITY_2017_3_OR_NEWER
             // GPU support for 32 bit indices is not guaranteed on all platforms;
             // for example Android devices with Mali-400 GPU do not support them.
@@ -332,15 +336,8 @@ namespace AsImpL
             // If nothing is rendered on your device problably Using32bitIndices() must be updated.
             if (Using32bitIndices())
             {
-                buildStatus.totFaceIdxCount += objData.allFaces.Count;
-                GameObject subobj = ImportSubObject(parentObj, objData, mats);
-                if (subobj == null)
-                {
-                    Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
-                }
+                splitLargeMeshes = false;
             }
-            else
-            {
 #endif
             bool splitGrp = false;
 
@@ -363,8 +360,9 @@ namespace AsImpL
             // copy blocks of face indices to each sub-object data
             for (int f = buildStatus.grpFaceIdx; f < objData.faceGroups[buildStatus.grpIdx].faces.Count; f++)
             {
+                // if large meshed must be split and
                 // if passed the max num of vertices and not at the last iteration
-                if (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3)
+                if (splitLargeMeshes && (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3))
                 {
                     // split the group across more objects
                     splitGrp = true;
@@ -417,9 +415,6 @@ namespace AsImpL
             //else Debug.LogFormat( "Imported face indices: {0} to {1}", buildStatus.totFaceIdxCount - sub_od.AllFaces.Count, buildStatus.totFaceIdxCount );
 
             buildStatus.subObjCount++;
-#if UNITY_2017_3_OR_NEWER
-            }
-#endif
 
             if (buildStatus.totFaceIdxCount >= objData.allFaces.Count || buildStatus.grpIdx >= objData.faceGroups.Count)
             {
@@ -898,9 +893,9 @@ namespace AsImpL
         /// <returns>True if the GPU support for 32 bit indices is enabled and available.</returns>
         private bool Using32bitIndices()
         {
-            if(buildOptions==null || !buildOptions.use32bitIndices)
+            if (buildOptions != null && !buildOptions.use32bitIndices)
             {
-                // TODO: This is a workaround. The issue with Unity 2017.3 must be fixed.
+                // Do not use at all 32 bit indices only if explicitly required.
                 return false;
             }
 #if UNITY_ANDROID
