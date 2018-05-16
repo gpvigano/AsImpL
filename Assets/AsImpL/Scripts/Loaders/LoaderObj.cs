@@ -105,7 +105,18 @@ namespace AsImpL
             string mtlPath;
             if (absolutePath.Contains("//"))
             {
-                mtlPath = absolutePath.Remove(absolutePath.LastIndexOf('/') + 1) + mtlLib;
+                int pos;
+                // handle the special case of a PHP URL containing "...?...=model.obj"
+                if (absolutePath.Contains("?"))
+                {
+                    // in this case try to get the library path reading until last "=".
+                    pos = absolutePath.LastIndexOf('=');
+                }
+                else
+                {
+                    pos = absolutePath.LastIndexOf('/');
+                }
+                mtlPath = absolutePath.Remove(pos + 1) + mtlLib;
             }
             else
             {
@@ -435,6 +446,7 @@ namespace AsImpL
                         case "Tr": // Transparency
                             current.overallAlpha = p.Length > 1 && p[1] != "" ? 1.0f - ParseFloat(p[1]) : 1.0f;
                             break;
+                        case "map_KD":
                         case "map_Kd": // Color texture, diffuse reflectivity
                             if (!string.IsNullOrEmpty(parameters))
                             {

@@ -330,15 +330,28 @@ namespace AsImpL
             }
             Loader loader = null;
             ext = ext.ToLower();
-            switch (ext)
+            if (ext.StartsWith(".php"))
             {
-                case ".obj":
-                    loader = gameObject.AddComponent<LoaderObj>();
-                    break;
-                // TODO: add mode formats here...
-                default:
-                    Debug.LogErrorFormat("File format not supported ({0})", ext);
+                if (!ext.EndsWith(".obj"))
+                {
+                    // TODO: other formats supported? Remark: often there are zip and rar archives without extension.
+                    Debug.LogError("Unable to detect file format in " + ext);
                     return null;
+                }
+                loader = gameObject.AddComponent<LoaderObj>();
+            }
+            else
+            {
+                switch (ext)
+                {
+                    case ".obj":
+                        loader = gameObject.AddComponent<LoaderObj>();
+                        break;
+                    // TODO: add mode formats here...
+                    default:
+                        Debug.LogErrorFormat("File format not supported ({0})", ext);
+                        return null;
+                }
             }
             loader.ModelCreated += OnModelCreated;
             loader.ModelLoaded += OnImported;
