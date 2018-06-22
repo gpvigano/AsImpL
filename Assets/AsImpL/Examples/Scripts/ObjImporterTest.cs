@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,6 +29,10 @@ namespace AsImpL
 
             [Tooltip("Reuse a model in memory if already loaded (ovverides for each object)")]
             public bool reuseLoaded = true;
+
+            [Tooltip("Inherit parent layer")]
+            public bool inheritLayer = false;
+
 
             /// <summary>
             /// Load a set of files with their own import options
@@ -65,6 +69,7 @@ namespace AsImpL
                         options.localScale.Set(defaultScale, defaultScale, defaultScale);
                     }
                     options.reuseLoaded = reuseLoaded;
+                    options.inheritLayer = inheritLayer;
                     ImportModelAsync(objName, filePath, transform, options);
                 }
             }
