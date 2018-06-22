@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace AsImpL
 {
@@ -32,6 +32,9 @@ namespace AsImpL
 
         [Tooltip("Reuse a model in memory if already loaded")]
         public bool reuseLoaded = false;
+
+        [Tooltip("Inherit parent layer")]
+        public bool inheritLayer = false;
 
         [Tooltip("Generate mesh colliders")]
         public bool buildColliders = false;
