@@ -86,7 +86,10 @@ namespace AsImpL
                 || texture.format == TextureFormat.DXT5
                 || texture.format == TextureFormat.ARGB4444
                 || texture.format == TextureFormat.BGRA32
+// Only for DirectX support
+#if UNITY_STANDALONE_WIN
                 || texture.format == TextureFormat.DXT5Crunched
+#endif
                 //|| texture.format == ... (all alpha formats)
                 );
             if (texCanBeTransparent)
