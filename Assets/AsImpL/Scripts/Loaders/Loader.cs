@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -450,6 +450,15 @@ namespace AsImpL
                     obj.transform.localPosition = buildOptions.localPosition;
                     obj.transform.localRotation = Quaternion.Euler(buildOptions.localEulerAngles); ;
                     obj.transform.localScale = buildOptions.localScale;
+                    if (buildOptions.inheritLayer)
+                    {
+                        obj.layer = obj.transform.parent.gameObject.layer;
+                        MeshRenderer[] mrs = obj.transform.GetComponentsInChildren<MeshRenderer>(true);
+                        for (int i = 0; i < mrs.Length; i++)
+                        {
+                            mrs[i].gameObject.layer = obj.transform.parent.gameObject.layer;
+                        }
+                    }
                 }
                 if (ModelLoaded != null)
                 {
