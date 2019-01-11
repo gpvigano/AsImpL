@@ -310,15 +310,10 @@ namespace AsImpL
                             else
                             {
                                 // Triangulate the polygon
-                                // (assuming it is a simple convex polygon)
                                 // TODO: Texturing and lighting work better with a triangulation that maximizes triangles areas.
-                                // Maybe triangulation could be done in ObjectImporter instead.
-                                for (int q = 1; q < numVerts - 1; q++)
-                                {
-                                    dataSet.AddFaceIndices(faces[0]);
-                                    dataSet.AddFaceIndices(faces[q + 1]);
-                                    dataSet.AddFaceIndices(faces[q]);
-                                }
+                                // TODO: the following true must be replaced to a proper option (disabled by default) as soon as a proper triangulation method is implemented.
+                                Triangulator.Triangulate(dataSet, faces, true);
+                                // TODO: Maybe triangulation could be done in ObjectImporter instead.
                             }
                         }
                         break;
