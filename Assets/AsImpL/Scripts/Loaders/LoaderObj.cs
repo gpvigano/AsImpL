@@ -212,8 +212,8 @@ namespace AsImpL
                 y *= Scaling;
                 z *= Scaling;
             }
-            if (ConvertVertAxis) return new Vector3(-x, z, -y);
-            return new Vector3(-x, y, z);
+            if (ConvertVertAxis) return new Vector3(x, z, y);
+            return new Vector3(x, y, -z);
         }
 
         /// <summary>
