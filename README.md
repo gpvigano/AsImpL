@@ -56,6 +56,7 @@ This project was started because of these requirements (partly addressed by some
     are splitted and loaded as children of the same game object
   * in Unity 2017.3 and above 32 bit indices are used, but only for
     meshes with more than 65K vertices (like Unity importer does)
+  * support for faces with an arbitrary number of vertices, even concave
   * groups are loaded into game (sub) objects
     * if no sub object is defined faces are grouped by material
       into sub-objects
@@ -135,8 +136,9 @@ This work started looking at the [Runtime OBJ Loader],
 from which some source code (in particular TextureLoader.cs and parts of LoaderObj) came.
 The OBJ file loader is inspired by [Runtime OBJ Loader], [unity-obj-loader], [unity-remote-obj-loader] and all the people who shared their ideas (e.g. [Bartek Drozdz]).
 The first asynchronous loading implementation comes from [unity-remote-obj-loader].
-Thanks in advance to all the people who contributed and will contribute in any way to this project.
+The triangulation implementation is derived from [Erik Nordeus's tutorial](https://www.habrador.com/tutorials/math/10-triangulation/).
 
+Thanks in advance to all the people who contributed and will contribute in any way to this project.
 
 ### Contributing
 

@@ -293,26 +293,26 @@ namespace AsImpL
                     case "f":
                         {
                             int numVerts = p.Length - 1;
-                            DataSet.FaceIndices[] faces = new DataSet.FaceIndices[numVerts];
+                            DataSet.FaceIndices[] face = new DataSet.FaceIndices[numVerts];
                             if (isFirstInGroup)
                             {
                                 isFirstInGroup = false;
                                 string[] c = p[1].Trim().Split("/".ToCharArray());
                                 isFaceIndexPlus = (int.Parse(c[0]) >= 0);
                             }
-                            GetFaceIndicesByOneFaceLine(faces, p, isFaceIndexPlus);
+                            GetFaceIndicesByOneFaceLine(face, p, isFaceIndexPlus);
                             if (numVerts == 3)
                             {
-                                dataSet.AddFaceIndices(faces[0]);
-                                dataSet.AddFaceIndices(faces[2]);
-                                dataSet.AddFaceIndices(faces[1]);
+                                dataSet.AddFaceIndices(face[0]);
+                                dataSet.AddFaceIndices(face[2]);
+                                dataSet.AddFaceIndices(face[1]);
                             }
                             else
                             {
                                 // Triangulate the polygon
                                 // TODO: Texturing and lighting work better with a triangulation that maximizes triangles areas.
                                 // TODO: the following true must be replaced to a proper option (disabled by default) as soon as a proper triangulation method is implemented.
-                                Triangulator.Triangulate(dataSet, faces, true);
+                                Triangulator.Triangulate(dataSet, face);
                                 // TODO: Maybe triangulation could be done in ObjectImporter instead.
                             }
                         }
