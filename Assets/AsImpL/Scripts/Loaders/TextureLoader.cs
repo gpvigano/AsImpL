@@ -1,7 +1,8 @@
 ﻿using System;
-using UnityEngine;
 using System.Collections;
 using System.IO;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace AsImpL
 {
@@ -21,21 +22,20 @@ namespace AsImpL
         /// <summary>
         /// Load an image from a file into a Texture2D.
         /// </summary>
-        /// <param name="www">WWW object (already loaded)</param>
+        /// <param name="url">URL og the texture image.</param>
         /// <returns>The loaded texture or null on error.</returns>
-        public static Texture2D LoadTexture(WWW www)
+        public static Texture2D LoadTextureFromUrl(string url)
         {
-            string fullPath = www.url;
             const string prefix = "file:///";
-            if (fullPath.StartsWith(prefix))
+            if (url.StartsWith(prefix))
             {
-                fullPath = fullPath.Substring(prefix.Length);
+                url = url.Substring(prefix.Length);
             }
             else
             {
-                fullPath = Path.GetFullPath(fullPath);
+                url = Path.GetFullPath(url);
             }
-            return LoadTexture(fullPath);
+            return LoadTexture(url);
         }
 
         /// <summary>
