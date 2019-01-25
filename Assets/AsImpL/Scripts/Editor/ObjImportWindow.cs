@@ -23,6 +23,9 @@ namespace AsImpL
         public float colliderSkinWidth = 0.01f;
         private bool importAssets = false;
         private string importAssetPath = "ImportedOBJ";
+#if UNITY_2017_3_OR_NEWER
+        private bool use32bitIndices = false;
+#endif
 
         private bool loading = false;
         private GameObject objObject;
@@ -59,6 +62,9 @@ namespace AsImpL
             EditorPrefs.SetFloat("AsImpL_ColliderSkinWidth", colliderSkinWidth);
             EditorPrefs.SetBool("AsImpL_ImportAssets", importAssets);
             EditorPrefs.SetString("AsImpL_AssetPath", importAssetPath);
+#if UNITY_2017_3_OR_NEWER
+            EditorPrefs.SetBool("AsImpL_Use32bitIndices", use32bitIndices);
+#endif
         }
 
         private void ResetSettings()
@@ -115,6 +121,12 @@ namespace AsImpL
             {
                 importAssetPath = EditorPrefs.GetString("AsImpL_AssetPath");
             }
+#if UNITY_2017_3_OR_NEWER
+            if (EditorPrefs.HasKey("AsImpL_use32bitIndices"))
+            {
+                use32bitIndices = EditorPrefs.GetBool("AsImpL_use32bitIndices");
+            }
+#endif
         }
 
         private void OnEnable()
@@ -176,6 +188,9 @@ namespace AsImpL
                     colliderSkinWidth = EditorGUILayout.FloatField("Mesh colliders inflation amount", colliderSkinWidth);
                 }
             }
+#if UNITY_2017_3_OR_NEWER
+            use32bitIndices = EditorGUILayout.Toggle("Use 32 bit indices", use32bitIndices);
+#endif
 
             importAssets = EditorGUILayout.Toggle("Import assets", importAssets);
             if (importAssets)

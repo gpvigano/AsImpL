@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace AsImpL
 {
@@ -33,6 +33,9 @@ namespace AsImpL
         [Tooltip("Reuse a model in memory if already loaded")]
         public bool reuseLoaded = false;
 
+        [Tooltip("Inherit parent layer")]
+        public bool inheritLayer = false;
+
         [Tooltip("Generate mesh colliders")]
         public bool buildColliders = false;
         [Tooltip("Generate convex mesh colliders (only active if buildColliders = true)\nNote: it could not work for meshes with too many smooth surface regions.")]
@@ -43,5 +46,9 @@ namespace AsImpL
         public bool colliderInflate = false;
         [Tooltip("Mesh colliders inflation amount (only active if colliderInflate = true)")]
         public float colliderSkinWidth = 0.01f;
+#if UNITY_2017_3_OR_NEWER
+        [Tooltip("Use 32 bit indices when needed, if available")]
+        public bool use32bitIndices = true;
+#endif
     }
 }

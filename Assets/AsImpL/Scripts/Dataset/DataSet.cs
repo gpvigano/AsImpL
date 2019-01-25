@@ -13,7 +13,7 @@ namespace AsImpL
         /// <summary>
         /// List of objects
         /// </summary>
-        public List<ObjectData> objectList;
+        public List<ObjectData> objectList = new List<ObjectData>();
 
         /// <summary>
         /// List of vertices
@@ -42,6 +42,17 @@ namespace AsImpL
         private FaceGroupData currGroup;
 
         private bool noFaceDefined = true;
+
+        /// <summary>
+        /// Name of the current group.
+        /// </summary>
+        public string CurrGroupName
+        {
+            get
+            {
+                return currGroup != null ? currGroup.name : "";
+            }
+        }
 
         /// <summary>
         /// Check if there is no vertex defined.
@@ -87,7 +98,6 @@ namespace AsImpL
         /// </summary>
         public DataSet()
         {
-            objectList = new List<ObjectData>();
             ObjectData d = new ObjectData();
             d.name = "default";
             objectList.Add(d);

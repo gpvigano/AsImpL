@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,6 +38,7 @@ namespace AsImpL
     public class LoaderObj : Loader
     {
         private string mtlLib;
+        private string loadedText;
 
         /// <summary>
         /// Parse dependencies of the given OBJ file.
@@ -84,20 +86,19 @@ namespace AsImpL
         protected override IEnumerator LoadModelFile(string absolutePath)
         {
             string url = absolutePath.Contains("//") ? absolutePath : "file:///" + absolutePath;
-            WWW www = new WWW(url);
-            yield return www;
+            yield return LoadOrDownloadText(url);
 
-            if (string.IsNullOrEmpty(www.text))
+            if (string.IsNullOrEmpty(loadedText))
             {
-                Debug.LogError("Failed to load " + www.url);
-                objLoadingProgress.message = "Failed to load " + www.url;
+                Debug.LogError("Failed to load " + loadedText);
+                objLoadingProgress.message = "Failed to load " + loadedText;
                 objLoadingProgress.error = true;
                 //totalProgress.fileProgress.Remove( objLoadingProgress );
                 yield break;
             }
             //Debug.LogFormat("Parsing geometry data in {0}...", www.url);
 
-            yield return ParseGeometryData(www.text);
+            yield return ParseGeometryData(loadedText);
         }
 
         protected override IEnumerator LoadMaterialLibrary(string absolutePath)
@@ -105,25 +106,31 @@ namespace AsImpL
             string mtlPath;
             if (absolutePath.Contains("//"))
             {
-                mtlPath = absolutePath.Remove(absolutePath.LastIndexOf('/') + 1) + mtlLib;
+                int pos;
+                // handle the special case of a PHP URL containing "...?...=model.obj"
+                if (absolutePath.Contains("?"))
+                {
+                    // in this case try to get the library path reading until last "=".
+                    pos = absolutePath.LastIndexOf('=');
+                }
+                else
+                {
+                    pos = absolutePath.LastIndexOf('/');
+                }
+                mtlPath = absolutePath.Remove(pos + 1) + mtlLib;
             }
             else
             {
                 string basePath = GetDirName(absolutePath);
                 mtlPath = "file:///" + basePath + mtlLib;
             }
-            WWW loader = new WWW(mtlPath);
-            yield return loader;
+            yield return LoadOrDownloadText(mtlPath);
 
-            if (loader.error != null)
-            {
-                Debug.LogError("Error loading "+mtlPath+"\n"+loader.error);
-            }
-            else
+            if (loadedText != null)
             {
                 //Debug.LogFormat("Parsing material libray {0}...", loader.url);
                 objLoadingProgress.message = "Parsing material libray...";
-                ParseMaterialData(loader.text);
+                ParseMaterialData(loadedText);
             }
 
         }
@@ -201,8 +208,8 @@ namespace AsImpL
                 y *= Scaling;
                 z *= Scaling;
             }
-            if (ConvertVertAxis) return new Vector3(-x, z, -y);
-            return new Vector3(-x, y, z);
+            if (ConvertVertAxis) return new Vector3(x, z, y);
+            return new Vector3(x, y, -z);
         }
 
         /// <summary>
@@ -282,39 +289,27 @@ namespace AsImpL
                     case "f":
                         {
                             int numVerts = p.Length - 1;
-                            DataSet.FaceIndices[] faces = new DataSet.FaceIndices[numVerts];
+                            DataSet.FaceIndices[] face = new DataSet.FaceIndices[numVerts];
                             if (isFirstInGroup)
                             {
                                 isFirstInGroup = false;
                                 string[] c = p[1].Trim().Split("/".ToCharArray());
                                 isFaceIndexPlus = (int.Parse(c[0]) >= 0);
                             }
-                            GetFaceIndicesByOneFaceLine(faces, p, isFaceIndexPlus);
+                            GetFaceIndicesByOneFaceLine(face, p, isFaceIndexPlus);
                             if (numVerts == 3)
                             {
-                                dataSet.AddFaceIndices(faces[0]);
-                                dataSet.AddFaceIndices(faces[2]);
-                                dataSet.AddFaceIndices(faces[1]);
-                            }
-                            else if (numVerts == 4)
-                            {
-                                dataSet.AddFaceIndices(faces[0]);
-                                dataSet.AddFaceIndices(faces[3]);
-                                dataSet.AddFaceIndices(faces[1]);
-                                dataSet.AddFaceIndices(faces[3]);
-                                dataSet.AddFaceIndices(faces[2]);
-                                dataSet.AddFaceIndices(faces[1]);
+                                dataSet.AddFaceIndices(face[0]);
+                                dataSet.AddFaceIndices(face[2]);
+                                dataSet.AddFaceIndices(face[1]);
                             }
                             else
                             {
-                                Debug.LogWarning("face vertex count :" + (p.Length - 1) + " larger than 4");
-                                // TODO: support for faces with more than 4 vertices
-                                // Introducing a new vertex could break texturing details.
-                                // Texturing and lighting work better with a triangulation
-                                // that maximizes triangles areas.
-                                // See http://vterrain.org/Implementation/Libs/triangulate.html
-                                // and http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml.
-                                // Maybe triangulation could be done in ObjectImporter instead.
+                                // Triangulate the polygon
+                                // TODO: Texturing and lighting work better with a triangulation that maximizes triangles areas.
+                                // TODO: the following true must be replaced to a proper option (disabled by default) as soon as a proper triangulation method is implemented.
+                                Triangulator.Triangulate(dataSet, face);
+                                // TODO: Maybe triangulation could be done in ObjectImporter instead.
                             }
                         }
                         break;
@@ -442,6 +437,7 @@ namespace AsImpL
                         case "Tr": // Transparency
                             current.overallAlpha = p.Length > 1 && p[1] != "" ? 1.0f - ParseFloat(p[1]) : 1.0f;
                             break;
+                        case "map_KD":
                         case "map_Kd": // Color texture, diffuse reflectivity
                             if (!string.IsNullOrEmpty(parameters))
                             {
@@ -593,6 +589,36 @@ namespace AsImpL
         private Color StringsToColor(string[] p)
         {
             return new Color(ParseFloat(p[1]), ParseFloat(p[2]), ParseFloat(p[3]));
+        }
+
+        private IEnumerator LoadOrDownloadText(string url)
+        {
+#if UNITY_2018_3_OR_NEWER
+            UnityWebRequest uwr = UnityWebRequest.Get(url);
+            yield return uwr.SendWebRequest();
+
+            if (uwr.isNetworkError || uwr.isHttpError)
+            {
+                Debug.LogError(uwr.error);
+            }
+            else
+            {
+                // Get downloaded asset bundle
+                loadedText = uwr.downloadHandler.text;
+            }
+#else
+            loadedText = null;
+            WWW www = new WWW(url);
+            yield return www;
+            if (www.error != null)
+            {
+                Debug.LogError("Error loading " + url + "\n" + www.error);
+            }
+            else
+            {
+                loadedText = www.text;
+            }
+#endif
         }
 
         /// <summary>
