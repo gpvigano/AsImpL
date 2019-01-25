@@ -300,7 +300,11 @@ namespace AsImpL
                 AssetDatabase.Refresh();
 
                 importMessage = "Creating prefab...";
+#if UNITY_2018_3_OR_NEWER
+                PrefabUtility.SaveAsPrefabAssetAndConnect(loadedObj, prefabName, InteractionMode.AutomatedAction);
+#else
                 PrefabUtility.CreatePrefab(prefabName, loadedObj, ReplacePrefabOptions.ConnectToPrefab);
+#endif
                 //GameObject. objObject.GetComponent<OBJ>();
                 Debug.LogFormat("Assets created in {0} seconds", Time.realtimeSinceStartup - startTime);
                 importPhase = ImportPhase.Done;

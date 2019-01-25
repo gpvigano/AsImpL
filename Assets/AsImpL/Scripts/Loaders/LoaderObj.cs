@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,6 +38,7 @@ namespace AsImpL
     public class LoaderObj : Loader
     {
         private string mtlLib;
+        private string loadedText;
 
         /// <summary>
         /// Parse dependencies of the given OBJ file.
@@ -84,20 +86,19 @@ namespace AsImpL
         protected override IEnumerator LoadModelFile(string absolutePath)
         {
             string url = absolutePath.Contains("//") ? absolutePath : "file:///" + absolutePath;
-            WWW www = new WWW(url);
-            yield return www;
+            yield return LoadOrDownloadText(url);
 
-            if (string.IsNullOrEmpty(www.text))
+            if (string.IsNullOrEmpty(loadedText))
             {
-                Debug.LogError("Failed to load " + www.url);
-                objLoadingProgress.message = "Failed to load " + www.url;
+                Debug.LogError("Failed to load " + loadedText);
+                objLoadingProgress.message = "Failed to load " + loadedText;
                 objLoadingProgress.error = true;
                 //totalProgress.fileProgress.Remove( objLoadingProgress );
                 yield break;
             }
             //Debug.LogFormat("Parsing geometry data in {0}...", www.url);
 
-            yield return ParseGeometryData(www.text);
+            yield return ParseGeometryData(loadedText);
         }
 
         protected override IEnumerator LoadMaterialLibrary(string absolutePath)
@@ -123,18 +124,13 @@ namespace AsImpL
                 string basePath = GetDirName(absolutePath);
                 mtlPath = "file:///" + basePath + mtlLib;
             }
-            WWW loader = new WWW(mtlPath);
-            yield return loader;
+            yield return LoadOrDownloadText(mtlPath);
 
-            if (loader.error != null)
-            {
-                Debug.LogError("Error loading " + mtlPath + "\n" + loader.error);
-            }
-            else
+            if (loadedText != null)
             {
                 //Debug.LogFormat("Parsing material libray {0}...", loader.url);
                 objLoadingProgress.message = "Parsing material libray...";
-                ParseMaterialData(loader.text);
+                ParseMaterialData(loadedText);
             }
 
         }
@@ -593,6 +589,36 @@ namespace AsImpL
         private Color StringsToColor(string[] p)
         {
             return new Color(ParseFloat(p[1]), ParseFloat(p[2]), ParseFloat(p[3]));
+        }
+
+        private IEnumerator LoadOrDownloadText(string url)
+        {
+#if UNITY_2018_3_OR_NEWER
+            UnityWebRequest uwr = UnityWebRequest.Get(url);
+            yield return uwr.SendWebRequest();
+
+            if (uwr.isNetworkError || uwr.isHttpError)
+            {
+                Debug.LogError(uwr.error);
+            }
+            else
+            {
+                // Get downloaded asset bundle
+                loadedText = uwr.downloadHandler.text;
+            }
+#else
+            loadedText = null;
+            WWW www = new WWW(url);
+            yield return www;
+            if (www.error != null)
+            {
+                Debug.LogError("Error loading " + url + "\n" + www.error);
+            }
+            else
+            {
+                loadedText = www.text;
+            }
+#endif
         }
 
         /// <summary>

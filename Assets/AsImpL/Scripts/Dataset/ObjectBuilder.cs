@@ -278,8 +278,10 @@ namespace AsImpL
                 meshCollider.sharedMesh = objectMesh;
                 if (convex)
                 {
+#if !UNITY_2018_3_OR_NEWER
                     meshCollider.skinWidth = skinWidth;
                     meshCollider.inflateMesh = inflateMesh;
+#endif
                     meshCollider.convex = convex;
                     meshCollider.isTrigger = isTrigger;
                 }
