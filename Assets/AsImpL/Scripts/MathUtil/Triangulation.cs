@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -21,9 +21,9 @@ namespace AsImpL.MathUtil
             List<Vertex> poly = preserveOriginalVertices ? new List<Vertex>(vertices) : vertices;
             List<Triangle> triangles = new List<Triangle>();
 
-            while(true)
+            while (true)
             {
-                if(poly.Count==3)
+                if (poly.Count == 3)
                 {
                     triangles.Add(new Triangle(poly[0], poly[1], poly[2]));
                     return triangles;
@@ -98,11 +98,20 @@ namespace AsImpL.MathUtil
                     planeNormal = -planeNormal;
                     earVertices = FindEarVertices(vertices, planeNormal);
                 }
-
-                //Make a triangle of the first ear with maximum area
-                Vertex earVertex = FindMaxAreaEarVertex(earVertices);//earVertices[0];
-                Triangle newTriangle = ClipEar(earVertex, earVertices, vertices, planeNormal);
-                triangles.Add(newTriangle);
+                if (earVertices.Count == 0)
+                {
+                    Debug.LogWarningFormat("Cannot find a proper reprojection for mesh '{0}'. Using fallback polygon triangulation.", meshName);
+                    Vertex earVertex = vertices[0];
+                    Triangle newTriangle = ClipTriangle(earVertex, vertices);
+                    triangles.Add(newTriangle);
+                }
+                else
+                {
+                    //Make a triangle of the first ear with maximum area
+                    Vertex earVertex = FindMaxAreaEarVertex(earVertices);//earVertices[0];
+                    Triangle newTriangle = ClipEar(earVertex, earVertices, vertices, planeNormal);
+                    triangles.Add(newTriangle);
+                }
             }
 
             return triangles;
@@ -209,7 +218,7 @@ namespace AsImpL.MathUtil
         private static bool IsVertexEar(Vertex v, List<Vertex> vertices, Vector3 planeNormal)
         {
             //A reflex vertex can't be an ear!
-            if (IsVertexReflex(v,planeNormal))
+            if (IsVertexReflex(v, planeNormal))
             {
                 return false;
             }
@@ -224,7 +233,7 @@ namespace AsImpL.MathUtil
             for (int i = 0; i < vertices.Count; i++)
             {
                 //We only need to check if a reflex vertex is inside of the triangle
-                if (v != vertices[i] && v.PreviousVertex != vertices[i] && v.NextVertex != vertices[i] && IsVertexReflex(vertices[i],planeNormal))
+                if (v != vertices[i] && v.PreviousVertex != vertices[i] && v.NextVertex != vertices[i] && IsVertexReflex(vertices[i], planeNormal))
                 {
                     Vector2 p = vertices[i].GetPosOnPlane(planeNormal);
 
