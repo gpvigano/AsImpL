@@ -627,11 +627,12 @@ namespace AsImpL
 
             bool? diffuseIsTransparent = null;
             if (useUnlit)
-            {// do not use unlit shader if the texture has transparent pixels
+            {
+                // do not use unlit shader if the texture has transparent pixels
                 diffuseIsTransparent = ModelUtil.ScanTransparentPixels(md.diffuseTex, ref mode);
             }
 
-            if (useUnlit && diffuseIsTransparent.Value)
+            if (useUnlit && !diffuseIsTransparent.Value)
             {
                 shaderName = "Unlit/Texture";
             }
