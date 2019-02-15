@@ -43,6 +43,7 @@ namespace AsImpL
 
         private bool noFaceDefined = true;
 
+
         /// <summary>
         /// Name of the current group.
         /// </summary>
@@ -65,6 +66,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Get a string key based on the given face indices
         /// </summary>
@@ -74,6 +76,7 @@ namespace AsImpL
         {
             return fi.vertIdx.ToString() + "/" + fi.uvIdx.ToString() + "/" + fi.normIdx.ToString();
         }
+
 
         /// <summary>
         /// Change the material name to be compliant with Unity material asset naming.
@@ -93,6 +96,7 @@ namespace AsImpL
                 .Replace('|', '_');
         }
 
+
         /// <summary>
         /// Constructor: create data lists and initialzize the default object.
         /// </summary>
@@ -108,6 +112,7 @@ namespace AsImpL
             d.faceGroups.Add(g);
             currGroup = g;
         }
+
 
         /// <summary>
         /// Add and initialize a new object.
@@ -133,6 +138,7 @@ namespace AsImpL
             currObjData = objData;
         }
 
+
         /// <summary>
         /// Add and initialize a new group and add it to the current object.
         /// </summary>
@@ -154,6 +160,7 @@ namespace AsImpL
             currGroup = grp;
         }
 
+
         /// <summary>
         /// Set a new material name to the current group (add a group if not yet added).
         /// </summary>
@@ -165,6 +172,7 @@ namespace AsImpL
             if (currGroup.name == "default") currGroup.name = matName;
             currGroup.materialName = matName;
         }
+
 
         /// <summary>
         /// Add a vertex to the global vertex list
@@ -185,6 +193,7 @@ namespace AsImpL
             uvList.Add(uv);
         }
 
+
         /// <summary>
         /// Add a new normal to the global list
         /// </summary>
@@ -193,6 +202,7 @@ namespace AsImpL
         {
             normalList.Add(normal);
         }
+
 
         /// <summary>
         /// Add a new color to the global list
@@ -203,6 +213,7 @@ namespace AsImpL
             colorList.Add(color);
             currObjData.hasColors = true;
         }
+
 
         /// <summary>
         /// Add a new face indices entry to the current faces group
@@ -219,14 +230,15 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Print a summary of the stored data
         /// </summary>
         public void PrintSummary()
         {
             string stats = "This data set has " + objectList.Count + " object(s)" +
-                "\n  " + vertList.Count + " vertices"+
-                "\n  " + uvList.Count + " uvs"+
+                "\n  " + vertList.Count + " vertices" +
+                "\n  " + uvList.Count + " uvs" +
                 "\n  " + normalList.Count + " normals";
             foreach (ObjectData od in objectList)
             {
@@ -237,8 +249,8 @@ namespace AsImpL
                 }
             }
             Debug.Log(stats);
-
         }
+
 
         /// <summary>
         /// Indices for each vertex
@@ -249,6 +261,7 @@ namespace AsImpL
             public int uvIdx;
             public int normIdx;
         }
+
 
         /// <summary>
         /// Container class for object data.
@@ -264,6 +277,7 @@ namespace AsImpL
             {
             }
         }
+
 
         /// <summary>
         /// Container class for faces group data.

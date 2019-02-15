@@ -26,10 +26,12 @@ namespace AsImpL
             {
             }
 
+
             public ModelImportInfo(GameObject gameObj)
             {
                 UpdateFrom(gameObj);
             }
+
 
             public void UpdateFrom(GameObject gameObj)
             {
@@ -43,6 +45,7 @@ namespace AsImpL
                 loaderOptions.localScale = gameObj.transform.localScale;
             }
 
+
             public void ApplyTo(GameObject gameObj)
             {
                 gameObj.name = name;
@@ -54,6 +57,7 @@ namespace AsImpL
                     gameObj.transform.localScale = loaderOptions.localScale;
                 }
             }
+
         }
     }
 }

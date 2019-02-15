@@ -31,8 +31,8 @@ namespace AsImpL
             }
 
             // use the ear clipping triangulation
-            List<Triangle> newTris = Triangulation.TriangulateByEarClipping(poly, planeNormal,dataSet.CurrGroupName);
-            
+            List<Triangle> newTris = Triangulation.TriangulateByEarClipping(poly, planeNormal, dataSet.CurrGroupName);
+
             // copy the data structure used for triangluation back to the data set
             for (int t = 0; t < newTris.Count; t++)
             {
@@ -44,6 +44,7 @@ namespace AsImpL
                 dataSet.AddFaceIndices(face[idx2]);
             }
         }
+
 
         /// <summary>
         /// Get a normal of a plane used for polygon projection.
@@ -71,10 +72,11 @@ namespace AsImpL
                 // else calculate a vector perpendicular to the first triangle
                 Vector3 v0 = dataSet.vertList[face[0].vertIdx];
                 Vector3 v1 = dataSet.vertList[face[1].vertIdx];
-                Vector3 vn = dataSet.vertList[face[vertCount-1].vertIdx];
+                Vector3 vn = dataSet.vertList[face[vertCount - 1].vertIdx];
                 planeNormal = MathUtility.ComputeNormal(v0, v1, vn);
             }
             return planeNormal;
         }
+
     }
 }

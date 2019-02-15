@@ -5,7 +5,7 @@ namespace AsImpL
     /// <summary>
     /// Loading progress information for a single OBJ loader
     /// </summary>
-    public class FileLoadingProgress
+    public class SingleLoadingProgress
     {
         public string fileName;
         public string message;
@@ -17,11 +17,11 @@ namespace AsImpL
     }
 
     /// <summary>
-    /// Overall loading progress for all the active OBJ loaders (list of ObjLoadingProgress).
-    /// See <see cref="ObjLoadingProgress"/>.
+    /// Overall loading progress for all the active OBJ loaders (list of SingleLoadingProgress).
+    /// See <see cref="SingleLoadingProgress"/>.
     /// </summary>
     public class LoadingProgress
     {
-        public List<FileLoadingProgress> fileProgress = new List<FileLoadingProgress>();
+        public List<SingleLoadingProgress> singleProgress = new List<SingleLoadingProgress>();
     }
 }

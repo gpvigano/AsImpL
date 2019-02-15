@@ -9,22 +9,34 @@ namespace AsImpL
         /// </summary>
         public class AsImpLSample : MonoBehaviour
         {
-            public string filePath = "models/OBJ_test/objtest_zup.obj";
-            public ImportOptions importOptions = new ImportOptions();
+            [SerializeField]
+            private string filePath = "models/OBJ_test/objtest_zup.obj";
+            [SerializeField]
+            private string objectName = "MyObject";
+            [SerializeField]
+            private ImportOptions importOptions = new ImportOptions();
+
             private ObjectImporter objImporter;
+
 
             private void Awake()
             {
 #if (UNITY_ANDROID || UNITY_IPHONE)
                 filePath = Application.persistentDataPath + "/" + filePath;
 #endif
-                objImporter = gameObject.AddComponent<ObjectImporter>();
+                objImporter = gameObject.GetComponent<ObjectImporter>();
+                if (objImporter == null)
+                {
+                    objImporter = gameObject.AddComponent<ObjectImporter>();
+                }
             }
+
 
             private void Start()
             {
-                objImporter.ImportModelAsync("MyObject", filePath, null, importOptions);
+                objImporter.ImportModelAsync(objectName, filePath, null, importOptions);
             }
+
         }
     }
 }

@@ -71,6 +71,7 @@ namespace AsImpL
 
         private enum ImportPhase { Idle, TextureImport, ObjLoad, AssetBuild, Done }
 
+
         /// <summary>
         /// Number of pending import activities.
         /// </summary>
@@ -78,6 +79,7 @@ namespace AsImpL
         {
             get { return numTotalImports; }
         }
+
 
         public bool AllImported
         {
@@ -87,6 +89,7 @@ namespace AsImpL
             }
         }
 
+
 #if UNITY_EDITOR
         /// <summary>
         /// Import progress percentage (0..100)
@@ -95,7 +98,7 @@ namespace AsImpL
         {
             get
             {
-                if (Loader.totalProgress.fileProgress.Count > 0)
+                if (Loader.totalProgress.singleProgress.Count > 0)
                 {
                     if (importAssets)
                     {
@@ -104,7 +107,7 @@ namespace AsImpL
                             case ImportPhase.TextureImport:
                                 return 0f;
                             case ImportPhase.ObjLoad:
-                                return TEX_PHASE_PERC + (OBJ_PHASE_PERC / 100f) * Loader.totalProgress.fileProgress[0].percentage;
+                                return TEX_PHASE_PERC + (OBJ_PHASE_PERC / 100f) * Loader.totalProgress.singleProgress[0].percentage;
                             case ImportPhase.AssetBuild:
                                 return TEX_PHASE_PERC + OBJ_PHASE_PERC;
                             case ImportPhase.Done:
@@ -113,13 +116,14 @@ namespace AsImpL
                     }
                     else
                     {
-                        return Loader.totalProgress.fileProgress[0].percentage;
+                        return Loader.totalProgress.singleProgress[0].percentage;
                     }
                 }
 
                 return 0f;
             }
         }
+
 
         /// <summary>
         /// Message updated while importing of objects 
@@ -128,7 +132,7 @@ namespace AsImpL
         {
             get
             {
-                if (Loader.totalProgress.fileProgress.Count > 0)
+                if (Loader.totalProgress.singleProgress.Count > 0)
                 {
                     if (importAssets)
                     {
@@ -137,7 +141,7 @@ namespace AsImpL
                             case ImportPhase.Idle:
                                 return string.Empty;
                             case ImportPhase.ObjLoad:
-                                return Loader.totalProgress.fileProgress[0].message;
+                                return Loader.totalProgress.singleProgress[0].message;
                             case ImportPhase.Done:
                                 return "Finalizing....";
                             default:
@@ -146,13 +150,14 @@ namespace AsImpL
                     }
                     else
                     {
-                        return Loader.totalProgress.fileProgress[0].message;
+                        return Loader.totalProgress.singleProgress[0].message;
                     }
                 }
 
                 return string.Empty;
             }
         }
+
 
         /// <summary>
         /// Start importing a new object
@@ -166,6 +171,7 @@ namespace AsImpL
             buildOptions = options;
             StartCoroutine(ImportFileAsync(absolutePath, parentObject));
         }
+
 
         /// <summary>
         /// Called as a coroutine by ImportFile() 
@@ -364,6 +370,7 @@ namespace AsImpL
             return loader;
         }
 
+
         /// <summary>
         /// Request to load a file asynchronously.
         /// </summary>
@@ -403,13 +410,14 @@ namespace AsImpL
             StartCoroutine(loader.Load(objName, absolutePath, parentObj));
         }
 
+
         /// <summary>
         /// Update the loading/importing status
         /// </summary>
         public virtual void UpdateStatus()
         {
             if (allLoaded) return;
-            int num_loaded_files = numTotalImports - Loader.totalProgress.fileProgress.Count;
+            int num_loaded_files = numTotalImports - Loader.totalProgress.singleProgress.Count;
 
             bool loading = num_loaded_files < numTotalImports;
             if (!loading)
@@ -427,10 +435,12 @@ namespace AsImpL
             }
         }
 
+
         protected virtual void Update()
         {
             UpdateStatus();
         }
+
 
         /// <summary>
         /// Called when finished importing. It triggers ImportingComplete event, if it was set.
@@ -443,6 +453,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Called when each model has been created and before it is imported. It triggers CreatedModel event, if it was set.
         /// </summary>
@@ -453,6 +464,7 @@ namespace AsImpL
                 CreatedModel(obj, absolutePath);
             }
         }
+
 
         /// <summary>
         /// Called when each model has been imported. It triggers ImportedModel event, if it was set.
@@ -465,6 +477,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Called when a model import fails. It triggers ImportError event, if it was set.
         /// </summary>
@@ -475,5 +488,6 @@ namespace AsImpL
                 ImportError(absolutePath);
             }
         }
+
     }
 }

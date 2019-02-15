@@ -21,17 +21,8 @@ namespace AsImpL
             [Tooltip("Models to load on startup")]
             public List<ModelImportInfo> objectList = new List<ModelImportInfo>();
 
-            [Tooltip("Default scale for models loaded")]
-            public float defaultScale = 0.01f;
-
-            [Tooltip("Default vertical axis for models\ntrue = Z axis, false = Y axis")]
-            public bool defaultZUp = false;
-
-            [Tooltip("Reuse a model in memory if already loaded (ovverides for each object)")]
-            public bool reuseLoaded = true;
-
-            [Tooltip("Inherit parent layer")]
-            public bool inheritLayer = false;
+            [Tooltip("Default import options")]
+            public ImportOptions defaultImportOptions = new ImportOptions();
 
 
             /// <summary>
@@ -60,21 +51,16 @@ namespace AsImpL
                     ImportOptions options = modelsInfo[i].loaderOptions;
                     if (options == null)
                     {
-                        options = new ImportOptions();
-                        options.modelScaling = defaultScale;
-                        options.zUp = defaultZUp;
+                        options = defaultImportOptions;
                     }
-                    if (defaultScale != 0 && options.localScale == Vector3.zero)
-                    {
-                        options.localScale.Set(defaultScale, defaultScale, defaultScale);
-                    }
-                    options.reuseLoaded = reuseLoaded;
-                    options.inheritLayer = inheritLayer;
                     ImportModelAsync(objName, filePath, transform, options);
                 }
             }
 
-            // Use this for initialization
+
+            /// <summary>
+            /// Import the list of objects in objectList.
+            /// </summary>
             protected virtual void Start()
             {
                 if (autoLoadOnStart)

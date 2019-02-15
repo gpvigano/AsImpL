@@ -24,6 +24,7 @@ namespace AsImpL.MathUtil
             return index;
         }
 
+
         //p is the testpoint, and the other points are corners in the triangle
 
         /// <summary>
@@ -59,7 +60,6 @@ namespace AsImpL.MathUtil
         }
 
 
-
         /// <summary>
         /// Check if a triangle oriented clockwise or counter-clockwise.
         /// </summary>
@@ -82,6 +82,7 @@ namespace AsImpL.MathUtil
             return isClockWise;
         }
 
+
         /// <summary>
         /// Compute the normal of a vertex of a triangle defined by its 3 vertices.
         /// </summary>
@@ -95,5 +96,6 @@ namespace AsImpL.MathUtil
             n.Normalize();
             return n;
         }
+
     }
 }

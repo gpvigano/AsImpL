@@ -40,6 +40,7 @@ namespace AsImpL
         private string mtlLib;
         private string loadedText;
 
+
         /// <summary>
         /// Parse dependencies of the given OBJ file.
         /// </summary>
@@ -83,6 +84,7 @@ namespace AsImpL
             return mtlTexPathList.ToArray();
         }
 
+
         protected override IEnumerator LoadModelFile(string absolutePath)
         {
             string url = absolutePath.Contains("//") ? absolutePath : "file:///" + absolutePath;
@@ -100,6 +102,7 @@ namespace AsImpL
 
             yield return ParseGeometryData(loadedText);
         }
+
 
         protected override IEnumerator LoadMaterialLibrary(string absolutePath)
         {
@@ -134,6 +137,7 @@ namespace AsImpL
             }
 
         }
+
 
         private void GetFaceIndicesByOneFaceLine(DataSet.FaceIndices[] faces, string[] p, bool isFaceIndexPlus)
         {
@@ -197,6 +201,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Convert coordinates according to import options.
         /// </summary>
@@ -212,6 +217,7 @@ namespace AsImpL
             return new Vector3(x, y, -z);
         }
 
+
         /// <summary>
         /// Parse a string to get a floating point number using the invariant culture.
         /// </summary>
@@ -221,6 +227,7 @@ namespace AsImpL
         {
             return float.Parse(floatString, CultureInfo.InvariantCulture.NumberFormat);
         }
+
 
         /// <summary>
         /// Parse the OBJ file to extract geometry data.
@@ -338,6 +345,7 @@ namespace AsImpL
             //dataSet.PrintSummary();
         }
 
+
         /// <summary>
         /// Extract the material library (file) name from the OBJ file.
         /// </summary>
@@ -361,6 +369,7 @@ namespace AsImpL
             return null;
         }
 
+
         /// <summary>
         /// Check if a material library file is defined.
         /// </summary>
@@ -371,6 +380,7 @@ namespace AsImpL
                 return mtlLib != null;
             }
         }
+
 
         /// <summary>
         /// Parse the material library text to get material data.
@@ -383,6 +393,7 @@ namespace AsImpL
             materialData = new List<MaterialData>();
             ParseMaterialData(lines, materialData);
         }
+
 
         /// <summary>
         /// Parse the material library lines to get material data.
@@ -497,6 +508,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Parse bump parameters.
         /// </summary>
@@ -586,10 +598,12 @@ namespace AsImpL
             }
         }
 
+
         private Color StringsToColor(string[] p)
         {
             return new Color(ParseFloat(p[1]), ParseFloat(p[2]), ParseFloat(p[3]));
         }
+
 
         private IEnumerator LoadOrDownloadText(string url)
         {
@@ -620,6 +634,7 @@ namespace AsImpL
             }
 #endif
         }
+
 
         /// <summary>
         /// Bump parameter definition

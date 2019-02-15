@@ -43,6 +43,7 @@ namespace AsImpL
         // maximum number of vertices that can be used for triangles
         private static int MAX_VERT_COUNT = (MAX_VERTICES_LIMIT_FOR_A_MESH - 2) / 3 * 3;
 
+
         /// <summary>
         /// Initialize the importing of materials
         /// </summary>
@@ -71,6 +72,7 @@ namespace AsImpL
                 currMaterials.Add("default", new Material(Shader.Find(shaderName)));
             }
         }
+
 
         /// <summary>
         /// Import materials step by step. Call this until it returns false.
@@ -101,6 +103,7 @@ namespace AsImpL
             return info.materialsLoaded < materialData.Count;
         }
 
+
         /// <summary>
         /// Initialize the asynchronous objects building.
         /// Call this once before calling StartBuildObjectAsync().
@@ -118,6 +121,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Build an object in more steps, one game object at a time.
         /// Call StartBuildObjectAsync() once, then call this until it returns true.
@@ -132,6 +136,7 @@ namespace AsImpL
             info.numGroups = buildStatus.numGroups;
             return result;
         }
+
 
         /// <summary>
         /// Calculate tangent space vectors for a mesh.
@@ -258,6 +263,7 @@ namespace AsImpL
             origMesh.tangents = tangents;
         }
 
+
         /// <summary>
         /// Build mesh colliders for objects with a mesh filter.
         /// </summary>
@@ -287,6 +293,7 @@ namespace AsImpL
                 }
             }
         }
+
 
         /// <summary>
         /// Build an object once at a time, to be reiterated until false is returned.
@@ -430,6 +437,7 @@ namespace AsImpL
             }
             return true;
         }
+
 
         private GameObject ImportSubObject(GameObject parentObj, DataSet.ObjectData objData, Dictionary<string, Material> mats)
         {
@@ -602,10 +610,15 @@ namespace AsImpL
             }
             if (buildOptions != null && buildOptions.buildColliders)
             {
+#if UNITY_2018_3_OR_NEWER
+                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger);
+#else
                 BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger, buildOptions.colliderInflate, buildOptions.colliderSkinWidth);
+#endif
             }
             return go;
         }
+
 
         /// <summary>
         /// Build a Unity Material from MaterialData
@@ -659,7 +672,6 @@ namespace AsImpL
                 newMaterial.SetFloat("_Metallic", metallic);
                 //m.SetFloat( "_Glossiness", md.shininess );
             }
-
 
 
             if (md.diffuseTex != null)
@@ -914,6 +926,7 @@ namespace AsImpL
         }
 #endif
 
+
         public class ProgressInfo
         {
             public int materialsLoaded = 0;
@@ -921,6 +934,7 @@ namespace AsImpL
             public int groupsLoaded = 0;
             public int numGroups = 0;
         }
+
 
         private class BuildStatus
         {

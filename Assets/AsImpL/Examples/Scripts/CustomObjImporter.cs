@@ -27,6 +27,7 @@ namespace AsImpL
 
             private List<ModelImportInfo> modelsToImport = new List<ModelImportInfo>();
 
+
             private void Awake()
             {
 #if (UNITY_ANDROID || UNITY_IPHONE)
@@ -35,6 +36,7 @@ namespace AsImpL
                 ////configFile = Application.dataPath + "/" + configFile;
                 //configFile = Application.streamingAssetsPath + "/" + configFile;
             }
+
 
             protected override void Start()
             {
@@ -83,6 +85,7 @@ namespace AsImpL
 #endif
             }
 
+
             public void SetScaling(float scl)
             {
                 scl = Mathf.Pow(10.0f, scl);
@@ -90,11 +93,13 @@ namespace AsImpL
                 transform.localScale = new Vector3(scl, scl, scl);
             }
 
+
             protected override void OnImportingComplete()
             {
                 base.OnImportingComplete();
                 UpdateScene();
             }
+
 
             public void Save()
             {
@@ -119,6 +124,7 @@ namespace AsImpL
                 stream.Dispose();
             }
 
+
             public void Reload()
             {
                 if (string.IsNullOrEmpty(configFile))
@@ -141,6 +147,7 @@ namespace AsImpL
                 }
             }
 
+
             private void UpdateObjectList()
             {
                 for (int i = 0; i < transform.childCount; i++)
@@ -153,6 +160,7 @@ namespace AsImpL
                     }
                 }
             }
+
 
             private void UpdateScene()
             {
@@ -182,6 +190,7 @@ namespace AsImpL
                     }
                 }
             }
+
         }
     }
 }

@@ -21,6 +21,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Capture a screenshot, naming its file automatically with date and time,
         /// then shows the file in the file manager (e.g. Explorer)
@@ -37,6 +38,7 @@ namespace AsImpL
             Debug.Log("Screenshot saved to " + Application.dataPath + "/" + fileName);
             EditorUtility.RevealInFinder(Application.dataPath);
         }
+
 
         /// <summary>
         /// Set a texture in the asset database as readable to perform image analisys
@@ -57,6 +59,7 @@ namespace AsImpL
                 Debug.LogError("Texture importer for not found for " + texAssetPath);
             }
         }
+
 
         /// <summary>
         /// Save a new texture to the asset databse and reimport it
@@ -91,6 +94,7 @@ namespace AsImpL
                 texture = AssetDatabase.LoadAssetAtPath<Texture2D>(texAssetPath);
             }
         }
+
     }
 }
 #endif

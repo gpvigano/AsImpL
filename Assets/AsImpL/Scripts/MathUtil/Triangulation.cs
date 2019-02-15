@@ -168,6 +168,7 @@ namespace AsImpL.MathUtil
             return newTriangle;
         }
 
+
         /// <summary>
         /// Find the vertex of the ear with the maximum area.
         /// </summary>
@@ -185,6 +186,7 @@ namespace AsImpL.MathUtil
             }
             return maxEarVertex;
         }
+
 
         private static List<Vertex> FindEarVertices(List<Vertex> vertices, Vector3 planeNormal)
         {
@@ -213,6 +215,7 @@ namespace AsImpL.MathUtil
 
             return !MathUtility.IsTriangleOrientedClockwise(a, b, c);
         }
+
 
         //Check if a vertex is an ear
         private static bool IsVertexEar(Vertex v, List<Vertex> vertices, Vector3 planeNormal)
@@ -253,5 +256,6 @@ namespace AsImpL.MathUtil
             }
             return false;
         }
+
     }
 }

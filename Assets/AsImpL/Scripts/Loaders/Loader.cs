@@ -51,7 +51,7 @@ namespace AsImpL
 
         protected List<MaterialData> materialData;
 
-        protected FileLoadingProgress objLoadingProgress = new FileLoadingProgress();
+        protected SingleLoadingProgress objLoadingProgress = new SingleLoadingProgress();
 
         protected Stats loadStats;
 
@@ -96,6 +96,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Check if a material library is defined for this model
         /// </summary>
@@ -122,6 +123,7 @@ namespace AsImpL
         /// Event triggered if failed to load an object
         /// </summary>
         public event Action<string> ModelError;
+
 
         /// <summary>
         /// Get a previusly loaded model by its absolute path
@@ -152,7 +154,7 @@ namespace AsImpL
             string name = objName;
             if (name == null || name == "") objName = fileNameNoExt;
 
-            totalProgress.fileProgress.Add(objLoadingProgress);
+            totalProgress.singleProgress.Add(objLoadingProgress);
             objLoadingProgress.fileName = fileName;
             objLoadingProgress.error = false;
             objLoadingProgress.message = "Loading " + fileName + "...";
@@ -181,7 +183,7 @@ namespace AsImpL
                 newObj.name = objName;
 
                 if (parentObj != null) newObj.transform.parent = parentObj.transform;
-                totalProgress.fileProgress.Remove(objLoadingProgress);
+                totalProgress.singleProgress.Remove(objLoadingProgress);
                 OnLoaded(newObj, absolutePath);
                 yield break;
             }
@@ -218,9 +220,10 @@ namespace AsImpL
                 + "\n    materials: " + loadStats.buildStats.materialsTime + " seconds"
                 + "\n    objects: " + loadStats.buildStats.objectsTime + " seconds"
                 );
-            totalProgress.fileProgress.Remove(objLoadingProgress);
+            totalProgress.singleProgress.Remove(objLoadingProgress);
             OnLoaded(loadedModels[absolutePath], absolutePath);
         }
+
 
         /// <summary>
         /// Parse the model to get a list of the paths of all used textures
@@ -242,6 +245,7 @@ namespace AsImpL
         /// <param name="absolutePath">absolute file path</param>
         /// <remarks>This is called by Load() method</remarks>
         protected abstract IEnumerator LoadMaterialLibrary(string absolutePath);
+
 
         /// <summary>
         /// Build the game objects from data set, materials and textures.
@@ -368,6 +372,7 @@ namespace AsImpL
             loadStats.buildStats.objectsTime = Time.realtimeSinceStartup - prevTime;
         }
 
+
         /// <summary>
         /// Get the directory name of the given path, appending the final slash if eeded.
         /// </summary>
@@ -391,6 +396,7 @@ namespace AsImpL
             }
             return basePath;
         }
+
 
         protected virtual void OnLoaded(GameObject obj, string absolutePath)
         {
@@ -425,6 +431,7 @@ namespace AsImpL
             }
         }
 
+
         protected virtual void OnCreated(GameObject obj, string absolutePath)
         {
             if (obj == null)
@@ -443,6 +450,7 @@ namespace AsImpL
             }
         }
 
+
         protected virtual void OnLoadFailed(string absolutePath)
         {
             if (ModelError != null)
@@ -450,6 +458,7 @@ namespace AsImpL
                 ModelError(absolutePath);
             }
         }
+
 
 #if UNITY_EDITOR
         /// <summary>
@@ -466,6 +475,8 @@ namespace AsImpL
             return AssetDatabase.LoadAssetAtPath<Texture2D>(texpath);
         }
 #endif
+
+
         /// <summary>
         /// Convert a texture path to a texture URL and update the progress message
         /// </summary>
@@ -486,6 +497,7 @@ namespace AsImpL
             objLoadingProgress.message = "Loading textures...\n" + texPath;
             return texPath;
         }
+
 
         private IEnumerator LoadMaterialTexture(string basePath, string path)
         {
@@ -520,6 +532,7 @@ namespace AsImpL
             }
 #endif
         }
+
 
         /// <summary>
         /// Load a texture from the URL got from the parameter.
@@ -565,12 +578,14 @@ namespace AsImpL
             return tex;
         }
 
+
         protected struct BuildStats
         {
             public float texturesTime;
             public float materialsTime;
             public float objectsTime;
         }
+
 
         protected struct Stats
         {

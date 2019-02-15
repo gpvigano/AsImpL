@@ -19,8 +19,10 @@ namespace AsImpL
         private bool buildColliders = false;
         private bool colliderConvex = false;
         private bool colliderTrigger = false;
+#if !UNITY_2018_3_OR_NEWER
         private bool colliderInflate = false;
         public float colliderSkinWidth = 0.01f;
+#endif
         private bool importAssets = false;
         private string importAssetPath = "ImportedOBJ";
 #if UNITY_2017_3_OR_NEWER
@@ -31,17 +33,20 @@ namespace AsImpL
         private GameObject objObject;
         private ObjectImporter objImporter;
 
+
         [MenuItem("Assets/Import OBJ model... [AsImpL]", false, 20)]
         private static void ShowWindow()
         {
             GetWindow<ObjImportWindow>(false, "OBJ import", true);
         }
 
+
         [MenuItem("Window/Capture screenshot [AsImpL]", false)]
         private static void Screenshot()
         {
             EditorUtil.AutoCaptureScreenshot("AsImpL");
         }
+
 
         private void SaveSettings()
         {
@@ -58,14 +63,17 @@ namespace AsImpL
             EditorPrefs.SetBool("AsImpL_BuildColliders", buildColliders);
             EditorPrefs.SetBool("AsImpL_ColliderConvex", colliderConvex);
             EditorPrefs.SetBool("AsImpL_ColliderTrigger", colliderTrigger);
+#if !UNITY_2018_3_OR_NEWER
             EditorPrefs.SetBool("AsImpL_ColliderInflate", colliderInflate);
             EditorPrefs.SetFloat("AsImpL_ColliderSkinWidth", colliderSkinWidth);
+#endif
             EditorPrefs.SetBool("AsImpL_ImportAssets", importAssets);
             EditorPrefs.SetString("AsImpL_AssetPath", importAssetPath);
 #if UNITY_2017_3_OR_NEWER
             EditorPrefs.SetBool("AsImpL_Use32bitIndices", use32bitIndices);
 #endif
         }
+
 
         private void ResetSettings()
         {
@@ -105,6 +113,7 @@ namespace AsImpL
             {
                 colliderTrigger = EditorPrefs.GetBool("AsImpL_ColliderTrigger");
             }
+#if !UNITY_2018_3_OR_NEWER
             if (EditorPrefs.HasKey("AsImpL_ColliderInflate"))
             {
                 colliderInflate = EditorPrefs.GetBool("AsImpL_ColliderInflate");
@@ -113,6 +122,7 @@ namespace AsImpL
             {
                 colliderSkinWidth = EditorPrefs.GetFloat("AsImpL_ColliderSkinWidth");
             }
+#endif
             if (EditorPrefs.HasKey("AsImpL_ImportAssets"))
             {
                 importAssets = EditorPrefs.GetBool("AsImpL_ImportAssets");
@@ -129,10 +139,12 @@ namespace AsImpL
 #endif
         }
 
+
         private void OnEnable()
         {
             ResetSettings();
         }
+
 
         private void OnGUI()
         {
@@ -144,6 +156,7 @@ namespace AsImpL
                 defaultImportPath = defaultImportPath.Replace('\\', '/');
             }
             EditorGUILayout.EndHorizontal();
+
             EditorGUILayout.BeginHorizontal();
             lastPath = EditorGUILayout.TextField("OBJ file path:", lastPath);
             if (!string.IsNullOrEmpty(lastPath))
@@ -184,8 +197,10 @@ namespace AsImpL
                         "If you get errors find each involved object and fix its mesh collider (e.g. remove it or uncheck \"Convex\").",
                         MessageType.Warning);
                     colliderTrigger = EditorGUILayout.Toggle("Mesh colliders as trigger", colliderTrigger);
+#if !UNITY_2018_3_OR_NEWER
                     colliderInflate = EditorGUILayout.Toggle("Mesh colliders inflated", colliderInflate);
                     colliderSkinWidth = EditorGUILayout.FloatField("Mesh colliders inflation amount", colliderSkinWidth);
+#endif
                 }
             }
 #if UNITY_2017_3_OR_NEWER
@@ -198,7 +213,9 @@ namespace AsImpL
                 importAssetPath = EditorGUILayout.TextField("OBJ asset path:", importAssetPath);
                 importAssetPath = importAssetPath.Replace('\\', '/');
             }
+
             EditorGUILayout.Separator();
+
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Reset settings", GUILayout.Width(100), GUILayout.Height(24)))
             {
@@ -221,8 +238,6 @@ namespace AsImpL
                     objImporter.importAssets = importAssets;
                     objImporter.importAssetPath = importAssetPath;
 
-                    //string absolute_path = @"E:\DEV\PROTO\DATA\Models\teleportbeam.obj";
-                    //absolute_path = absolute_path.Replace('\\', '/');
                     GameObject parentObject = Selection.activeObject as GameObject;
                     if (parentObject && !parentObject.activeInHierarchy)
                     {
@@ -236,14 +251,11 @@ namespace AsImpL
                     opt.buildColliders = buildColliders;
                     opt.colliderTrigger = colliderTrigger;
                     opt.colliderConvex = colliderConvex;
+#if !UNITY_2018_3_OR_NEWER
                     opt.colliderInflate = colliderInflate;
                     opt.colliderSkinWidth = colliderSkinWidth;
+#endif
                     objImporter.ImportFile(absolute_path, parentObject ? parentObject.transform : null, opt);
-                    //ObjLoader loader = new ObjLoader();
-                    //loader.zUpToYUp = false;
-                    //loader.scaling = Vector3.one * 10f;
-                    //Debug.Log("Loading OBJ: " + absolute_path);
-                    //loader.Load("obj_import_test", absolute_path, go);
                     loading = true;
                 }
             }
@@ -260,6 +272,7 @@ namespace AsImpL
             EditorGUILayout.EndHorizontal();
         }
 
+
         private void Update()
         {
             if (objObject && objImporter && loading)
@@ -274,6 +287,7 @@ namespace AsImpL
                 float progress = 0;
                 string title = string.Empty;
                 string msg = string.Empty;
+                // TODO: check if an exception occurred in one or more loaders and clear the progress bar
                 if (objImporter.AllImported)
                 {
                     // done
@@ -282,7 +296,7 @@ namespace AsImpL
                     GameObject loadedObj = LoaderObj.GetModelByPath(lastPath);
                     if (loadedObj)
                     {
-                        // detach the loaded object from the importer in case
+                        // detach the loaded object from the importer in case no custom parent object is provided
                         if (objObject.transform.childCount > 0 && loadedObj == objObject.transform.GetChild(0).gameObject)
                         {
                             loadedObj.transform.SetParent(null, false);
@@ -314,8 +328,8 @@ namespace AsImpL
                     }
                 }
             }
-
         }
+
 
         private void OnInspectorUpdate()
         {

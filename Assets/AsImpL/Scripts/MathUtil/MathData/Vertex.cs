@@ -65,13 +65,14 @@ namespace AsImpL.MathUtil
         {
             get
             {
-                if(triangleHasChanged)
+                if (triangleHasChanged)
                 {
                     ComputeTriangleArea();
                 }
                 return triangleArea;
             }
         }
+
 
         /// <summary>
         /// Construct a Vertex by defining its index in the original list and its position in 3D space.
@@ -83,6 +84,7 @@ namespace AsImpL.MathUtil
             OriginalIndex = originalIndex;
             Position = position;
         }
+
 
         /// <summary>
         /// Get 2D position of this vertex on the plane defined by the given normal.
@@ -100,6 +102,7 @@ namespace AsImpL.MathUtil
             return pos_2d_xy;
         }
 
+
         private void ComputeTriangleArea()
         {
             Vector3 side1 = PreviousVertex.Position - Position;
@@ -107,5 +110,6 @@ namespace AsImpL.MathUtil
             Vector3 crossProd = Vector3.Cross(side1, side2);
             triangleArea = crossProd.magnitude / 2f;
         }
+
     }
 }

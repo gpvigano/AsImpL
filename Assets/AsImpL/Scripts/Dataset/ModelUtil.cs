@@ -14,6 +14,7 @@ namespace AsImpL
         /// </summary>
         public enum MtlBlendMode { OPAQUE, CUTOUT, FADE, TRANSPARENT }
 
+
         /// <summary>
         /// Set up a Material for the given mode.
         /// </summary>
@@ -72,6 +73,7 @@ namespace AsImpL
             }
         }
 
+
         /// <summary>
         /// Scan a texture looking for transparent pixels and trying to guess the correct blend mode needed.
         /// </summary>
@@ -86,7 +88,7 @@ namespace AsImpL
                 || texture.format == TextureFormat.DXT5
                 || texture.format == TextureFormat.ARGB4444
                 || texture.format == TextureFormat.BGRA32
-// Only for DirectX support
+                // Only for DirectX support
 #if UNITY_STANDALONE_WIN
                 || texture.format == TextureFormat.DXT5Crunched
 #endif
@@ -112,6 +114,7 @@ namespace AsImpL
             return mode == MtlBlendMode.FADE || mode == MtlBlendMode.CUTOUT;
 
         }
+
 
         /// <summary>
         /// Detect if the blend mode must be set to FADE or CUTOUT
@@ -142,6 +145,7 @@ namespace AsImpL
                 }
             }
         }
+
 
         /// <summary>
         /// Convert a bump map to a normal map
@@ -221,6 +225,7 @@ namespace AsImpL
 
             return normalMap;
         }
+
 
         /// <summary>
         /// Wrap the given value pos inside the range (0..boundary).

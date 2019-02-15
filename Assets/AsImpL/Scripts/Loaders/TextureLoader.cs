@@ -22,7 +22,7 @@ namespace AsImpL
         /// <summary>
         /// Load an image from a file into a Texture2D.
         /// </summary>
-        /// <param name="url">URL og the texture image.</param>
+        /// <param name="url">URL of the texture image.</param>
         /// <returns>The loaded texture or null on error.</returns>
         public static Texture2D LoadTextureFromUrl(string url)
         {
@@ -37,6 +37,7 @@ namespace AsImpL
             }
             return LoadTexture(url);
         }
+
 
         /// <summary>
         /// Load an image from a file into a Texture2D.
@@ -69,6 +70,7 @@ namespace AsImpL
             return null;
         }
 
+
         /// <summary>
         /// Load a TGA image from a file into a Texture2D.
         /// </summary>
@@ -81,6 +83,7 @@ namespace AsImpL
                 return LoadTGA(imageFile);
             }
         }
+
 
         /// <summary>
         /// Load a DDS image from a file into a Texture2D.
@@ -132,6 +135,7 @@ namespace AsImpL
                 return new Texture2D(8, 8);
             }
         }
+
 
         /// <summary>
         /// Load a TGA image from a stram into a Texture2D.
@@ -220,6 +224,7 @@ namespace AsImpL
             }
         }
 
+
         private static TgaHeader LoadTgaHeader(BinaryReader r)
         {
             TgaHeader th = new TgaHeader();
@@ -261,6 +266,7 @@ namespace AsImpL
             return th;
         }
 
+
         private class TgaHeader
         {
             public byte identSize;
@@ -276,5 +282,6 @@ namespace AsImpL
             public byte bits;
             public byte descriptor;
         }
+
     }
 }

@@ -16,5 +16,6 @@ namespace AsImpL.MathUtil
             this.v2 = v2;
             this.v3 = v3;
         }
+
     }
 }
