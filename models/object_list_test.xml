@@ -7,7 +7,15 @@
     <loaderOptions>
       <zUp>true</zUp>
       <litDiffuse>false</litDiffuse>
+      <convertToDoubleSided>false</convertToDoubleSided>
       <modelScaling>1</modelScaling>
+      <reuseLoaded>true</reuseLoaded>
+      <inheritLayer>false</inheritLayer>
+      <buildColliders>false</buildColliders>
+      <colliderConvex>false</colliderConvex>
+      <colliderTrigger>false</colliderTrigger>
+      <colliderInflate>false</colliderInflate>
+      <colliderSkinWidth>0.01</colliderSkinWidth>
       <localPosition>
         <x>-1.25</x>
         <y>0</y>
@@ -23,7 +31,6 @@
         <y>1</y>
         <z>1</z>
       </localScale>
-      <reuseLoaded>true</reuseLoaded>
     </loaderOptions>
   </ModelImportInfo>
   <ModelImportInfo>
@@ -33,7 +40,15 @@
     <loaderOptions>
       <zUp>true</zUp>
       <litDiffuse>false</litDiffuse>
+      <convertToDoubleSided>false</convertToDoubleSided>
       <modelScaling>1</modelScaling>
+      <reuseLoaded>true</reuseLoaded>
+      <inheritLayer>false</inheritLayer>
+      <buildColliders>false</buildColliders>
+      <colliderConvex>false</colliderConvex>
+      <colliderTrigger>false</colliderTrigger>
+      <colliderInflate>false</colliderInflate>
+      <colliderSkinWidth>0.01</colliderSkinWidth>
       <localPosition>
         <x>1.25</x>
         <y>0</y>
@@ -49,7 +64,6 @@
         <y>1</y>
         <z>1</z>
       </localScale>
-      <reuseLoaded>true</reuseLoaded>
     </loaderOptions>
   </ModelImportInfo>
   <ModelImportInfo>
@@ -59,7 +73,15 @@
     <loaderOptions>
       <zUp>true</zUp>
       <litDiffuse>false</litDiffuse>
+      <convertToDoubleSided>false</convertToDoubleSided>
       <modelScaling>1</modelScaling>
+      <reuseLoaded>true</reuseLoaded>
+      <inheritLayer>false</inheritLayer>
+      <buildColliders>false</buildColliders>
+      <colliderConvex>false</colliderConvex>
+      <colliderTrigger>false</colliderTrigger>
+      <colliderInflate>false</colliderInflate>
+      <colliderSkinWidth>0.01</colliderSkinWidth>
       <localPosition>
         <x>0</x>
         <y>0</y>
@@ -75,7 +97,6 @@
         <y>1</y>
         <z>1</z>
       </localScale>
-      <reuseLoaded>true</reuseLoaded>
     </loaderOptions>
   </ModelImportInfo>
   <ModelImportInfo>
@@ -85,7 +106,15 @@
     <loaderOptions>
       <zUp>true</zUp>
       <litDiffuse>false</litDiffuse>
+      <convertToDoubleSided>false</convertToDoubleSided>
       <modelScaling>1</modelScaling>
+      <reuseLoaded>true</reuseLoaded>
+      <inheritLayer>false</inheritLayer>
+      <buildColliders>false</buildColliders>
+      <colliderConvex>false</colliderConvex>
+      <colliderTrigger>false</colliderTrigger>
+      <colliderInflate>false</colliderInflate>
+      <colliderSkinWidth>0.01</colliderSkinWidth>
       <localPosition>
         <x>0</x>
         <y>0</y>
@@ -101,7 +130,6 @@
         <y>1</y>
         <z>1</z>
       </localScale>
-      <reuseLoaded>true</reuseLoaded>
     </loaderOptions>
   </ModelImportInfo>
   <ModelImportInfo>
@@ -111,7 +139,15 @@
     <loaderOptions>
       <zUp>true</zUp>
       <litDiffuse>false</litDiffuse>
+      <convertToDoubleSided>false</convertToDoubleSided>
       <modelScaling>1</modelScaling>
+      <reuseLoaded>true</reuseLoaded>
+      <inheritLayer>false</inheritLayer>
+      <buildColliders>false</buildColliders>
+      <colliderConvex>false</colliderConvex>
+      <colliderTrigger>false</colliderTrigger>
+      <colliderInflate>false</colliderInflate>
+      <colliderSkinWidth>0.01</colliderSkinWidth>
       <localPosition>
         <x>0</x>
         <y>0</y>
@@ -127,7 +163,6 @@
         <y>1</y>
         <z>1</z>
       </localScale>
-      <reuseLoaded>true</reuseLoaded>
     </loaderOptions>
   </ModelImportInfo>
 </ArrayOfModelImportInfo>

@@ -17,7 +17,7 @@ namespace AsImpL
         /// <summary>
         /// Read a configuration file and load the object listed there with their parameters and positions.
         /// </summary>
-        public class CustomObjImporter : ObjImporterTest
+        public class CustomObjImporter : MultiObjectImporter
         {
             [Tooltip("Text for displaying the overall scale")]
             public Text objScalingText;
@@ -27,14 +27,9 @@ namespace AsImpL
 
             private List<ModelImportInfo> modelsToImport = new List<ModelImportInfo>();
 
-
             private void Awake()
             {
-#if (UNITY_ANDROID || UNITY_IPHONE)
-                configFile = Application.persistentDataPath + "/" + configFile;
-#endif
-                ////configFile = Application.dataPath + "/" + configFile;
-                //configFile = Application.streamingAssetsPath + "/" + configFile;
+                configFile = RootPath + configFile;
             }
 
 
@@ -55,18 +50,18 @@ namespace AsImpL
                             {
                                 if (i + 1 < numImports)
                                 {
-                                    float.TryParse(args[i + 2], out defaultScale);
+                                    float.TryParse(args[i + 2], out defaultImportOptions.modelScaling);
                                 }
                                 i++;
                             }
                             continue;
                         }
-                        ModelImportInfo modelToImport = new ModelImportInfo();
+                        ModelImportSettings modelToImport = new ModelImportSettings();
                         modelToImport.path = args[i + 1];
                         modelToImport.name = Path.GetFileNameWithoutExtension(modelToImport.path);
                         modelToImport.loaderOptions = new ImportOptions();
-                        modelToImport.loaderOptions.modelScaling = defaultScale;
-                        modelToImport.loaderOptions.zUp = defaultZUp;
+                        modelToImport.loaderOptions.modelScaling = defaultImportOptions.modelScaling;
+                        modelToImport.loaderOptions.zUp = defaultImportOptions.zUp;
                         modelToImport.loaderOptions.reuseLoaded = false;
                         objectList.Add(modelToImport);
                     }
@@ -77,7 +72,10 @@ namespace AsImpL
                 else
 #endif
                 {
-                    Reload();
+                    if (autoLoadOnStart)
+                    {
+                         Reload();
+                    }
                 }
 #else
                 Debug.Log("Command line arguments not available, using default settings.");
@@ -109,7 +107,7 @@ namespace AsImpL
                 }
 
                 UpdateObjectList();
-                XmlSerializer serializer = new XmlSerializer(objectList.GetType());
+                XmlSerializer serializer = new XmlSerializer(objectsList.GetType());
                 FileStream stream = new FileStream(configFile, FileMode.Create);
 
                 XmlWriterSettings settings = new XmlWriterSettings();
@@ -120,7 +118,7 @@ namespace AsImpL
 
                 XmlWriter w = XmlWriter.Create(stream, settings);
 
-                serializer.Serialize(w, objectList);
+                serializer.Serialize(w, objectsList);
                 stream.Dispose();
             }
 
@@ -129,6 +127,7 @@ namespace AsImpL
             {
                 if (string.IsNullOrEmpty(configFile))
                 {
+                    Debug.LogWarning("Empty configuration file path");
                     return;
                 }
 
@@ -136,7 +135,7 @@ namespace AsImpL
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(List<ModelImportInfo>));
                     FileStream stream = new FileStream(configFile, FileMode.Open);
-                    objectList = (List<ModelImportInfo>)serializer.Deserialize(stream);
+                    objectsList = (List<ModelImportInfo>)serializer.Deserialize(stream);
                     stream.Dispose();
                     UpdateScene();
                     ImportModelListAsync(modelsToImport.ToArray());
@@ -148,15 +147,41 @@ namespace AsImpL
             }
 
 
+            private void UpdateObject(GameObject gameObj, ModelImportInfo importInfo)
+            {
+                gameObj.name = importInfo.name;
+                //game_object.transform.localScale = scale;
+                if (importInfo.loaderOptions != null)
+                {
+                    gameObj.transform.localPosition = importInfo.loaderOptions.localPosition;
+                    gameObj.transform.localRotation = Quaternion.Euler(importInfo.loaderOptions.localEulerAngles);
+                    gameObj.transform.localScale = importInfo.loaderOptions.localScale;
+                }
+            }
+
+
+            private void UpdateImportInfo(ModelImportInfo importInfo, GameObject gameObj)
+            {
+                importInfo.name = gameObj.name;
+                if (importInfo.loaderOptions == null)
+                {
+                    importInfo.loaderOptions = new ImportOptions();
+                }
+                importInfo.loaderOptions.localPosition = gameObj.transform.localPosition;
+                importInfo.loaderOptions.localEulerAngles = gameObj.transform.localRotation.eulerAngles;
+                importInfo.loaderOptions.localScale = gameObj.transform.localScale;
+            }
+
+
             private void UpdateObjectList()
             {
                 for (int i = 0; i < transform.childCount; i++)
                 {
                     Transform tr = transform.GetChild(i);
-                    ModelImportInfo info = objectList.Find(obj => obj.name == tr.name);
+                    ModelImportInfo info = objectsList.Find(obj => obj.name == tr.name);
                     if (info != null)
                     {
-                        info.UpdateFrom(tr.gameObject);
+                        UpdateImportInfo(info, tr.gameObject);
                     }
                 }
             }
@@ -167,17 +192,17 @@ namespace AsImpL
                 modelsToImport.Clear();
                 List<string> names = new List<string>();
                 // add or update objects that are present in the list
-                foreach (ModelImportInfo info in objectList)
+                foreach (ModelImportInfo info in objectsList)
                 {
                     names.Add(info.name);
-                    Transform t = transform.Find(info.name);
-                    if (t == null)
+                    Transform transf = transform.Find(info.name);
+                    if (transf == null)
                     {
                         modelsToImport.Add(info);
                     }
                     else
                     {
-                        info.ApplyTo(t.gameObject);
+                        UpdateObject(transf.gameObject,info);
                     }
                 }
                 // destroy objects that are not present in the list
