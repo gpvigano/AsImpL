@@ -15,13 +15,17 @@ namespace AsImpL
 
     public class PathSettings : MonoBehaviour
     {
+#if UNITY_EDITOR
+
+        [Tooltip("Root path for models in Unity Editor only")]
+        public RootPathEnum editorRootPath = RootPathEnum.Url;
+#endif
 
         [Tooltip("Default root path for models")]
         public RootPathEnum defaultRootPath = RootPathEnum.Url;
 
         [Tooltip("Root path for models on mobile devices")]
         public RootPathEnum mobileRootPath = RootPathEnum.Url;
-
 
         public static PathSettings Get(GameObject obj)
         {
@@ -42,7 +46,9 @@ namespace AsImpL
         {
             get
             {
-#if (UNITY_STANDALONE)
+#if UNITY_EDITOR
+                switch (editorRootPath)
+#elif UNITY_STANDALONE
                 switch (defaultRootPath)
 #else
                 switch (mobileRootPath)
