@@ -16,14 +16,15 @@ namespace AsImpL
             [SerializeField]
             private ImportOptions importOptions = new ImportOptions();
 
+            [SerializeField]
+            private PathSettings pathSettings;
+
             private ObjectImporter objImporter;
 
 
             private void Awake()
             {
-#if (UNITY_ANDROID || UNITY_IPHONE)
-                filePath = Application.persistentDataPath + "/" + filePath;
-#endif
+                filePath = pathSettings.RootPath + filePath;
                 objImporter = gameObject.GetComponent<ObjectImporter>();
                 if (objImporter == null)
                 {
@@ -35,6 +36,15 @@ namespace AsImpL
             private void Start()
             {
                 objImporter.ImportModelAsync(objectName, filePath, null, importOptions);
+            }
+
+
+            private void OnValidate()
+            {
+                if(pathSettings==null)
+                {
+                    pathSettings = PathSettings.Get(gameObject);
+                }
             }
 
         }

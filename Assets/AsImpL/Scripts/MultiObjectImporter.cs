@@ -10,23 +10,8 @@ namespace AsImpL
     /// </summary>
     public class MultiObjectImporter : ObjectImporter
     {
-        public enum RootPathEnum
-        {
-            Url,
-            DataPath,
-            DataPathParent,
-            PersistentDataPath,
-            CurrentPath
-        }
-
         [Tooltip("Load models in the list on start")]
         public bool autoLoadOnStart = false;
-
-        [Tooltip("Default root path for models")]
-        public RootPathEnum defaultRootPath = RootPathEnum.Url;
-
-        [Tooltip("Root path for models on mobile devices")]
-        public RootPathEnum mobileRootPath = RootPathEnum.Url;
 
         [Tooltip("Models to load on startup")]
         public List<ModelImportInfo> objectsList = new List<ModelImportInfo>();
@@ -34,25 +19,14 @@ namespace AsImpL
         [Tooltip("Default import options")]
         public ImportOptions defaultImportOptions = new ImportOptions();
 
+        [SerializeField]
+        private PathSettings pathSettings;
 
         public string RootPath
         {
             get
             {
-#if (UNITY_ANDROID || UNITY_IPHONE)
-                switch(mobileRootPath)
-#else
-                switch (defaultRootPath)
-#endif
-                {
-                    case RootPathEnum.DataPath:
-                        return Application.dataPath + "/";
-                    case RootPathEnum.DataPathParent:
-                        return Application.dataPath + "/../";
-                    case RootPathEnum.PersistentDataPath:
-                        return Application.persistentDataPath + "/";
-                }
-                return "";
+                return pathSettings != null ? pathSettings.RootPath : "";
             }
         }
 
@@ -80,7 +54,7 @@ namespace AsImpL
                 filePath = RootPath + filePath;
 
                 ImportOptions options = modelsInfo[i].loaderOptions;
-                if (options == null || options.modelScaling==0)
+                if (options == null || options.modelScaling == 0)
                 {
                     options = defaultImportOptions;
                 }
