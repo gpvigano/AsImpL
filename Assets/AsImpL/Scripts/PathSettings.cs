@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,20 +27,6 @@ namespace AsImpL
         [Tooltip("Root path for models on mobile devices")]
         public RootPathEnum mobileRootPath = RootPathEnum.Url;
 
-        public static PathSettings Get(GameObject obj)
-        {
-            PathSettings pathSettings = obj.GetComponent<PathSettings>();
-            if (pathSettings == null)
-            {
-                pathSettings = FindObjectOfType<PathSettings>();
-            }
-            if (pathSettings == null)
-            {
-                pathSettings = obj.AddComponent<PathSettings>();
-            }
-            return pathSettings;
-        }
-
 
         public string RootPath
         {
@@ -63,6 +49,32 @@ namespace AsImpL
                 }
                 return "";
             }
+        }
+
+
+        public static PathSettings FindPathComponent(GameObject obj)
+        {
+            PathSettings pathSettings = obj.GetComponent<PathSettings>();
+            if (pathSettings == null)
+            {
+                pathSettings = FindObjectOfType<PathSettings>();
+            }
+            if (pathSettings == null)
+            {
+                pathSettings = obj.AddComponent<PathSettings>();
+            }
+            return pathSettings;
+        }
+
+
+        public string FullPath(string path)
+        {
+            string fullPath = path;
+            if(!Path.IsPathRooted(path))
+            {
+                fullPath = RootPath + path;
+            }
+            return fullPath;
         }
     
     }

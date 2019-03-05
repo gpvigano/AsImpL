@@ -43,7 +43,7 @@ namespace AsImpL
             {
                 if(pathSettings==null)
                 {
-                    pathSettings = PathSettings.Get(gameObject);
+                    pathSettings = PathSettings.FindPathComponent(gameObject);
                 }
             }
 

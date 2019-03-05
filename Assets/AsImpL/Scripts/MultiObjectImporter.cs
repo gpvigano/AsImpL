@@ -20,7 +20,7 @@ namespace AsImpL
         public ImportOptions defaultImportOptions = new ImportOptions();
 
         [SerializeField]
-        private PathSettings pathSettings;
+        private PathSettings pathSettings = null;
 
         public string RootPath
         {

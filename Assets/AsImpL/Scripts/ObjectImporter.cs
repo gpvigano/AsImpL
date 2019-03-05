@@ -15,13 +15,13 @@ namespace AsImpL
     /// <remarks></remarks>
     public class ObjectImporter : MonoBehaviour
     {
+#if UNITY_EDITOR
         /// <summary>
         /// Import the model as a set of assets. This should be set only by the Editor window.
         /// </summary>
         [HideInInspector]
         public bool importAssets = false;
 
-#if UNITY_EDITOR
         /// <summary>
         /// Set the import path for assets. This should be set only by the Editor window.
         /// </summary>
