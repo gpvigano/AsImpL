@@ -92,10 +92,9 @@ namespace AsImpL
 
             if (string.IsNullOrEmpty(loadedText))
             {
-                Debug.LogError("Failed to load " + loadedText);
-                objLoadingProgress.message = "Failed to load " + loadedText;
-                objLoadingProgress.error = true;
-                //totalProgress.fileProgress.Remove( objLoadingProgress );
+                Debug.LogError("Failed to load: empty path.");
+                // remove this progress to let complete the total loading process
+                totalProgress.singleProgress.Remove(objLoadingProgress);
                 yield break;
             }
             //Debug.LogFormat("Parsing geometry data in {0}...", www.url);
