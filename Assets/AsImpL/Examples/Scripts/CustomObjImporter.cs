@@ -56,18 +56,18 @@ namespace AsImpL
                             }
                             continue;
                         }
-                        ModelImportSettings modelToImport = new ModelImportSettings();
+                        ModelImportInfo modelToImport = new ModelImportInfo();
                         modelToImport.path = args[i + 1];
                         modelToImport.name = Path.GetFileNameWithoutExtension(modelToImport.path);
                         modelToImport.loaderOptions = new ImportOptions();
                         modelToImport.loaderOptions.modelScaling = defaultImportOptions.modelScaling;
                         modelToImport.loaderOptions.zUp = defaultImportOptions.zUp;
                         modelToImport.loaderOptions.reuseLoaded = false;
-                        objectList.Add(modelToImport);
+                        objectsList.Add(modelToImport);
                     }
                     configFile = "";
 
-                    ImportModelListAsync(objectList.ToArray());
+                    ImportModelListAsync(objectsList.ToArray());
                 }
                 else
 #endif

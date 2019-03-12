@@ -81,6 +81,7 @@ namespace AsImpL
         }
 
 
+#if UNITY_EDITOR
         public bool AllImported
         {
             get
@@ -90,7 +91,6 @@ namespace AsImpL
         }
 
 
-#if UNITY_EDITOR
         /// <summary>
         /// Import progress percentage (0..100)
         /// </summary>
