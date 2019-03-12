@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AsImpL
 {
@@ -47,6 +47,9 @@ namespace AsImpL
         [Tooltip("Use 32 bit indices when needed, if available")]
         public bool use32bitIndices = true;
 #endif
+
+        [Tooltip("Hide the loaded object during the loading process")]
+        public bool hideWhileLoading = false;
 
         [Header("Local Transform for the imported game object")]
         [Tooltip("Position of the object")]

@@ -28,6 +28,7 @@ namespace AsImpL
 #if UNITY_2017_3_OR_NEWER
         private bool use32bitIndices = false;
 #endif
+        private bool hideWhileLoading = false;
 
         private bool loading = false;
         private GameObject objObject;
@@ -67,6 +68,7 @@ namespace AsImpL
             EditorPrefs.SetBool("AsImpL_ColliderInflate", colliderInflate);
             EditorPrefs.SetFloat("AsImpL_ColliderSkinWidth", colliderSkinWidth);
 #endif
+            EditorPrefs.SetBool("AsImpL_HideWhileLoading", hideWhileLoading);
             EditorPrefs.SetBool("AsImpL_ImportAssets", importAssets);
             EditorPrefs.SetString("AsImpL_AssetPath", importAssetPath);
 #if UNITY_2017_3_OR_NEWER
@@ -123,6 +125,10 @@ namespace AsImpL
                 colliderSkinWidth = EditorPrefs.GetFloat("AsImpL_ColliderSkinWidth");
             }
 #endif
+            if (EditorPrefs.HasKey("AsImpL_HideWhileLoading"))
+            {
+                hideWhileLoading = EditorPrefs.GetBool("AsImpL_HideWhileLoading");
+            }
             if (EditorPrefs.HasKey("AsImpL_ImportAssets"))
             {
                 importAssets = EditorPrefs.GetBool("AsImpL_ImportAssets");
@@ -206,6 +212,7 @@ namespace AsImpL
 #if UNITY_2017_3_OR_NEWER
             use32bitIndices = EditorGUILayout.Toggle("Use 32 bit indices", use32bitIndices);
 #endif
+            hideWhileLoading = EditorGUILayout.Toggle("Hide while loading", hideWhileLoading);
 
             importAssets = EditorGUILayout.Toggle("Import assets", importAssets);
             if (importAssets)
@@ -255,6 +262,7 @@ namespace AsImpL
                     opt.colliderInflate = colliderInflate;
                     opt.colliderSkinWidth = colliderSkinWidth;
 #endif
+                    opt.hideWhileLoading = hideWhileLoading;
                     objImporter.ImportFile(absolute_path, parentObject ? parentObject.transform : null, opt);
                     loading = true;
                 }

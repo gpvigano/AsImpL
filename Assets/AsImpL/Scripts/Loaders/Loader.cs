@@ -356,6 +356,10 @@ namespace AsImpL
             objLoadingProgress.message = "Building scene objects...";
 
             GameObject newObj = new GameObject(objName);
+            if (buildOptions.hideWhileLoading)
+            {
+                newObj.SetActive(false);
+            }
             if (parentTransform != null) newObj.transform.SetParent(parentTransform.transform, false);
             OnCreated(newObj, absolutePath);
             ////newObj.transform.localScale = Vector3.one * Scaling;
@@ -424,6 +428,11 @@ namespace AsImpL
                         }
                     }
                 }
+                if (buildOptions.hideWhileLoading)
+                {
+                    obj.SetActive(true);
+                }
+
                 if (ModelLoaded != null)
                 {
                     ModelLoaded(obj, absolutePath);
