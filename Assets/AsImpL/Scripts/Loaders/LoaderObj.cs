@@ -106,6 +106,7 @@ namespace AsImpL
         protected override IEnumerator LoadMaterialLibrary(string absolutePath)
         {
             string mtlPath;
+            string basePath = GetDirName(absolutePath);
             if (absolutePath.Contains("//"))
             {
                 int pos;
@@ -123,10 +124,24 @@ namespace AsImpL
             }
             else
             {
-                string basePath = GetDirName(absolutePath);
-                mtlPath = "file:///" + basePath + mtlLib;
+                if(Path.IsPathRooted(mtlLib))
+                {
+                    mtlPath = "file:///" + mtlLib;
+                }
+                else
+                {
+                    mtlPath = "file:///" + basePath + mtlLib;
+                }
             }
             yield return LoadOrDownloadText(mtlPath);
+            if (loadedText == null)
+            {
+                mtlLib = Path.GetFileName(mtlLib);
+                mtlPath = "file:///" + basePath + mtlLib;
+                Debug.LogWarningFormat("Trying loading material library {0} from the same directory as the OBJ file...\n", mtlLib);
+
+                yield return LoadOrDownloadText(mtlPath);
+            }
 
             if (loadedText != null)
             {
@@ -606,6 +621,7 @@ namespace AsImpL
 
         private IEnumerator LoadOrDownloadText(string url)
         {
+            loadedText = null;
 #if UNITY_2018_3_OR_NEWER
             UnityWebRequest uwr = UnityWebRequest.Get(url);
             yield return uwr.SendWebRequest();
@@ -620,7 +636,6 @@ namespace AsImpL
                 loadedText = uwr.downloadHandler.text;
             }
 #else
-            loadedText = null;
             WWW www = new WWW(url);
             yield return www;
             if (www.error != null)
