@@ -133,12 +133,12 @@ namespace AsImpL
                     mtlPath = "file:///" + basePath + mtlLib;
                 }
             }
-            yield return LoadOrDownloadText(mtlPath);
+            yield return LoadOrDownloadText(mtlPath,false);
             if (loadedText == null)
             {
                 mtlLib = Path.GetFileName(mtlLib);
                 mtlPath = "file:///" + basePath + mtlLib;
-                Debug.LogWarningFormat("Trying loading material library {0} from the same directory as the OBJ file...\n", mtlLib);
+                Debug.LogWarningFormat("Material library {0} loaded from the same directory as the OBJ file.\n", mtlLib);
 
                 yield return LoadOrDownloadText(mtlPath);
             }
@@ -619,7 +619,7 @@ namespace AsImpL
         }
 
 
-        private IEnumerator LoadOrDownloadText(string url)
+        private IEnumerator LoadOrDownloadText(string url, bool notifyErrors = true)
         {
             loadedText = null;
 #if UNITY_2018_3_OR_NEWER
@@ -628,7 +628,10 @@ namespace AsImpL
 
             if (uwr.isNetworkError || uwr.isHttpError)
             {
-                Debug.LogError(uwr.error);
+                if (notifyErrors)
+                {
+                    Debug.LogError(uwr.error);
+                }
             }
             else
             {
@@ -640,7 +643,10 @@ namespace AsImpL
             yield return www;
             if (www.error != null)
             {
-                Debug.LogError("Error loading " + url + "\n" + www.error);
+                if (notifyErrors)
+                {
+                    Debug.LogError("Error loading " + url + "\n" + www.error);
+                }
             }
             else
             {
