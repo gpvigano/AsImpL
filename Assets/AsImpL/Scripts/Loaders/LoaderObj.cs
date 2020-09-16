@@ -92,7 +92,11 @@ namespace AsImpL
 
             if (string.IsNullOrEmpty(loadedText))
             {
-                Debug.LogError("Failed to load: empty path.");
+                // loading errors are already notified by LoadOrDownloadText()
+                if (loadedText == "")
+                {
+                    Debug.LogError("Empty model file.");
+                }
                 // remove this progress to let complete the total loading process
                 totalProgress.singleProgress.Remove(objLoadingProgress);
                 yield break;
