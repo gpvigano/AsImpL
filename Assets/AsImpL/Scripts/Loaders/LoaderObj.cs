@@ -250,8 +250,6 @@ namespace AsImpL
         /// <returns>Execution is splitted into steps to not freeze the caller method.</returns>
         protected IEnumerator ParseGeometryData(string objDataText)
         {
-            yield return null;
-
             string[] lines = objDataText.Split("\n".ToCharArray());
 
             bool isFirstInGroup = true;
@@ -262,6 +260,13 @@ namespace AsImpL
             char[] separators = new char[] { ' ', '\t' };
             for (int i = 0; i < lines.Length; i++)
             {
+                // update progress only sometimes
+                if (i % 7000 == 0)
+                {
+                    objLoadingProgress.percentage = LOAD_PHASE_PERC * i / lines.Length;
+                    yield return null;
+                }
+
                 string line = lines[i].Trim();
 
                 if (line.Length > 0 && line[0] == '#')
@@ -273,6 +278,7 @@ namespace AsImpL
                 { // empty line
                     continue;
                 }
+
                 string parameters = null;
                 if (line.Length > p[0].Length)
                 {
@@ -346,13 +352,6 @@ namespace AsImpL
                             dataSet.AddMaterialName(DataSet.FixMaterialName(parameters));
                         }
                         break;
-                }
-
-                // update progress only sometimes
-                if (i % 7000 == 0)
-                {
-                    objLoadingProgress.percentage = LOAD_PHASE_PERC * i / lines.Length;
-                    yield return null;
                 }
             }
             objLoadingProgress.percentage = LOAD_PHASE_PERC;
