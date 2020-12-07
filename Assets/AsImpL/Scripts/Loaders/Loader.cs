@@ -96,6 +96,25 @@ namespace AsImpL
             }
         }
 
+        private IFilesystem _filesystem = null;
+        public IFilesystem Filesystem
+        {
+            get
+            {
+                if (_filesystem is null)
+                {
+                    _filesystem = new FileFilesystem();
+                }
+
+                return _filesystem;
+            }
+
+            set
+            {
+                _filesystem = value;
+            }
+        }
+
 
         /// <summary>
         /// Check if a material library is defined for this model
