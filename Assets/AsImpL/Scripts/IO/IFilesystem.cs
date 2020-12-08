@@ -34,7 +34,7 @@ namespace AsImpL
         /// </summary>
         /// <param name="uri">The URI to download.</param>
         /// <param name="notifyErrors">Whether to notify of errors.</param>
-        /// <returns>An enumrator usable as Coroutine in Unity.</returns>
+        /// <returns>An enumerator usable as Coroutine in Unity.</returns>
         IEnumerator DownloadUri(string uri, bool notifyErrors);
     }
 }
