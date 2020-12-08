@@ -36,5 +36,12 @@ namespace AsImpL
         /// <param name="notifyErrors">Whether to notify of errors.</param>
         /// <returns>An enumerator usable as Coroutine in Unity.</returns>
         IEnumerator DownloadUri(string uri, bool notifyErrors);
+
+        /// <summary>
+        /// Downloads the specified URI as texture.
+        /// </summary>
+        /// <param name="uri">The URI to download.</param>
+        /// <returns>An enumerator usable as Coroutine in Unity.</returns>
+        IEnumerator DownloadTexture(string uri);
     }
 }

@@ -531,34 +531,14 @@ namespace AsImpL
         {
             loadedTexture = null;
             string texPath = GetTextureUrl(basePath, path);
-#if UNITY_2018_3_OR_NEWER
-            using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(texPath))
-            {
-                yield return uwr.SendWebRequest();
 
-                if (uwr.isNetworkError || uwr.isHttpError)
-                {
-                    Debug.LogError(uwr.error);
-                }
-                else
-                {
-                    // Get downloaded asset bundle
-                    loadedTexture = DownloadHandlerTexture.GetContent(uwr);
-                }
-            }
-#else
-            WWW loader = new WWW(texPath);
-            yield return loader;
+            var enumerable = Filesystem.DownloadTexture(texPath);
 
-            if (loader.error != null)
-            {
-                Debug.LogError(loader.error);
-            }
-            else
-            {
-                loadedTexture = LoadTexture(loader);
-            }
-#endif
+            yield return enumerable;
+
+            enumerable.MoveNext();
+
+            loadedTexture = (Texture2D)enumerable.Current;
         }
 
 
