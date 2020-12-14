@@ -630,8 +630,10 @@ namespace AsImpL
 
             yield return enumerable;
 
-            enumerable.MoveNext();
-            loadedText = (string)enumerable.Current;
+            if (enumerable.Current != null)
+            {
+                loadedText = (string)enumerable.Current;
+            }
         }
 
 

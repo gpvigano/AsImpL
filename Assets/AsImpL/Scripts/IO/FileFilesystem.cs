@@ -74,6 +74,7 @@ namespace AsImpL
                 if (uwr.isNetworkError || uwr.isHttpError)
                 {
                     Debug.LogError(uwr.error);
+                    yield return null;
                 }
                 else
                 {
@@ -88,6 +89,7 @@ namespace AsImpL
             if (loader.error != null)
             {
                 Debug.LogError(loader.error);
+                yield return null;
             }
             else
             {

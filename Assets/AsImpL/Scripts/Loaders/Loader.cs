@@ -536,9 +536,10 @@ namespace AsImpL
 
             yield return enumerable;
 
-            enumerable.MoveNext();
-
-            loadedTexture = (Texture2D)enumerable.Current;
+            if (enumerable.Current != null)
+            {
+                loadedTexture = (Texture2D)enumerable.Current;
+            }
         }
 
 
