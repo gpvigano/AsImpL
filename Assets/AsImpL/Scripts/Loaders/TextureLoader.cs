@@ -19,6 +19,25 @@ namespace AsImpL
     /// </remarks>
     public class TextureLoader : MonoBehaviour
     {
+        private static IFilesystem _filesystem = null;
+        public static IFilesystem Filesystem
+        {
+            get
+            {
+                if (_filesystem is null)
+                {
+                    _filesystem = new FileFilesystem();
+                }
+
+                return _filesystem;
+            }
+
+            set
+            {
+                _filesystem = value;
+            }
+        }
+
         /// <summary>
         /// Load an image from a file into a Texture2D.
         /// </summary>
@@ -50,7 +69,7 @@ namespace AsImpL
             if (ext == ".png" || ext == ".jpg")
             {
                 Texture2D t2d = new Texture2D(1, 1);
-                t2d.LoadImage(File.ReadAllBytes(fileName));
+                t2d.LoadImage(Filesystem.ReadAllBytes(fileName));
                 return t2d;
             }
             else if (ext == ".dds")
@@ -78,7 +97,7 @@ namespace AsImpL
         /// <returns>The loaded texture or null on error.</returns>
         public static Texture2D LoadTGA(string fileName)
         {
-            using (var imageFile = File.OpenRead(fileName))
+            using (var imageFile = Filesystem.OpenRead(fileName))
             {
                 return LoadTGA(imageFile);
             }
@@ -95,7 +114,7 @@ namespace AsImpL
             try
             {
 
-                byte[] ddsBytes = File.ReadAllBytes(ddsPath);
+                byte[] ddsBytes = Filesystem.ReadAllBytes(ddsPath);
 
                 byte ddsSizeCheck = ddsBytes[4];
                 if (ddsSizeCheck != 124)
