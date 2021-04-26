@@ -43,6 +43,24 @@ namespace AsImpL
         // maximum number of vertices that can be used for triangles
         private static int MAX_VERT_COUNT = (MAX_VERTICES_LIMIT_FOR_A_MESH - 2) / 3 * 3;
 
+        private IShaderSelector _shaderSelector = null;
+        public IShaderSelector ShaderSelector
+        {
+            get
+            {
+                if (_shaderSelector is null)
+                {
+                    _shaderSelector = new ShaderSelector();
+                }
+
+                return _shaderSelector;
+            }
+
+            set
+            {
+                _shaderSelector = value;
+            }
+        }
 
         /// <summary>
         /// Initialize the importing of materials
@@ -627,7 +645,7 @@ namespace AsImpL
         /// <returns>Unity material</returns>
         private Material BuildMaterial(MaterialData md)
         {
-            string shaderName = "Standard";// (md.illumType == 2) ? "Standard (Specular setup)" : "Standard";
+            string shaderName = ShaderSelector.Select(md);
             bool specularMode = false;// (md.specularTex != null);
             ModelUtil.MtlBlendMode mode = md.overallAlpha < 1.0f ? ModelUtil.MtlBlendMode.TRANSPARENT : ModelUtil.MtlBlendMode.OPAQUE;
 

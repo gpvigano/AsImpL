@@ -47,7 +47,12 @@ namespace AsImpL
         protected static Dictionary<string, int> instanceCount = new Dictionary<string, int>();
 
         protected DataSet dataSet = new DataSet();
-        protected ObjectBuilder objectBuilder = new ObjectBuilder();
+        protected ObjectBuilder _objectBuilder;
+        public ObjectBuilder ObjectBuilder
+        {
+            get => _objectBuilder ?? (_objectBuilder = new ObjectBuilder());
+            set => _objectBuilder = value;
+        }
 
         protected List<MaterialData> materialData;
 
@@ -335,18 +340,18 @@ namespace AsImpL
             objLoadingProgress.message = "Loading materials...";
             yield return null;
 #if UNITY_EDITOR
-            objectBuilder.alternativeTexPath = altTexPath;
+            ObjectBuilder.alternativeTexPath = altTexPath;
 #endif
-            objectBuilder.buildOptions = buildOptions;
+            ObjectBuilder.buildOptions = buildOptions;
             bool hasColors = dataSet.colorList.Count > 0;
             bool hasMaterials = materialData != null;
-            objectBuilder.InitBuildMaterials(materialData, hasColors);
+            ObjectBuilder.InitBuildMaterials(materialData, hasColors);
             float objInitPerc = objLoadingProgress.percentage;
             if (hasMaterials)
             {
-                while (objectBuilder.BuildMaterials(info))
+                while (ObjectBuilder.BuildMaterials(info))
                 {
-                    objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * objectBuilder.NumImportedMaterials / materialData.Count;
+                    objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * ObjectBuilder.NumImportedMaterials / materialData.Count;
                     yield return null;
                 }
                 loadStats.buildStats.materialsTime = Time.realtimeSinceStartup - prevTime;
@@ -364,8 +369,8 @@ namespace AsImpL
             OnCreated(newObj, absolutePath);
             ////newObj.transform.localScale = Vector3.one * Scaling;
             float initProgress = objLoadingProgress.percentage;
-            objectBuilder.StartBuildObjectAsync(dataSet, newObj);
-            while (objectBuilder.BuildObjectAsync(ref info))
+            ObjectBuilder.StartBuildObjectAsync(dataSet, newObj);
+            while (ObjectBuilder.BuildObjectAsync(ref info))
             {
                 objLoadingProgress.message = "Building scene objects... " + (info.objectsLoaded + info.groupsLoaded) + "/" + (dataSet.objectList.Count + info.numGroups);
                 objLoadingProgress.percentage = initProgress + BUILD_PHASE_PERC * (info.objectsLoaded / dataSet.objectList.Count + (float)info.groupsLoaded / info.numGroups);
