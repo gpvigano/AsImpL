@@ -62,6 +62,25 @@ namespace AsImpL
             }
         }
 
+        private IMaterialFactory _materialFactory = null;
+        public IMaterialFactory MaterialFactory
+        {
+            get
+            {
+                if (_materialFactory is null)
+                {
+                    _materialFactory = new MaterialFactory();
+                }
+
+                return _materialFactory;
+            }
+
+            set
+            {
+                _materialFactory = value;
+            }
+        }
+
         /// <summary>
         /// Initialize the importing of materials
         /// </summary>
@@ -87,7 +106,7 @@ namespace AsImpL
                 {
                     Debug.LogWarning("No material library defined. Using a default material.");
                 }
-                currMaterials.Add("default", new Material(Shader.Find(shaderName)));
+                currMaterials.Add("default", MaterialFactory.Create(shaderName));
             }
         }
 
@@ -662,7 +681,7 @@ namespace AsImpL
                 diffuseIsTransparent = ModelUtil.ScanTransparentPixels(md.diffuseTex, ref mode);
             }
 
-            Material newMaterial = new Material(Shader.Find(ShaderSelector.Select(md, useUnlit, mode))); // "Standard (Specular setup)"
+            Material newMaterial = MaterialFactory.Create(ShaderSelector.Select(md, useUnlit, mode)); // "Standard (Specular setup)"
             newMaterial.name = md.materialName;
 
             float shinLog = Mathf.Log(md.shininess, 2);
