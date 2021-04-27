@@ -645,7 +645,6 @@ namespace AsImpL
         /// <returns>Unity material</returns>
         private Material BuildMaterial(MaterialData md)
         {
-            string shaderName = ShaderSelector.Select(md);
             bool specularMode = false;// (md.specularTex != null);
             ModelUtil.MtlBlendMode mode = md.overallAlpha < 1.0f ? ModelUtil.MtlBlendMode.TRANSPARENT : ModelUtil.MtlBlendMode.OPAQUE;
 
@@ -663,15 +662,7 @@ namespace AsImpL
                 diffuseIsTransparent = ModelUtil.ScanTransparentPixels(md.diffuseTex, ref mode);
             }
 
-            if (useUnlit && !diffuseIsTransparent.Value)
-            {
-                shaderName = "Unlit/Texture";
-            }
-            else if (specularMode)
-            {
-                shaderName = "Standard (Specular setup)";
-            }
-            Material newMaterial = new Material(Shader.Find(shaderName)); // "Standard (Specular setup)"
+            Material newMaterial = new Material(Shader.Find(ShaderSelector.Select(md, useUnlit, mode))); // "Standard (Specular setup)"
             newMaterial.name = md.materialName;
 
             float shinLog = Mathf.Log(md.shininess, 2);

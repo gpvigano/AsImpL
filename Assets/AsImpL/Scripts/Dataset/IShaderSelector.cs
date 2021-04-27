@@ -5,6 +5,6 @@
     /// </summary>
     public interface IShaderSelector
     {
-        string Select(MaterialData md);
+        string Select(MaterialData md, bool useUnlit, ModelUtil.MtlBlendMode blendMode);
     }
 }
