@@ -43,42 +43,18 @@ namespace AsImpL
         // maximum number of vertices that can be used for triangles
         private static int MAX_VERT_COUNT = (MAX_VERTICES_LIMIT_FOR_A_MESH - 2) / 3 * 3;
 
-        private IShaderSelector _shaderSelector = null;
+        private IShaderSelector _shaderSelector;
         public IShaderSelector ShaderSelector
         {
-            get
-            {
-                if (_shaderSelector is null)
-                {
-                    _shaderSelector = new ShaderSelector();
-                }
-
-                return _shaderSelector;
-            }
-
-            set
-            {
-                _shaderSelector = value;
-            }
+            get => _shaderSelector ?? (_shaderSelector = new ShaderSelector());
+            set => _shaderSelector = value;
         }
 
-        private IMaterialFactory _materialFactory = null;
+        private IMaterialFactory _materialFactory;
         public IMaterialFactory MaterialFactory
         {
-            get
-            {
-                if (_materialFactory is null)
-                {
-                    _materialFactory = new MaterialFactory();
-                }
-
-                return _materialFactory;
-            }
-
-            set
-            {
-                _materialFactory = value;
-            }
+            get => _materialFactory ?? (_materialFactory = new MaterialFactory());
+            set => _materialFactory = value;
         }
 
         /// <summary>
