@@ -1,0 +1,24 @@
+{
+	"name": "com.gpvigano.asimpl",
+	"displayName": "AsImpL",
+	"version": "1.0.0",
+	"description": "Asynchronous Importer and run-time Loader for Unity",
+	"unity": "5.5",
+	"unityRelease": "4",
+	"keywords": [
+		"unity",
+		"runtime",
+		"model",
+		"loader",
+		"obj"
+	],
+	"homepage": "https://github.com/gpvigano/AsImpL/",
+	"bugs": {
+		"url": "https://github.com/gpvigano/AsImpL/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "ssh://git@github.com:gpvigano/AsImpL.git"
+	},
+	"license": "MIT"
+}
