@@ -43,6 +43,19 @@ namespace AsImpL
         // maximum number of vertices that can be used for triangles
         private static int MAX_VERT_COUNT = (MAX_VERTICES_LIMIT_FOR_A_MESH - 2) / 3 * 3;
 
+        private IShaderSelector _shaderSelector;
+        public IShaderSelector ShaderSelector
+        {
+            get => _shaderSelector ?? (_shaderSelector = new ShaderSelector());
+            set => _shaderSelector = value;
+        }
+
+        private IMaterialFactory _materialFactory;
+        public IMaterialFactory MaterialFactory
+        {
+            get => _materialFactory ?? (_materialFactory = new MaterialFactory());
+            set => _materialFactory = value;
+        }
 
         /// <summary>
         /// Initialize the importing of materials
@@ -69,7 +82,7 @@ namespace AsImpL
                 {
                     Debug.LogWarning("No material library defined. Using a default material.");
                 }
-                currMaterials.Add("default", new Material(Shader.Find(shaderName)));
+                currMaterials.Add("default", MaterialFactory.Create(shaderName));
             }
         }
 
@@ -627,7 +640,6 @@ namespace AsImpL
         /// <returns>Unity material</returns>
         private Material BuildMaterial(MaterialData md)
         {
-            string shaderName = "Standard";// (md.illumType == 2) ? "Standard (Specular setup)" : "Standard";
             bool specularMode = false;// (md.specularTex != null);
             ModelUtil.MtlBlendMode mode = md.overallAlpha < 1.0f ? ModelUtil.MtlBlendMode.TRANSPARENT : ModelUtil.MtlBlendMode.OPAQUE;
 
@@ -645,15 +657,7 @@ namespace AsImpL
                 diffuseIsTransparent = ModelUtil.ScanTransparentPixels(md.diffuseTex, ref mode);
             }
 
-            if (useUnlit && !diffuseIsTransparent.Value)
-            {
-                shaderName = "Unlit/Texture";
-            }
-            else if (specularMode)
-            {
-                shaderName = "Standard (Specular setup)";
-            }
-            Material newMaterial = new Material(Shader.Find(shaderName)); // "Standard (Specular setup)"
+            Material newMaterial = MaterialFactory.Create(ShaderSelector.Select(md, useUnlit, mode)); // "Standard (Specular setup)"
             newMaterial.name = md.materialName;
 
             float shinLog = Mathf.Log(md.shininess, 2);
