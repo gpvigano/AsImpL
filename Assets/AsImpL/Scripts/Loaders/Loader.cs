@@ -101,7 +101,7 @@ namespace AsImpL
         {
             get
             {
-                if (_filesystem is null)
+                if (_filesystem == null)
                 {
                     _filesystem = new FileFilesystem();
                 }
