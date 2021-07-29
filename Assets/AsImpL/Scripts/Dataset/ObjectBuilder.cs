@@ -46,15 +46,15 @@ namespace AsImpL
         private IShaderSelector _shaderSelector;
         public IShaderSelector ShaderSelector
         {
-            get => _shaderSelector ?? (_shaderSelector = new ShaderSelector());
-            set => _shaderSelector = value;
+            get { return _shaderSelector ?? (_shaderSelector = new ShaderSelector()); }
+            set { _shaderSelector = value; }
         }
 
         private IMaterialFactory _materialFactory;
         public IMaterialFactory MaterialFactory
         {
-            get => _materialFactory ?? (_materialFactory = new MaterialFactory());
-            set => _materialFactory = value;
+            get { return _materialFactory ?? (_materialFactory = new MaterialFactory()); }
+            set { _materialFactory = value; }
         }
 
         /// <summary>

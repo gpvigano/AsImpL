@@ -50,8 +50,8 @@ namespace AsImpL
         protected ObjectBuilder _objectBuilder;
         public ObjectBuilder ObjectBuilder
         {
-            get => _objectBuilder ?? (_objectBuilder = new ObjectBuilder());
-            set => _objectBuilder = value;
+            get { return _objectBuilder ?? (_objectBuilder = new ObjectBuilder()); }
+            set { _objectBuilder = value; }
         }
 
         protected List<MaterialData> materialData;
