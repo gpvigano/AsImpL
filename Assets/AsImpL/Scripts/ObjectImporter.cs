@@ -392,8 +392,8 @@ namespace AsImpL
                     ImportingStart();
                 }
             }
+            // If the given path is a URI leave it as it is, else get its absolute path
             string absolutePath = filePath.Contains("//") ? filePath : Path.GetFullPath(filePath);
-            absolutePath = absolutePath.Replace('\\', '/');
             Loader loader = CreateLoader(absolutePath);
             if (loader == null)
             {

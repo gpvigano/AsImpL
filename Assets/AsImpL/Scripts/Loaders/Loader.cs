@@ -202,22 +202,25 @@ namespace AsImpL
 
             yield return null;
 
+            string normalizedPath = absolutePath.Replace('\\', '/');
+
+
             // TODO: implementation of a caching mechanism for models downloaded from an URL
 
             // if the model was already loaded duplicate the existing object
-            if (buildOptions != null && buildOptions.reuseLoaded && loadedModels.ContainsKey(absolutePath) && loadedModels[absolutePath] != null)
+            if (buildOptions != null && buildOptions.reuseLoaded && loadedModels.ContainsKey(normalizedPath) && loadedModels[normalizedPath] != null)
             {
-                Debug.LogFormat("File {0} already loaded, creating instance.", absolutePath);
-                instanceCount[absolutePath]++;
-                if (name == null || name == "") objName = objName + "_" + instanceCount[absolutePath];
+                Debug.LogFormat("File {0} already loaded, creating instance.", normalizedPath);
+                instanceCount[normalizedPath]++;
+                if (name == null || name == "") objName = objName + "_" + instanceCount[normalizedPath];
                 objLoadingProgress.message = "Instantiating " + objName + "...";
-                while (loadedModels[absolutePath] == null)
+                while (loadedModels[normalizedPath] == null)
                 {
                     yield return null;
                 }
 
 
-                GameObject newObj = Instantiate(loadedModels[absolutePath]);
+                GameObject newObj = Instantiate(loadedModels[normalizedPath]);
                 yield return newObj;
                 OnCreated(newObj, absolutePath);
                 newObj.name = objName;
@@ -227,12 +230,12 @@ namespace AsImpL
                 OnLoaded(newObj, absolutePath);
                 yield break;
             }
-            loadedModels[absolutePath] = null; // define a key for the dictionary
-            instanceCount[absolutePath] = 0; // define a key for the dictionary
+            loadedModels[normalizedPath] = null; // define a key for the dictionary
+            instanceCount[normalizedPath] = 0; // define a key for the dictionary
 
             float lastTime = Time.realtimeSinceStartup;
             float startTime = lastTime;
-            yield return LoadModelFile(absolutePath);
+            yield return LoadModelFile(normalizedPath);
             loadStats.modelParseTime = Time.realtimeSinceStartup - lastTime;
 
             if (objLoadingProgress.error)
@@ -244,11 +247,11 @@ namespace AsImpL
             lastTime = Time.realtimeSinceStartup;
             if (HasMaterialLibrary)
             {
-                yield return LoadMaterialLibrary(absolutePath);
+                yield return LoadMaterialLibrary(normalizedPath);
             }
             loadStats.materialsParseTime = Time.realtimeSinceStartup - lastTime;
             lastTime = Time.realtimeSinceStartup;
-            yield return Build(absolutePath, objName, parentObj);
+            yield return Build(normalizedPath, objName, parentObj);
             loadStats.buildTime = Time.realtimeSinceStartup - lastTime;
             loadStats.totalTime = Time.realtimeSinceStartup - startTime;
             Debug.Log("Done: " + objName
@@ -261,7 +264,7 @@ namespace AsImpL
                 + "\n    objects: " + loadStats.buildStats.objectsTime + " seconds"
                 );
             totalProgress.singleProgress.Remove(objLoadingProgress);
-            OnLoaded(loadedModels[absolutePath], absolutePath);
+            OnLoaded(loadedModels[normalizedPath], absolutePath);
         }
 
 
