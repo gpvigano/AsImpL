@@ -47,11 +47,17 @@ namespace AsImpL
         protected static Dictionary<string, int> instanceCount = new Dictionary<string, int>();
 
         protected DataSet dataSet = new DataSet();
-        protected ObjectBuilder _objectBuilder;
+        protected ObjectBuilder objectBuilder = null;
+
+        /// <summary>
+        /// Warning! This will be removed soon to avoid confusion between
+        /// the ObjectBuilder class and this property, use Builder property instead.
+        /// </summary>
+		[Obsolete("ObjectBuilder property is deprecated, please use Builder instead.")]
         public ObjectBuilder ObjectBuilder
         {
-            get { return _objectBuilder ?? (_objectBuilder = new ObjectBuilder()); }
-            set { _objectBuilder = value; }
+            get { return objectBuilder ?? (objectBuilder = new ObjectBuilder()); }
+            set { objectBuilder = value; }
         }
 
         protected List<MaterialData> materialData;
@@ -61,6 +67,16 @@ namespace AsImpL
         protected Stats loadStats;
 
         private Texture2D loadedTexture = null;
+
+
+        /// <summary>
+        /// Object used to build the game object hierarchy (it is created if not previously set).
+        /// </summary>
+        public ObjectBuilder Builder
+        {
+            get { return objectBuilder ?? (objectBuilder = new ObjectBuilder()); }
+            set { objectBuilder = value; }
+        }
 
         /// <summary>
         /// Load the file assuming its vertical axis is Z instead of Y 
@@ -359,18 +375,18 @@ namespace AsImpL
             objLoadingProgress.message = "Loading materials...";
             yield return null;
 #if UNITY_EDITOR
-            ObjectBuilder.alternativeTexPath = altTexPath;
+            Builder.alternativeTexPath = altTexPath;
 #endif
-            ObjectBuilder.buildOptions = buildOptions;
+            Builder.buildOptions = buildOptions;
             bool hasColors = dataSet.colorList.Count > 0;
             bool hasMaterials = materialData != null;
-            ObjectBuilder.InitBuildMaterials(materialData, hasColors);
+            Builder.InitBuildMaterials(materialData, hasColors);
             float objInitPerc = objLoadingProgress.percentage;
             if (hasMaterials)
             {
-                while (ObjectBuilder.BuildMaterials(info))
+                while (Builder.BuildMaterials(info))
                 {
-                    objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * ObjectBuilder.NumImportedMaterials / materialData.Count;
+                    objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * Builder.NumImportedMaterials / materialData.Count;
                     yield return null;
                 }
                 loadStats.buildStats.materialsTime = Time.realtimeSinceStartup - prevTime;
@@ -388,8 +404,8 @@ namespace AsImpL
             OnCreated(newObj, absolutePath);
             ////newObj.transform.localScale = Vector3.one * Scaling;
             float initProgress = objLoadingProgress.percentage;
-            ObjectBuilder.StartBuildObjectAsync(dataSet, newObj);
-            while (ObjectBuilder.BuildObjectAsync(ref info))
+            Builder.StartBuildObjectAsync(dataSet, newObj);
+            while (Builder.BuildObjectAsync(ref info))
             {
                 objLoadingProgress.message = "Building scene objects... " + (info.objectsLoaded + info.groupsLoaded) + "/" + (dataSet.objectList.Count + info.numGroups);
                 objLoadingProgress.percentage = initProgress + BUILD_PHASE_PERC * (info.objectsLoaded / dataSet.objectList.Count + (float)info.groupsLoaded / info.numGroups);

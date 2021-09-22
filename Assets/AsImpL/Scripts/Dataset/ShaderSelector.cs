@@ -1,7 +1,7 @@
 ﻿namespace AsImpL
 {
     /// <summary>
-    /// Interface for classes that select the shader to use based on the material data.
+    /// Default implementation of IShaderSelector using predefined shaders.
     /// </summary>
     public class ShaderSelector : IShaderSelector
     {
@@ -15,7 +15,7 @@
         /// <inheritdoc/>
         public string Select(MaterialData md, bool useUnlit, ModelUtil.MtlBlendMode blendMode)
         {
-            const bool specularMode = false;// (md.specularTex != null);
+            //const bool specularMode = false;// (md.specularTex != null);
 
             bool? diffuseIsTransparent = null;
             if (useUnlit)
@@ -28,10 +28,10 @@
             {
                 return "Unlit/Texture";
             }
-            else if (specularMode)
-            {
-                return "Standard (Specular setup)";
-            }
+            //else if (specularMode)
+            //{
+            //    return "Standard (Specular setup)";
+            //}
 
             return defaultShader; // (md.illumType == 2) ? "Standard (Specular setup)" : defaultShader
         }

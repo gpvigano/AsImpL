@@ -199,7 +199,7 @@ namespace AsImpL
                 sourceBasePath += "/";
             }
 
-            string newName = Path.GetFileNameWithoutExtension(absolutePath);//fileInfo.Name.Substring(0, fileInfo.Name.Length - 4);
+            string newName = Path.GetFileNameWithoutExtension(absolutePath);
 
             if (importAssets)
             {
