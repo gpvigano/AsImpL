@@ -300,6 +300,15 @@ namespace AsImpL
         protected IEnumerator Build(string absolutePath, string objName, Transform parentTransform)
         {
             float prevTime = Time.realtimeSinceStartup;
+            GameObject newObj = new GameObject(objName);
+            if (buildOptions.hideWhileLoading)
+            {
+                newObj.SetActive(false);
+            }
+            if (parentTransform != null) newObj.transform.SetParent(parentTransform.transform, false);
+            ModelReferences modelRefs = newObj.AddComponent<ModelReferences>();
+            OnCreated(newObj, absolutePath);
+
             if (materialData != null)
             {
                 string basePath = GetDirName(absolutePath);
@@ -322,6 +331,7 @@ namespace AsImpL
                             yield return LoadMaterialTexture(basePath, mtl.diffuseTexPath);
                             mtl.diffuseTex = loadedTexture;
                         }
+                        modelRefs.AddTexture(mtl.diffuseTex);
                     }
 
                     if (mtl.bumpTexPath != null)
@@ -337,6 +347,7 @@ namespace AsImpL
                             yield return LoadMaterialTexture(basePath, mtl.bumpTexPath);
                             mtl.bumpTex = loadedTexture;
                         }
+                        modelRefs.AddTexture(mtl.bumpTex);
                     }
 
                     if (mtl.specularTexPath != null)
@@ -352,6 +363,7 @@ namespace AsImpL
                             yield return LoadMaterialTexture(basePath, mtl.specularTexPath);
                             mtl.specularTex = loadedTexture;
                         }
+                        modelRefs.AddTexture(mtl.specularTex);
                     }
 
                     if (mtl.opacityTexPath != null)
@@ -367,6 +379,7 @@ namespace AsImpL
                             yield return LoadMaterialTexture(basePath, mtl.opacityTexPath);
                             mtl.opacityTex = loadedTexture;
                         }
+                        modelRefs.AddTexture(mtl.opacityTex);
                     }
                 }
             }
@@ -383,11 +396,11 @@ namespace AsImpL
             Builder.buildOptions = buildOptions;
             bool hasColors = dataSet.colorList.Count > 0;
             bool hasMaterials = materialData != null;
-            Builder.InitBuildMaterials(materialData, hasColors);
+            Builder.InitBuildMaterials(materialData, hasColors, modelRefs);
             float objInitPerc = objLoadingProgress.percentage;
             if (hasMaterials)
             {
-                while (Builder.BuildMaterials(info))
+                while (Builder.BuildMaterials(info, modelRefs))
                 {
                     objLoadingProgress.percentage = objInitPerc + MATERIAL_PHASE_PERC * Builder.NumImportedMaterials / materialData.Count;
                     yield return null;
@@ -398,14 +411,7 @@ namespace AsImpL
 
             objLoadingProgress.message = "Building scene objects...";
 
-            GameObject newObj = new GameObject(objName);
-            if (buildOptions.hideWhileLoading)
-            {
-                newObj.SetActive(false);
-            }
-            if (parentTransform != null) newObj.transform.SetParent(parentTransform.transform, false);
-            OnCreated(newObj, absolutePath);
-            ////newObj.transform.localScale = Vector3.one * Scaling;
+           ////newObj.transform.localScale = Vector3.one * Scaling;
             float initProgress = objLoadingProgress.percentage;
             Builder.StartBuildObjectAsync(dataSet, newObj);
             while (Builder.BuildObjectAsync(ref info))

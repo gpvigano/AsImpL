@@ -62,7 +62,7 @@ namespace AsImpL
         /// </summary>
         /// <param name="materialData">List of material data</param>
         /// <param name="hasColors">If true and materialData is null and vertex colors are available, then use them</param>
-        public void InitBuildMaterials(List<MaterialData> materialData, bool hasColors)
+        public void InitBuildMaterials(List<MaterialData> materialData, bool hasColors, ModelReferences modelRefs)
         {
             this.materialData = materialData;
             currMaterials = new Dictionary<string, Material>();
@@ -82,7 +82,9 @@ namespace AsImpL
                 {
                     Debug.LogWarning("No material library defined. Using a default material.");
                 }
-                currMaterials.Add("default", MaterialFactory.Create(shaderName));
+                Material newMaterial = MaterialFactory.Create(shaderName);
+                modelRefs.AddMaterial(newMaterial);
+                currMaterials.Add("default", newMaterial);
             }
         }
 
@@ -92,7 +94,7 @@ namespace AsImpL
         /// </summary>
         /// <param name="info">Progress information to be updated</param>
         /// <returns>Return true if in progress, false otherwise.</returns>
-        public bool BuildMaterials(ProgressInfo info)
+        public bool BuildMaterials(ProgressInfo info, ModelReferences modelRefs)
         {
             if (materialData == null)
             {
@@ -111,7 +113,7 @@ namespace AsImpL
             }
             else
             {
-                currMaterials.Add(matData.materialName, BuildMaterial(matData));
+                currMaterials.Add(matData.materialName, BuildMaterial(matData, modelRefs));
             }
             return info.materialsLoaded < materialData.Count;
         }
@@ -548,6 +550,8 @@ namespace AsImpL
             go.AddComponent<MeshRenderer>();
 
             Mesh mesh = new Mesh();
+            ModelReferences modelRefs = go.GetComponentInParent<ModelReferences>();
+            modelRefs.AddMesh(mesh);
 #if UNITY_2017_3_OR_NEWER
             if (Using32bitIndices())
             {
@@ -638,7 +642,7 @@ namespace AsImpL
         /// </summary>
         /// <param name="md">material data</param>
         /// <returns>Unity material</returns>
-        private Material BuildMaterial(MaterialData md)
+        private Material BuildMaterial(MaterialData md, ModelReferences modelRefs)
         {
             bool specularMode = false;// (md.specularTex != null);
             ModelUtil.MtlBlendMode mode = md.overallAlpha < 1.0f ? ModelUtil.MtlBlendMode.TRANSPARENT : ModelUtil.MtlBlendMode.OPAQUE;
@@ -658,6 +662,7 @@ namespace AsImpL
             }
 
             Material newMaterial = MaterialFactory.Create(ShaderSelector.Select(md, useUnlit, mode)); // "Standard (Specular setup)"
+            modelRefs.AddMaterial(newMaterial);
             newMaterial.name = md.materialName;
 
             float shinLog = Mathf.Log(md.shininess, 2);
@@ -689,6 +694,7 @@ namespace AsImpL
                     int w = md.diffuseTex.width;
                     int h = md.diffuseTex.width;
                     Texture2D albedoTexture = new Texture2D(w, h, TextureFormat.ARGB32, false);
+                    modelRefs.AddTexture(albedoTexture);
                     Color col = new Color();
                     for (int x = 0; x < albedoTexture.width; x++)
                     {
@@ -737,6 +743,7 @@ namespace AsImpL
                 int w = md.opacityTex.width;
                 int h = md.opacityTex.width;
                 Texture2D albedoTexture = new Texture2D(w, h, TextureFormat.ARGB32, false);
+                modelRefs.AddTexture(albedoTexture);
                 Color col = new Color();
                 bool detected = false;
                 for (int x = 0; x < albedoTexture.width; x++)
@@ -794,6 +801,7 @@ namespace AsImpL
                 {
                     // calculate normal map
                     Texture2D normalMap = ModelUtil.HeightToNormalMap(md.bumpTex);
+                    modelRefs.AddTexture(normalMap);
 #if UNITY_EDITOR
                     if (!string.IsNullOrEmpty(alternativeTexPath))
                     {
@@ -817,6 +825,7 @@ namespace AsImpL
             if (md.specularTex != null)
             {
                 Texture2D glossTexture = new Texture2D(md.specularTex.width, md.specularTex.height, TextureFormat.ARGB32, false);
+                modelRefs.AddTexture(glossTexture);
                 Color col = new Color();
                 float pix = 0.0f;
                 for (int x = 0; x < glossTexture.width; x++)

@@ -10,16 +10,18 @@ namespace AsImpL
         public class AsImpLSample : MonoBehaviour
         {
             [SerializeField]
-            private string filePath = "models/OBJ_test/objtest_zup.obj";
-            [SerializeField]
-            private string objectName = "MyObject";
-            [SerializeField]
-            private ImportOptions importOptions = new ImportOptions();
+            protected string filePath = "models/OBJ_test/objtest_zup.obj";
 
             [SerializeField]
-            private PathSettings pathSettings;
+            protected string objectName = "MyObject";
 
-            private ObjectImporter objImporter;
+            [SerializeField]
+            protected ImportOptions importOptions = new ImportOptions();
+
+            [SerializeField]
+            protected PathSettings pathSettings;
+
+            protected ObjectImporter objImporter;
 
 
             private void Awake()
@@ -33,7 +35,7 @@ namespace AsImpL
             }
 
 
-            private void Start()
+            protected virtual void Start()
             {
                 objImporter.ImportModelAsync(objectName, filePath, null, importOptions);
             }
