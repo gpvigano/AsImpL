@@ -319,45 +319,58 @@ namespace AsImpL
         protected bool BuildNextObject(GameObject parentObj, Dictionary<string, Material> mats)
         {
             // if all the objects were built stop here
-            if (buildStatus.objCount >= currDataSet.objectList.Count) return false;
+            if (buildStatus.objCount >= currDataSet.objectList.Count)
+            {
+                return false;
+            }
 
             // get the next object in the list
             DataSet.ObjectData objData = currDataSet.objectList[buildStatus.objCount];
 
             if (buildStatus.newObject)
             {
-                if (buildStatus.objCount == 0 && objData.name == "default")
-                {
-                    buildStatus.currObjGameObject = parentObj;
-                }
-                else
-                {
-                    buildStatus.currObjGameObject = new GameObject();
-                    buildStatus.currObjGameObject.transform.parent = parentObj.transform;
-                    buildStatus.currObjGameObject.name = objData.name;
-                    // restore the scale if the parent was rescaled
-                    buildStatus.currObjGameObject.transform.localScale = Vector3.one;
-                }
-                buildStatus.subObjParent = buildStatus.currObjGameObject;
-
-                //if (od.Name != "default") go.name = od.Name;
-                //Debug.Log("Object: " + objData.name);
-                buildStatus.newObject = false;
-                buildStatus.subObjCount = 0;
-                buildStatus.idxCount = 0;
-                buildStatus.grpIdx = 0;
-                buildStatus.grpFaceIdx = 0;
-                buildStatus.meshPartIdx = 0;
-                buildStatus.totFaceIdxCount = 0;
-                buildStatus.numGroups = Mathf.Max(1, objData.faceGroups.Count);
+                SetUpNewObject(parentObj, objData);
             }
 
+            return BuildCurrentObject(objData, mats);
+        }
+
+
+        private void SetUpNewObject(GameObject parentObj, DataSet.ObjectData objData)
+        {
+            if (buildStatus.objCount == 0 && objData.name == "default")
+            {
+                buildStatus.currObjGameObject = parentObj;
+            }
+            else
+            {
+                buildStatus.currObjGameObject = new GameObject();
+                buildStatus.currObjGameObject.transform.parent = parentObj.transform;
+                buildStatus.currObjGameObject.name = objData.name;
+                // restore the scale if the parent was rescaled
+                buildStatus.currObjGameObject.transform.localScale = Vector3.one;
+            }
+            buildStatus.subObjParent = buildStatus.currObjGameObject;
+
+            buildStatus.newObject = false;
+            buildStatus.subObjCount = 0;
+            buildStatus.idxCount = 0;
+            buildStatus.grpIdx = 0;
+            buildStatus.grpFaceIdx = 0;
+            buildStatus.meshPartIdx = 0;
+            buildStatus.totFaceIdxCount = 0;
+            buildStatus.numGroups = Mathf.Max(1, objData.faceGroups.Count);
+        }
+
+
+        private bool BuildCurrentObject(DataSet.ObjectData objData, Dictionary<string, Material> mats)
+        {
             bool splitLargeMeshes = true;
 #if UNITY_2017_3_OR_NEWER
             // GPU support for 32 bit indices is not guaranteed on all platforms;
             // for example Android devices with Mali-400 GPU do not support them.
             // This check is performed in Using32bitIndices().
-            // If nothing is rendered on your device problably Using32bitIndices() must be updated.
+            // If nothing is rendered on your device probably Using32bitIndices() must be updated.
             if (Using32bitIndices())
             {
                 splitLargeMeshes = false;
@@ -365,9 +378,11 @@ namespace AsImpL
 #endif
             bool splitGrp = false;
 
+            DataSet.FaceGroupData faceGroup = objData.faceGroups[buildStatus.grpIdx];
+
             DataSet.FaceGroupData grp = new DataSet.FaceGroupData();
-            grp.name = objData.faceGroups[buildStatus.grpIdx].name;
-            grp.materialName = objData.faceGroups[buildStatus.grpIdx].materialName;
+            grp.name = faceGroup.name;
+            grp.materialName = faceGroup.materialName;
 
 
             // data for sub-object
@@ -382,7 +397,7 @@ namespace AsImpL
             int maxIdx4mesh = conv2sided ? MAX_INDICES_LIMIT_FOR_A_MESH / 2 : MAX_INDICES_LIMIT_FOR_A_MESH;
 
             // copy blocks of face indices to each sub-object data
-            for (int f = buildStatus.grpFaceIdx; f < objData.faceGroups[buildStatus.grpIdx].faces.Count; f++)
+            for (int f = buildStatus.grpFaceIdx; f < faceGroup.faces.Count; f++)
             {
                 // if large meshed must be split and
                 // if passed the max num of vertices and not at the last iteration
@@ -394,16 +409,18 @@ namespace AsImpL
                     Debug.LogWarningFormat("Maximum vertex number for a mesh exceeded.\nSplitting object {0} (group {1}, starting from index {2})...", grp.name, buildStatus.grpIdx, f);
                     break;
                 }
-                DataSet.FaceIndices fi = objData.faceGroups[buildStatus.grpIdx].faces[f];
+                DataSet.FaceIndices fi = faceGroup.faces[f];
                 subObjData.allFaces.Add(fi);
                 grp.faces.Add(fi);
                 vertIdxSet.Add(fi.vertIdx);
             }
+
             if (splitGrp || buildStatus.meshPartIdx > 0)
             {
                 buildStatus.meshPartIdx++;
             }
-            // create an empty (group) object in case the group has been splitted
+
+            // create an empty (group) object in case the group has been split
             if (buildStatus.meshPartIdx == 1)
             {
                 GameObject grpObj = new GameObject();
@@ -412,7 +429,7 @@ namespace AsImpL
                 buildStatus.subObjParent = grpObj;
             }
 
-            // add a suffix to the group name in case the group has been splitted
+            // add a suffix to the group name in case the group has been split
             if (buildStatus.meshPartIdx > 0)
             {
                 grp.name = buildStatus.subObjParent.name + "_MeshPart" + buildStatus.meshPartIdx;
@@ -431,6 +448,7 @@ namespace AsImpL
                 buildStatus.grpIdx++;
             }
             buildStatus.totFaceIdxCount += subObjData.allFaces.Count;
+
             GameObject subobj = ImportSubObject(buildStatus.subObjParent, subObjData, mats);
             if (subobj == null)
             {
@@ -447,16 +465,17 @@ namespace AsImpL
                     Debug.LogWarningFormat("Imported face indices: {0} of {1}", buildStatus.totFaceIdxCount, objData.allFaces.Count);
                     return false;
                 }
+
                 buildStatus.objCount++;
                 buildStatus.newObject = true;
             }
+
             return true;
         }
 
 
         private GameObject ImportSubObject(GameObject parentObj, DataSet.ObjectData objData, Dictionary<string, Material> mats)
         {
-            bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
             GameObject go = new GameObject();
             go.name = objData.name;
             int count = 0;
@@ -479,6 +498,34 @@ namespace AsImpL
 
             //Debug.Log( "Importing sub object:" + objData.Name );
 
+
+            MeshFilter meshFilter = go.AddComponent<MeshFilter>();
+            go.AddComponent<MeshRenderer>();
+
+            Renderer renderer = go.GetComponent<Renderer>();
+
+            Mesh mesh = BuildMesh(renderer, objData, mats);
+            ModelReferences modelRefs = go.GetComponentInParent<ModelReferences>();
+            modelRefs.AddMesh(mesh);
+            mesh.name = go.name;
+            meshFilter.sharedMesh = mesh;
+
+
+            if (buildOptions != null && buildOptions.buildColliders)
+            {
+#if UNITY_2018_3_OR_NEWER
+                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger);
+#else
+                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger, buildOptions.colliderInflate, buildOptions.colliderSkinWidth);
+#endif
+            }
+            return go;
+        }
+
+
+        private Mesh BuildMesh(Renderer renderer, DataSet.ObjectData objData, Dictionary<string, Material> mats)
+        {
+            bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
             // count vertices needed for all the faces and map face indices to new vertices
             Dictionary<string, int> vIdxCount = new Dictionary<string, int>();
             int vcount = 0;
@@ -538,33 +585,16 @@ namespace AsImpL
                 }
             }
 
-            bool objectHasNormals = (currDataSet.normalList.Count > 0 && objData.hasNormals);
-            bool objectHasColors = (currDataSet.colorList.Count > 0 && objData.hasColors);
-            bool objectHasUVs = (currDataSet.uvList.Count > 0);
-
             int n = objData.faceGroups[0].faces.Count;
 
             int numIndices = conv2sided ? n * 2 : n;
 
-            MeshFilter meshFilter = go.AddComponent<MeshFilter>();
-            go.AddComponent<MeshRenderer>();
-
             Mesh mesh = new Mesh();
-            ModelReferences modelRefs = go.GetComponentInParent<ModelReferences>();
-            modelRefs.AddMesh(mesh);
-#if UNITY_2017_3_OR_NEWER
-            if (Using32bitIndices())
-            {
-                if (arraySize > MAX_VERT_COUNT || numIndices > MAX_INDICES_LIMIT_FOR_A_MESH)
-                {
-                    mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-                }
-            }
-#endif
-            mesh.name = go.name;
-            meshFilter.sharedMesh = mesh;
-
             mesh.vertices = newVertices;
+            bool objectHasNormals = (currDataSet.normalList.Count > 0 && objData.hasNormals);
+            bool objectHasColors = (currDataSet.colorList.Count > 0 && objData.hasColors);
+            bool objectHasUVs = (currDataSet.uvList.Count > 0);
+
             if (objectHasUVs) mesh.uv = newUVs;
             if (objectHasNormals) mesh.normals = newNormals;
             if (objectHasColors) mesh.colors32 = newColors;
@@ -572,7 +602,6 @@ namespace AsImpL
             Material material;
 
             string matName = (objData.faceGroups[0].materialName != null) ? objData.faceGroups[0].materialName : "default";
-            Renderer renderer = go.GetComponent<Renderer>();
 
             if (mats.ContainsKey(matName))
             {
@@ -625,55 +654,57 @@ namespace AsImpL
             {
                 Solve(mesh);
             }
-            if (buildOptions != null && buildOptions.buildColliders)
-            {
-#if UNITY_2018_3_OR_NEWER
-                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger);
-#else
-                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger, buildOptions.colliderInflate, buildOptions.colliderSkinWidth);
-#endif
-            }
-            return go;
-        }
 
+#if UNITY_2017_3_OR_NEWER
+            if (Using32bitIndices())
+            {
+                if (arraySize > MAX_VERT_COUNT || numIndices > MAX_INDICES_LIMIT_FOR_A_MESH)
+                {
+                    mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                }
+            }
+#endif
+
+            return mesh;
+        }
 
         /// <summary>
         /// Build a Unity Material from MaterialData
         /// </summary>
-        /// <param name="md">material data</param>
+        /// <param name="mtlData">material data</param>
         /// <returns>Unity material</returns>
-        private Material BuildMaterial(MaterialData md, ModelReferences modelRefs)
+        private Material BuildMaterial(MaterialData mtlData, ModelReferences modelRefs)
         {
             bool specularMode = false;// (md.specularTex != null);
-            ModelUtil.MtlBlendMode mode = md.overallAlpha < 1.0f ? ModelUtil.MtlBlendMode.TRANSPARENT : ModelUtil.MtlBlendMode.OPAQUE;
+            ModelUtil.MtlBlendMode mode = mtlData.overallAlpha < 1.0f ? ModelUtil.MtlBlendMode.TRANSPARENT : ModelUtil.MtlBlendMode.OPAQUE;
 
             bool useUnlit = buildOptions != null && buildOptions.litDiffuse
-                && md.diffuseTex != null
-                && md.bumpTex == null
-                && md.opacityTex == null
-                && md.specularTex == null
-                && !md.hasReflectionTex;
+                && mtlData.diffuseTex != null
+                && mtlData.bumpTex == null
+                && mtlData.opacityTex == null
+                && mtlData.specularTex == null
+                && !mtlData.hasReflectionTex;
 
             bool? diffuseIsTransparent = null;
             if (useUnlit)
             {
                 // do not use unlit shader if the texture has transparent pixels
-                diffuseIsTransparent = ModelUtil.ScanTransparentPixels(md.diffuseTex, ref mode);
+                diffuseIsTransparent = ModelUtil.ScanTransparentPixels(mtlData.diffuseTex, ref mode);
             }
 
-            Material newMaterial = MaterialFactory.Create(ShaderSelector.Select(md, useUnlit, mode)); // "Standard (Specular setup)"
+            Material newMaterial = MaterialFactory.Create(ShaderSelector.Select(mtlData, useUnlit, mode)); // "Standard (Specular setup)"
             modelRefs.AddMaterial(newMaterial);
-            newMaterial.name = md.materialName;
+            newMaterial.name = mtlData.materialName;
 
-            float shinLog = Mathf.Log(md.shininess, 2);
+            float shinLog = Mathf.Log(mtlData.shininess, 2);
             // get the metallic value from the shininess
             float metallic = Mathf.Clamp01(shinLog / 10.0f);
             // get the smoothness from the shininess
             float smoothness = Mathf.Clamp01(shinLog / 10.0f);
             if (specularMode)
             {
-                newMaterial.SetColor("_SpecColor", md.specularColor);
-                newMaterial.SetFloat("_Shininess", md.shininess / 1000.0f);
+                newMaterial.SetColor("_SpecColor", mtlData.specularColor);
+                newMaterial.SetFloat("_Shininess", mtlData.shininess / 1000.0f);
                 //m.color = new Color( md.diffuse.r, md.diffuse.g, md.diffuse.b, md.alpha);
             }
             else
@@ -683,16 +714,16 @@ namespace AsImpL
             }
 
 
-            if (md.diffuseTex != null)
+            if (mtlData.diffuseTex != null)
             {
                 // diffuse
 
-                if (md.opacityTex != null)
+                if (mtlData.opacityTex != null)
                 {
                     // diffuse + opacity:
                     // update diffuse texture if an opacity map was found
-                    int w = md.diffuseTex.width;
-                    int h = md.diffuseTex.width;
+                    int w = mtlData.diffuseTex.width;
+                    int h = mtlData.diffuseTex.width;
                     Texture2D albedoTexture = new Texture2D(w, h, TextureFormat.ARGB32, false);
                     modelRefs.AddTexture(albedoTexture);
                     Color col = new Color();
@@ -700,13 +731,13 @@ namespace AsImpL
                     {
                         for (int y = 0; y < albedoTexture.height; y++)
                         {
-                            col = md.diffuseTex.GetPixel(x, y);
-                            col.a *= md.opacityTex.GetPixel(x, y).grayscale;
+                            col = mtlData.diffuseTex.GetPixel(x, y);
+                            col.a *= mtlData.opacityTex.GetPixel(x, y).grayscale;
                             // blend diffuse and opacity textures
                             albedoTexture.SetPixel(x, y, col);
                         }
                     }
-                    albedoTexture.name = md.diffuseTexPath;
+                    albedoTexture.name = mtlData.diffuseTexPath;
                     albedoTexture.Apply();
                     // mode = ModelUtil.MtlBlendMode.TRANSPARENT;
                     // The map_d value is multiplied by the d value --> Fade mode
@@ -714,7 +745,7 @@ namespace AsImpL
 #if UNITY_EDITOR
                     if (!string.IsNullOrEmpty(alternativeTexPath))
                     {
-                        string texAssetPath = AssetDatabase.GetAssetPath(md.opacityTex);
+                        string texAssetPath = AssetDatabase.GetAssetPath(mtlData.opacityTex);
                         if (!string.IsNullOrEmpty(texAssetPath))
                         {
                             EditorUtil.SaveAndReimportPngTexture(ref albedoTexture, texAssetPath, "_alpha");
@@ -729,19 +760,19 @@ namespace AsImpL
                     // diffuse without opacity: if there are transparent pixels ==> transparent material
                     if (!diffuseIsTransparent.HasValue)
                     {
-                        diffuseIsTransparent = ModelUtil.ScanTransparentPixels(md.diffuseTex, ref mode);
+                        diffuseIsTransparent = ModelUtil.ScanTransparentPixels(mtlData.diffuseTex, ref mode);
                     }
-                    newMaterial.SetTexture("_MainTex", md.diffuseTex);
+                    newMaterial.SetTexture("_MainTex", mtlData.diffuseTex);
                 }
                 //Debug.LogFormat("Diffuse set for {0}",m.name);
             }
-            else if (md.opacityTex != null)
+            else if (mtlData.opacityTex != null)
             {
                 // opacity without diffuse
                 //mode = ModelUtil.MtlBlendMode.TRANSPARENT;
                 mode = ModelUtil.MtlBlendMode.FADE;
-                int w = md.opacityTex.width;
-                int h = md.opacityTex.width;
+                int w = mtlData.opacityTex.width;
+                int h = mtlData.opacityTex.width;
                 Texture2D albedoTexture = new Texture2D(w, h, TextureFormat.ARGB32, false);
                 modelRefs.AddTexture(albedoTexture);
                 Color col = new Color();
@@ -750,19 +781,19 @@ namespace AsImpL
                 {
                     for (int y = 0; y < albedoTexture.height; y++)
                     {
-                        col = md.diffuseColor;
-                        col.a = md.overallAlpha * md.opacityTex.GetPixel(x, y).grayscale;
+                        col = mtlData.diffuseColor;
+                        col.a = mtlData.overallAlpha * mtlData.opacityTex.GetPixel(x, y).grayscale;
                         ModelUtil.DetectMtlBlendFadeOrCutout(col.a, ref mode, ref detected);
                         //if (md.alpha == 1.0f && col.a == 0.0f) mode = ModelUtil.MtlBlendMode.CUTOUT;
                         albedoTexture.SetPixel(x, y, col);
                     }
                 }
-                albedoTexture.name = md.diffuseTexPath;
+                albedoTexture.name = mtlData.diffuseTexPath;
                 albedoTexture.Apply();
 #if UNITY_EDITOR
                 if (!string.IsNullOrEmpty(alternativeTexPath))
                 {
-                    string texAssetPath = AssetDatabase.GetAssetPath(md.opacityTex);
+                    string texAssetPath = AssetDatabase.GetAssetPath(mtlData.opacityTex);
                     if (!string.IsNullOrEmpty(texAssetPath))
                     {
                         EditorUtil.SaveAndReimportPngTexture(ref albedoTexture, texAssetPath, "_op");
@@ -772,17 +803,17 @@ namespace AsImpL
                 newMaterial.SetTexture("_MainTex", albedoTexture);
             }
 
-            md.diffuseColor.a = md.overallAlpha;
-            newMaterial.SetColor("_Color", md.diffuseColor);
+            mtlData.diffuseColor.a = mtlData.overallAlpha;
+            newMaterial.SetColor("_Color", mtlData.diffuseColor);
 
-            md.emissiveColor.a = md.overallAlpha;
-            newMaterial.SetColor("_EmissionColor", md.emissiveColor);
-            if (md.emissiveColor.r > 0 || md.emissiveColor.g > 0 || md.emissiveColor.b > 0)
+            mtlData.emissiveColor.a = mtlData.overallAlpha;
+            newMaterial.SetColor("_EmissionColor", mtlData.emissiveColor);
+            if (mtlData.emissiveColor.r > 0 || mtlData.emissiveColor.g > 0 || mtlData.emissiveColor.b > 0)
             {
                 newMaterial.EnableKeyword("_EMISSION");
             }
 
-            if (md.bumpTex != null)
+            if (mtlData.bumpTex != null)
             {
                 // bump map defined
 
@@ -791,21 +822,21 @@ namespace AsImpL
                 // let (improperly) assign a normal map to the bumb map
                 // if the file name contains a specific tag
                 // TODO: customize normal map tag
-                if (md.bumpTexPath.Contains("_normal_map"))
+                if (mtlData.bumpTexPath.Contains("_normal_map"))
                 {
                     newMaterial.EnableKeyword("_NORMALMAP");
                     newMaterial.SetFloat("_BumpScale", 0.25f); // lower the bump effect with the normal map
-                    newMaterial.SetTexture("_BumpMap", md.bumpTex);
+                    newMaterial.SetTexture("_BumpMap", mtlData.bumpTex);
                 }
                 else
                 {
                     // calculate normal map
-                    Texture2D normalMap = ModelUtil.HeightToNormalMap(md.bumpTex);
+                    Texture2D normalMap = ModelUtil.HeightToNormalMap(mtlData.bumpTex);
                     modelRefs.AddTexture(normalMap);
 #if UNITY_EDITOR
                     if (!string.IsNullOrEmpty(alternativeTexPath))
                     {
-                        string texAssetPath = AssetDatabase.GetAssetPath(md.bumpTex);
+                        string texAssetPath = AssetDatabase.GetAssetPath(mtlData.bumpTex);
                         if (!string.IsNullOrEmpty(texAssetPath))
                         {
                             EditorUtil.SaveAndReimportPngTexture(ref normalMap, texAssetPath, "_nm", true);
@@ -822,9 +853,9 @@ namespace AsImpL
                 }
             }
 
-            if (md.specularTex != null)
+            if (mtlData.specularTex != null)
             {
-                Texture2D glossTexture = new Texture2D(md.specularTex.width, md.specularTex.height, TextureFormat.ARGB32, false);
+                Texture2D glossTexture = new Texture2D(mtlData.specularTex.width, mtlData.specularTex.height, TextureFormat.ARGB32, false);
                 modelRefs.AddTexture(glossTexture);
                 Color col = new Color();
                 float pix = 0.0f;
@@ -832,7 +863,7 @@ namespace AsImpL
                 {
                     for (int y = 0; y < glossTexture.height; y++)
                     {
-                        pix = md.specularTex.GetPixel(x, y).grayscale;
+                        pix = mtlData.specularTex.GetPixel(x, y).grayscale;
 
                         // red = metallic
 
@@ -843,7 +874,7 @@ namespace AsImpL
                         // alpha = smoothness
 
                         // if reflecting set maximum smoothness value, else use a precomputed value
-                        if (md.hasReflectionTex) col.a = pix;
+                        if (mtlData.hasReflectionTex) col.a = pix;
                         else col.a = pix * smoothness;
 
                         glossTexture.SetPixel(x, y, col);
@@ -853,7 +884,7 @@ namespace AsImpL
 #if UNITY_EDITOR
                 if (!string.IsNullOrEmpty(alternativeTexPath))
                 {
-                    string texAssetPath = AssetDatabase.GetAssetPath(md.specularTex);
+                    string texAssetPath = AssetDatabase.GetAssetPath(mtlData.specularTex);
                     if (!string.IsNullOrEmpty(texAssetPath))
                     {
                         EditorUtil.SaveAndReimportPngTexture(ref glossTexture, texAssetPath, "_spec");
@@ -876,17 +907,17 @@ namespace AsImpL
             }
 
             // replace the texture with Unity environment reflection
-            if (md.hasReflectionTex)
+            if (mtlData.hasReflectionTex)
             {
-                if (md.overallAlpha < 1.0f)
+                if (mtlData.overallAlpha < 1.0f)
                 {
                     Color col = Color.white;
-                    col.a = md.overallAlpha;
+                    col.a = mtlData.overallAlpha;
                     newMaterial.SetColor("_Color", col);
                     mode = ModelUtil.MtlBlendMode.FADE;
                 }
                 // the "amount of" info is missing, using a default value
-                if (md.specularTex != null)
+                if (mtlData.specularTex != null)
                 {
                     newMaterial.SetFloat("_Metallic", metallic);// 1.0f);
                 }
@@ -972,7 +1003,7 @@ namespace AsImpL
             // index of the first face index in the group
             public int grpFaceIdx = 0;
 
-            // index of the last mesh part if the group is splitted into parts
+            // index of the last mesh part if the group is split into parts
             public int meshPartIdx = 0;
 
             // total number of face indices processed

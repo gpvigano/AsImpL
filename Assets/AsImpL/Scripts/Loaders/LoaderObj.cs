@@ -21,7 +21,7 @@ namespace AsImpL
     /// 
     /// New features:
     /// <list type="bullet">
-    /// <item><description>meshes with more than 65K vertices/indices are splitted and loaded</description></item>
+    /// <item><description>meshes with more than 65K vertices/indices are split and loaded</description></item>
     /// <item><description>groups are loaded into game (sub) objects</description></item>
     /// <item><description>extended material support</description></item>
     /// <item><description>computation of normal maps and tangents</description></item>
@@ -251,7 +251,7 @@ namespace AsImpL
         /// Parse the OBJ file to extract geometry data.
         /// </summary>
         /// <param name="objDataText">OBJ file text</param>
-        /// <returns>Execution is splitted into steps to not freeze the caller method.</returns>
+        /// <returns>Execution is split into steps to not freeze the caller method.</returns>
         protected IEnumerator ParseGeometryData(string objDataText)
         {
             string[] lines = objDataText.Split("\n".ToCharArray());
