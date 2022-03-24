@@ -166,7 +166,7 @@ namespace AsImpL
 
 
         /// <summary>
-        /// Get a previusly loaded model by its absolute path
+        /// Get a previously loaded model by its absolute path
         /// </summary>
         /// <param name="absolutePath">absolute path used to load the model</param>
         /// <returns>The game object previously loaded</returns>

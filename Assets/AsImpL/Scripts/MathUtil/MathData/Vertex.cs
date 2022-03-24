@@ -58,7 +58,7 @@ namespace AsImpL.MathUtil
         }
 
         /// <summary>
-        /// Area of the triangle this vertex belogs to,
+        /// Area of the triangle this vertex belongs to,
         /// automatically computed each time the connected vertices change.
         /// </summary>
         public float TriangleArea

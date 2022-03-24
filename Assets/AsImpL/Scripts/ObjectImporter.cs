@@ -326,7 +326,7 @@ namespace AsImpL
 
 
         /// <summary>
-        /// Create the proper loader cmponent according to the file extension.
+        /// Create the proper loader component according to the file extension.
         /// </summary>
         /// <param name="absolutePath">path of the model to be imported</param>
         /// <returns>A proper loader or null if not available.</returns>

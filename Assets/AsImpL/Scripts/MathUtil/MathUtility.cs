@@ -43,7 +43,7 @@ namespace AsImpL.MathUtil
         {
             bool isWithinTriangle = false;
 
-            //Based on Barycentric coordinates
+            //Based on barycentric coordinates
             float denominator = ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
 
             float a = ((p2.y - p3.y) * (p.x - p3.x) + (p3.x - p2.x) * (p.y - p3.y)) / denominator;
@@ -63,9 +63,9 @@ namespace AsImpL.MathUtil
         /// <summary>
         /// Check if a triangle oriented clockwise or counter-clockwise.
         /// </summary>
-        /// <param name="v1">First vectex in 2D</param>
-        /// <param name="v2">Second vectex in 2D</param>
-        /// <param name="v3">Third vectex in 2D</param>
+        /// <param name="v1">First vertex in 2D</param>
+        /// <param name="v2">Second vertex in 2D</param>
+        /// <param name="v3">Third vertex in 2D</param>
         /// <returns>True if the triangle is oriented clockwise.</returns>
         /// <remarks>
         /// This comes from:

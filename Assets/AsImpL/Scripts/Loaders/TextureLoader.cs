@@ -157,7 +157,7 @@ namespace AsImpL
 
 
         /// <summary>
-        /// Load a TGA image from a stram into a Texture2D.
+        /// Load a TGA image from a stream into a Texture2D.
         /// </summary>
         /// <param name="TGAStream">input stream</param>
         /// <returns>The loaded Texture2D</returns>
@@ -273,7 +273,7 @@ namespace AsImpL
             // check if the image is color indexed
             if (th.imageType == 1 || th.imageType == 9) new Exception("color indexed TGA not supported."); //GV_IMG_ERROR_INDEXED_COLOR;
 
-            // for now we only consider 24bit rgb or rle images
+            // for now we only consider 24 bit RGB or RLE images
             if (th.bits != 24 && th.bits != 32) throw new Exception("only 24/32 bits TGA supported."); //GV_IMG_ERROR_BITS;
 
             // width and height must be valid ones

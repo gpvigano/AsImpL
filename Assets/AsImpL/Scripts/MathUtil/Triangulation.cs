@@ -47,7 +47,7 @@ namespace AsImpL.MathUtil
 
 
         /// <summary>
-        /// Triangulate a ploygon using ear clipping algorithm.
+        /// Triangulate a polygon using ear clipping algorithm.
         /// </summary>
         /// <param name="origVertices">Vertices of the polygon in 3D (assumed to be convex or concave).</param>
         /// <param name="planeNormal">This is basically a 2D algorithm, this is the normal of the plane used to project 3D vertices in 2D.</param>

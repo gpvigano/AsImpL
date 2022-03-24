@@ -22,7 +22,7 @@ namespace AsImpL
             //Debug.LogFormat("Triangulating a face with {0} vertices of {1}...", numVerts, dataSet.CurrGroupName);
             Vector3 planeNormal = FindPlaneNormal(dataSet, face);
 
-            // setup the data structure used for triangluation
+            // setup the data structure used for triangulation
             List<Vertex> poly = new List<Vertex>();
             for (int i = 0; i < numVerts; i++)
             {
@@ -33,7 +33,7 @@ namespace AsImpL
             // use the ear clipping triangulation
             List<Triangle> newTris = Triangulation.TriangulateByEarClipping(poly, planeNormal, dataSet.CurrGroupName);
 
-            // copy the data structure used for triangluation back to the data set
+            // copy the data structure used for triangulation back to the data set
             for (int t = 0; t < newTris.Count; t++)
             {
                 int idx1 = newTris[t].v1.OriginalIndex;

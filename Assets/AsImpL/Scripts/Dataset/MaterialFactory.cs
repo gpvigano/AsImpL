@@ -3,7 +3,7 @@
 namespace AsImpL
 {
     /// <summary>
-    /// Implementation of IMaterilFactory that creates a material based on the shader name.
+    /// Implementation of IMaterialFactory that creates a material based on the shader name.
     /// </summary>
     public class MaterialFactory : IMaterialFactory
     {

@@ -98,7 +98,7 @@ namespace AsImpL
 
 
         /// <summary>
-        /// Constructor: create data lists and initialzize the default object.
+        /// Constructor: create data lists and initialize the default object.
         /// </summary>
         public DataSet()
         {
@@ -165,7 +165,7 @@ namespace AsImpL
         /// Set a new material name to the current group (add a group if not yet added).
         /// </summary>
         /// <param name="matName">name of the new material</param>
-        /// TODO: do not split by materials if there is only one meterial
+        /// TODO: do not split by materials if there is only one material
         public void AddMaterialName(string matName)
         {
             if (!currGroup.IsEmpty) AddGroup(matName);

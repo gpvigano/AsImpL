@@ -177,7 +177,7 @@ namespace AsImpL
             if (GUILayout.Button("...", GUILayout.Width(24), GUILayout.Height(15)))
             {
                 string[] filters = { "OBJ files", "obj", "All files", "*" };
-                string absolutePath = EditorUtility.OpenFilePanelWithFilters("Laod OBJ model", defaultImportPath, filters);
+                string absolutePath = EditorUtility.OpenFilePanelWithFilters("Load OBJ model", defaultImportPath, filters);
                 if (!string.IsNullOrEmpty(absolutePath))
                 {
                     FileInfo fileInfo = new FileInfo(absolutePath);
@@ -285,7 +285,7 @@ namespace AsImpL
         {
             if (objObject && objImporter && loading)
             {
-                // force an update to let couroutine run
+                // force an update to let coroutine run
                 // TODO: find a better way
                 objObject.transform.localPosition = Vector3.one * 0.001f;
                 objObject.transform.localPosition = Vector3.zero;

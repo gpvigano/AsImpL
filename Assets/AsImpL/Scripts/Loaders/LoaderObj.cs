@@ -149,8 +149,8 @@ namespace AsImpL
 
             if (loadedText != null)
             {
-                //Debug.LogFormat("Parsing material libray {0}...", loader.url);
-                objLoadingProgress.message = "Parsing material libray...";
+                //Debug.LogFormat("Parsing material library {0}...", loader.url);
+                objLoadingProgress.message = "Parsing material library...";
                 ParseMaterialData(loadedText);
             }
 

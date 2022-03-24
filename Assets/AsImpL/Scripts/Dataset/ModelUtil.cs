@@ -77,7 +77,7 @@ namespace AsImpL
         /// <summary>
         /// Scan a texture looking for transparent pixels and trying to guess the correct blend mode needed.
         /// </summary>
-        /// <param name="texture">input rexture (it must be set to readable)</param>
+        /// <param name="texture">input texture (it must be set to readable)</param>
         /// <param name="mode">blend mode set to FADE or CUTOUT if transparent pixels are found.</param>
         /// <returns>Return true if transparent pixels were found.</returns>
         public static bool ScanTransparentPixels(Texture2D texture, ref MtlBlendMode mode)

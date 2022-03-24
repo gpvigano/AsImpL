@@ -125,7 +125,7 @@ namespace AsImpL
         /// </summary>
         /// <param name="dataSet">data set used to build the object</param>
         /// <param name="parentObj">game object to which the object will be attached</param>
-        /// <param name="materials">dictionary mapping from materil name to material</param>
+        /// <param name="materials">dictionary mapping from material name to material</param>
         public void StartBuildObjectAsync(DataSet dataSet, GameObject parentObj, Dictionary<string, Material> materials = null)
         {
             currDataSet = dataSet;
@@ -286,7 +286,7 @@ namespace AsImpL
         /// <param name="convex">Build a convex mesh collider.</param>
         /// <param name="isTrigger">Set collider as "trigger"</param>
         /// <param name="inflateMesh">Inflate the convex mesh</param>
-        /// <param name="skinWidth">Amout to be inflated</param>
+        /// <param name="skinWidth">Amount to be inflated</param>
         public static void BuildMeshCollider(GameObject targetObject, bool convex = false, bool isTrigger = false, bool inflateMesh = false, float skinWidth = 0.01f)
         {
             MeshFilter meshFilter = targetObject.GetComponent<MeshFilter>();
@@ -400,7 +400,7 @@ namespace AsImpL
             for (int f = buildStatus.grpFaceIdx; f < faceGroup.faces.Count; f++)
             {
                 // if large meshed must be split and
-                // if passed the max num of vertices and not at the last iteration
+                // if passed the max number of vertices and not at the last iteration
                 if (splitLargeMeshes && (vertIdxSet.Count / 3 > MAX_VERT_COUNT / 3 || subObjData.allFaces.Count / 3 > maxIdx4mesh / 3))
                 {
                     // split the group across more objects
@@ -478,6 +478,8 @@ namespace AsImpL
         {
             GameObject go = new GameObject();
             go.name = objData.name;
+			
+			// make the object name unique, adding a progressive number if needed
             int count = 0;
             if (parentObj.transform)
             {
@@ -817,9 +819,9 @@ namespace AsImpL
             {
                 // bump map defined
 
-                // TODO: if importing assets do not create a nomal map, change importer settings
+                // TODO: if importing assets do not create a normal map, change importer settings
 
-                // let (improperly) assign a normal map to the bumb map
+                // let (improperly) assign a normal map to the bump map
                 // if the file name contains a specific tag
                 // TODO: customize normal map tag
                 if (mtlData.bumpTexPath.Contains("_normal_map"))
@@ -959,7 +961,7 @@ namespace AsImpL
             }
 #if UNITY_ANDROID
             string graphicsDeviceName = SystemInfo.graphicsDeviceName;
-            // If nothing is rendered on your device problably a new device check must be added here.
+            // If nothing is rendered on your device probably a new device check must be added here.
             if (graphicsDeviceName.Contains("Mali") && graphicsDeviceName.Contains("400"))
             {
                 // Android devices with Mali-400 GPU do not support 32 bit indices
