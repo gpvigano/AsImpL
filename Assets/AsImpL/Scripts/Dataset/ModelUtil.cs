@@ -228,6 +228,20 @@ namespace AsImpL
 
 
         /// <summary>
+        /// Update a renderer after materials are changed.
+        /// </summary>
+        /// <param name="renderer">Renderer to be updated.</param>
+        public static void UpdateRendererMaterials(Renderer renderer)
+		{
+#if UNITY_5_6_OR_NEWER
+                RendererExtensions.UpdateGIMaterials(renderer);
+#else
+                DynamicGI.UpdateMaterials(renderer);
+#endif
+		}
+
+
+        /// <summary>
         /// Wrap the given value pos inside the range (0..boundary).
         /// </summary>
         /// <param name="pos">input value</param>

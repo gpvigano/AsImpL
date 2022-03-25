@@ -51,6 +51,9 @@ namespace AsImpL
         [Tooltip("Hide the loaded object during the loading process")]
         public bool hideWhileLoading = false;
 
+        [Tooltip("Split meshes by material")]
+        public bool splitByMaterial = false;
+
         [Header("Local Transform for the imported game object")]
         [Tooltip("Position of the object")]
         public Vector3 localPosition = Vector3.zero;

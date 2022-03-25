@@ -38,6 +38,27 @@ namespace AsImpL
         /// </summary>
         public int NumImportedMaterials { get { return currMaterials != null ? currMaterials.Count : 0; } }
 
+        /// <summary>
+        /// Check if large meshes (32 bit indices) are supported by the current configuration.
+        /// </summary>
+        public bool LargeMeshesSupported
+        {
+            get
+            {
+#if UNITY_2017_3_OR_NEWER
+                // GPU support for 32 bit indices is not guaranteed on all platforms;
+                // for example Android devices with Mali-400 GPU do not support them.
+                // This check is performed in Using32bitIndices().
+                // If nothing is rendered on your device probably Using32bitIndices() must be updated.
+                if (Using32bitIndices())
+                {
+                    return true;
+                }
+#endif
+                return false;
+            }
+        }
+
         private static int MAX_VERTICES_LIMIT_FOR_A_MESH = 65000;
         private static int MAX_INDICES_LIMIT_FOR_A_MESH = 65000;
         // maximum number of vertices that can be used for triangles
@@ -56,6 +77,12 @@ namespace AsImpL
             get { return _materialFactory ?? (_materialFactory = new MaterialFactory()); }
             set { _materialFactory = value; }
         }
+
+        private bool DoubleSidedEnabled
+        {
+            get { return buildOptions != null && buildOptions.convertToDoubleSided; }
+        }
+
 
         /// <summary>
         /// Initialize the importing of materials
@@ -109,7 +136,7 @@ namespace AsImpL
             info.materialsLoaded++;
             if (currMaterials.ContainsKey(matData.materialName))
             {
-                Debug.LogWarning("Duplicate material found: " + matData.materialName + ". Repeated occurence ignored");
+                Debug.LogWarning("Duplicate material found: " + matData.materialName + ". Repeated occurrence ignored");
             }
             else
             {
@@ -311,6 +338,33 @@ namespace AsImpL
 
 
         /// <summary>
+        /// Check if the given object data must be split into sub-objects.
+        /// </summary>
+        /// <param name="objData">object data to be checked</param>
+        /// <returns>true only if the given object data must be split.</returns>
+        protected bool MeshSplitNeeded(DataSet.ObjectData objData)
+        {
+            if (LargeMeshesSupported)
+            {
+                return false;
+            }
+            if (currDataSet.vertList.Count > MAX_VERTICES_LIMIT_FOR_A_MESH)
+            {
+                return true;
+            }
+
+            int maxIdx4mesh = DoubleSidedEnabled ? MAX_INDICES_LIMIT_FOR_A_MESH / 2 : MAX_INDICES_LIMIT_FOR_A_MESH;
+            DataSet.FaceGroupData faceGroup = objData.faceGroups[buildStatus.grpIdx];
+            if (faceGroup.faces.Count > maxIdx4mesh)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
         /// Build an object once at a time, to be reiterated until false is returned.
         /// </summary>
         /// <param name="parentObj">Game object to which the new objects will be attached</param>
@@ -332,11 +386,38 @@ namespace AsImpL
                 SetUpNewObject(parentObj, objData);
             }
 
-            return BuildCurrentObject(objData, mats);
+            if ((buildOptions != null && buildOptions.splitByMaterial) || MeshSplitNeeded(objData))
+            {
+                BuildCurrentPart(objData, mats);
+            }
+            else
+            {
+                BuildCurrentMesh(objData, mats);
+            }
+
+            buildStatus.subObjCount++;
+
+            if (buildStatus.totFaceIdxCount >= objData.allFaces.Count || buildStatus.grpIdx >= objData.faceGroups.Count)
+            {
+                if (buildStatus.totFaceIdxCount != objData.allFaces.Count)
+                {
+                    Debug.LogWarningFormat("Imported face indices: {0} of {1}", buildStatus.totFaceIdxCount, objData.allFaces.Count);
+                    return false;
+                }
+
+                buildStatus.objCount++;
+                buildStatus.newObject = true;
+            }
+
+            return true;
         }
 
-
-        private void SetUpNewObject(GameObject parentObj, DataSet.ObjectData objData)
+        /// <summary>
+        /// Set up an object to be built.
+        /// </summary>
+        /// <param name="parentObj">The "container" object for this object (a mesh can be also directly added to it).</param>
+        /// <param name="objData">object data</param>
+        protected void SetUpNewObject(GameObject parentObj, DataSet.ObjectData objData)
         {
             if (buildStatus.objCount == 0 && objData.name == "default")
             {
@@ -363,19 +444,15 @@ namespace AsImpL
         }
 
 
-        private bool BuildCurrentObject(DataSet.ObjectData objData, Dictionary<string, Material> mats)
+        /// <summary>
+        /// Build the current part (called if the splitByMaterial option is set).
+        /// </summary>
+        /// <param name="objData">Object data.</param>
+        /// <param name="matLib">Material library.</param>
+        protected void BuildCurrentPart(DataSet.ObjectData objData, Dictionary<string, Material> matLib)
         {
-            bool splitLargeMeshes = true;
-#if UNITY_2017_3_OR_NEWER
-            // GPU support for 32 bit indices is not guaranteed on all platforms;
-            // for example Android devices with Mali-400 GPU do not support them.
-            // This check is performed in Using32bitIndices().
-            // If nothing is rendered on your device probably Using32bitIndices() must be updated.
-            if (Using32bitIndices())
-            {
-                splitLargeMeshes = false;
-            }
-#endif
+            bool splitLargeMeshes = !LargeMeshesSupported;
+
             bool splitGrp = false;
 
             DataSet.FaceGroupData faceGroup = objData.faceGroups[buildStatus.grpIdx];
@@ -449,32 +526,23 @@ namespace AsImpL
             }
             buildStatus.totFaceIdxCount += subObjData.allFaces.Count;
 
-            GameObject subobj = ImportSubObject(buildStatus.subObjParent, subObjData, mats);
+            GameObject subobj = ImportSubObject(buildStatus.subObjParent, subObjData, matLib);
             if (subobj == null)
             {
                 Debug.LogWarningFormat("Error loading sub object n.{0}.", buildStatus.subObjCount);
             }
             //else Debug.LogFormat( "Imported face indices: {0} to {1}", buildStatus.totFaceIdxCount - sub_od.AllFaces.Count, buildStatus.totFaceIdxCount );
-
-            buildStatus.subObjCount++;
-
-            if (buildStatus.totFaceIdxCount >= objData.allFaces.Count || buildStatus.grpIdx >= objData.faceGroups.Count)
-            {
-                if (buildStatus.totFaceIdxCount != objData.allFaces.Count)
-                {
-                    Debug.LogWarningFormat("Imported face indices: {0} of {1}", buildStatus.totFaceIdxCount, objData.allFaces.Count);
-                    return false;
-                }
-
-                buildStatus.objCount++;
-                buildStatus.newObject = true;
-            }
-
-            return true;
         }
 
 
-        private GameObject ImportSubObject(GameObject parentObj, DataSet.ObjectData objData, Dictionary<string, Material> mats)
+        /// <summary>
+        /// Build a sub-object of the current part (called if the splitByMaterial option is set).
+        /// </summary>
+        /// <param name="parentObj"></param>
+        /// <param name="objData">Object data.</param>
+        /// <param name="matLib">Material library.</param>
+        /// <returns>The GameObject created for the sub object.</returns>
+        protected GameObject ImportSubObject(GameObject parentObj, DataSet.ObjectData objData, Dictionary<string, Material> matLib)
         {
             GameObject go = new GameObject();
             go.name = objData.name;
@@ -501,36 +569,108 @@ namespace AsImpL
             //Debug.Log( "Importing sub object:" + objData.Name );
 
 
-            MeshFilter meshFilter = go.AddComponent<MeshFilter>();
+            go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
 
             Renderer renderer = go.GetComponent<Renderer>();
 
-            Mesh mesh = BuildMesh(renderer, objData, mats);
-            ModelReferences modelRefs = go.GetComponentInParent<ModelReferences>();
-            modelRefs.AddMesh(mesh);
-            mesh.name = go.name;
-            meshFilter.sharedMesh = mesh;
+            Mesh mesh = BuildMesh(renderer, objData, matLib);
+			
+			FinalizeObject(go,mesh);
 
-
-            if (buildOptions != null && buildOptions.buildColliders)
-            {
-#if UNITY_2018_3_OR_NEWER
-                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger);
-#else
-                BuildMeshCollider(go, buildOptions.colliderConvex, buildOptions.colliderTrigger, buildOptions.colliderInflate, buildOptions.colliderSkinWidth);
-#endif
-            }
             return go;
         }
 
 
-        private Mesh BuildMesh(Renderer renderer, DataSet.ObjectData objData, Dictionary<string, Material> mats)
+        /// <summary>
+        /// Build the mesh for the current object (called if the splitByMaterial option is NOT set).
+        /// </summary>
+        /// <param name="objData">Object data.</param>
+        /// <param name="matLib">Material library.</param>
+        protected void BuildCurrentMesh(DataSet.ObjectData objData, Dictionary<string, Material> matLib)
         {
-            bool conv2sided = buildOptions != null && buildOptions.convertToDoubleSided;
+            if (objData.allFaces.Count == 0)
+            {
+                Debug.LogWarning("Object: " + objData.name + " has no face defined.");
+                return;
+            }
+            DataSet.FaceGroupData faceGroup = objData.faceGroups[buildStatus.grpIdx];
+            GameObject go = buildStatus.currObjGameObject;
+            go.AddComponent<MeshFilter>();
+            go.AddComponent<MeshRenderer>();
+
+            Dictionary<string, int> vIdxCount;
+            Mesh mesh = CreateMesh(objData, out vIdxCount);
+            mesh.subMeshCount = objData.faceGroups.Count;
+
+            Material[] faceMaterials = new Material[objData.faceGroups.Count];
+            for (int i = 0; i < objData.faceGroups.Count; i++)
+            {
+                Material material = GetLibraryMaterial(matLib, objData.faceGroups[i].materialName);
+
+                faceMaterials[i] = material;
+
+                int numIndices = BuildSubMesh(mesh, objData, vIdxCount, i);
+
+                buildStatus.grpFaceIdx = 0;
+                buildStatus.grpIdx++;
+                buildStatus.totFaceIdxCount += numIndices;
+            }
+
+            Renderer renderer = go.GetComponent<Renderer>();
+
+            renderer.materials = faceMaterials;
+            ModelUtil.UpdateRendererMaterials(renderer);
+
+            FinalizeMesh(mesh, objData.hasNormals);
+
+			FinalizeObject(go, mesh);
+            // update the start index
+            //buildStatus.idxCount += objData.faceGroups.Count;
+
+        }
+
+
+        /// <summary>
+        /// Build and set up a mesh (always called when building an object).
+        /// </summary>
+        /// <param name="renderer">Renderer where mesh materials are added.</param>
+        /// <param name="objData">Object data.</param>
+        /// <param name="matLib">Material library.</param>
+        /// <returns>A new mesh, its materials are added to the given renderer.</returns>
+        protected Mesh BuildMesh(Renderer renderer, DataSet.ObjectData objData, Dictionary<string, Material> matLib)
+        {
+            Dictionary<string, int> vIdxCount;
+            Mesh mesh = CreateMesh(objData, out vIdxCount);
+
+            Material material = GetLibraryMaterial(matLib, objData.faceGroups[0].materialName);
+
+            if (material != null)
+            {
+                renderer.sharedMaterial = material;
+                ModelUtil.UpdateRendererMaterials(renderer);
+            }
+
+            BuildSubMesh(mesh, objData, vIdxCount, 0);
+
+            FinalizeMesh(mesh, objData.hasNormals);
+
+            return mesh;
+        }
+
+
+        /// <summary>
+        /// Create a mesh with only vertices information defined.
+        /// </summary>
+        /// <param name="objData">Object data.</param>
+        /// <param name="vIdxCount">Counter for vertex info (position, UV, normal) to be shared among faces.</param>
+        /// <returns>The created mesh with only vertices information defined.</returns>
+        protected Mesh CreateMesh(DataSet.ObjectData objData, out Dictionary<string, int> vIdxCount)
+        {
+            bool conv2sided = DoubleSidedEnabled;
+
             // count vertices needed for all the faces and map face indices to new vertices
-            Dictionary<string, int> vIdxCount = new Dictionary<string, int>();
-            int vcount = 0;
+            vIdxCount = new Dictionary<string, int>();
             foreach (DataSet.FaceIndices fi in objData.allFaces)
             {
                 string key = DataSet.GetFaceIndicesKey(fi);
@@ -538,10 +678,10 @@ namespace AsImpL
                 // avoid duplicates
                 if (!vIdxCount.TryGetValue(key, out idx))
                 {
-                    vIdxCount.Add(key, vcount);
-                    vcount++;
+                    vIdxCount.Add(key, vIdxCount.Count);
                 }
             }
+            int vcount = vIdxCount.Count;
 
             int arraySize = conv2sided ? vcount * 2 : vcount;
 
@@ -587,11 +727,29 @@ namespace AsImpL
                 }
             }
 
-            int n = objData.faceGroups[0].faces.Count;
-
-            int numIndices = conv2sided ? n * 2 : n;
-
             Mesh mesh = new Mesh();
+
+#if UNITY_2017_3_OR_NEWER
+            // Enable 32 bit indices only if needed
+            if (Using32bitIndices())
+            {
+                int maxIndexCount = 0;
+                for (int i = 0; i <objData.faceGroups.Count; i++)
+                {
+                    if (maxIndexCount < objData.faceGroups[i].faces.Count)
+                    {
+                        maxIndexCount = objData.faceGroups[i].faces.Count;
+                    }
+                }
+                int numIndices = conv2sided ? maxIndexCount * 2 : maxIndexCount;
+
+                if (arraySize > MAX_VERT_COUNT || numIndices > MAX_INDICES_LIMIT_FOR_A_MESH)
+                {
+                    mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                }
+            }
+#endif
+
             mesh.vertices = newVertices;
             bool objectHasNormals = (currDataSet.normalList.Count > 0 && objData.hasNormals);
             bool objectHasColors = (currDataSet.colorList.Count > 0 && objData.hasColors);
@@ -601,53 +759,55 @@ namespace AsImpL
             if (objectHasNormals) mesh.normals = newNormals;
             if (objectHasColors) mesh.colors32 = newColors;
 
-            Material material;
+            return mesh;
+        }
 
-            string matName = (objData.faceGroups[0].materialName != null) ? objData.faceGroups[0].materialName : "default";
 
-            if (mats.ContainsKey(matName))
-            {
-                material = mats[matName];
-                renderer.sharedMaterial = material;
-#if UNITY_5_6_OR_NEWER
-                RendererExtensions.UpdateGIMaterials(renderer);
-#else
-                DynamicGI.UpdateMaterials(renderer);
-#endif
-            }
-            else
-            {
-                if (mats.ContainsKey("default"))
-                {
-                    material = mats["default"];
-                    renderer.sharedMaterial = material;
-                    Debug.LogWarning("Material: " + matName + " not found. Using the default material.");
-                }
-                else
-                {
-                    Debug.LogError("Material: " + matName + " not found.");
-                }
-            }
-
+        /// <summary>
+        /// Build the faces for the given (sub)mesh according to the given data.
+        /// </summary>
+        /// <param name="mesh">The mesh to which the faces will be added.</param>
+        /// <param name="objData">Object data.</param>
+        /// <param name="vIdxCount">Counter for vertex info (position, UV, normal) to be shared among faces.</param>
+        /// <param name="subMeshIndex">Index of the sub-mesh</param>
+        /// <returns>The number of indices of the mesh (even in case of double sided option).</returns>
+        protected int BuildSubMesh(Mesh mesh, DataSet.ObjectData objData, Dictionary<string, int> vIdxCount, int subMeshIndex)
+        {
+            int n = objData.faceGroups[subMeshIndex].faces.Count;
+            bool conv2sided = DoubleSidedEnabled;
+            int numIndices = conv2sided ? n * 2 : n;
             int[] indices = new int[numIndices];
 
             for (int s = 0; s < n; s++)
             {
-                DataSet.FaceIndices fi = objData.faceGroups[0].faces[s];
+                DataSet.FaceIndices fi = objData.faceGroups[subMeshIndex].faces[s];
                 string key = DataSet.GetFaceIndicesKey(fi);
                 indices[s] = vIdxCount[key];
             }
             if (conv2sided)
             {
+                int vcount = vIdxCount.Count;
                 for (int s = 0; s < n; s++)
                 {
                     indices[s + n] = vcount + indices[s / 3 * 3 + 2 - s % 3];
                 }
             }
 
-            mesh.SetTriangles(indices, 0);
+            mesh.SetTriangles(indices, subMeshIndex);
+
+            return numIndices;
+        }
 
 
+        /// <summary>
+        /// Compute missing data for the given mesh.
+        /// </summary>
+        /// <param name="mesh">Existing mesh to be finalized.</param>
+        /// <param name="objDataHasNormals">Flag to inform if nomals data is provided (or if it must be computed).</param>
+        protected void FinalizeMesh(Mesh mesh, bool objDataHasNormals)
+        {
+            bool objectHasNormals = (currDataSet.normalList.Count > 0 && objDataHasNormals);
+            bool objectHasUVs = (currDataSet.uvList.Count > 0);
             if (!objectHasNormals)
             {
                 mesh.RecalculateNormals();
@@ -656,26 +816,69 @@ namespace AsImpL
             {
                 Solve(mesh);
             }
+       }
 
-#if UNITY_2017_3_OR_NEWER
-            if (Using32bitIndices())
+
+        /// <summary>
+        /// Finalize the given object adding the given mesh (and updating its collider if needed).
+        /// </summary>
+        /// <param name="incompleteObj">Object to be completed and finalized.</param>
+        /// <param name="mesh">Mesh to be added to the object.</param>
+        protected void FinalizeObject(GameObject incompleteObj, Mesh mesh)
+		{
+            ModelReferences modelRefs = incompleteObj.GetComponentInParent<ModelReferences>();
+            modelRefs.AddMesh(mesh);
+            mesh.name = incompleteObj.name;
+            MeshFilter meshFilter = incompleteObj.GetComponent<MeshFilter>();
+            meshFilter.sharedMesh = mesh;
+
+            if (buildOptions != null && buildOptions.buildColliders)
             {
-                if (arraySize > MAX_VERT_COUNT || numIndices > MAX_INDICES_LIMIT_FOR_A_MESH)
+#if UNITY_2018_3_OR_NEWER
+                BuildMeshCollider(incompleteObj, buildOptions.colliderConvex, buildOptions.colliderTrigger);
+#else
+                BuildMeshCollider(incompleteObj, buildOptions.colliderConvex, buildOptions.colliderTrigger, buildOptions.colliderInflate, buildOptions.colliderSkinWidth);
+#endif
+            }
+		}
+
+        /// <summary>
+        /// Get a material given its name and library (falling back to a default material if not found).
+        /// </summary>
+        /// <param name="materialLibrary">The dictionary containing the material library.</param>
+        /// <param name="materialName">Name of the material.</param>
+        /// <returns>The required material, a default material or null if no material is available.</returns>
+        protected Material GetLibraryMaterial(Dictionary<string, Material> materialLibrary, string materialName)
+        {
+            Material material = null;
+            string matName = (materialName != null) ? materialName : "default";
+
+            if (materialLibrary.ContainsKey(matName))
+            {
+                material = materialLibrary[matName];
+            }
+            else
+            {
+                if (materialLibrary.ContainsKey("default"))
                 {
-                    mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                    material = materialLibrary["default"];
+                    Debug.LogWarning("Material: " + matName + " not found. Using the default material.");
+                }
+                else
+                {
+                    Debug.LogError("Material: " + matName + " not found.");
                 }
             }
-#endif
-
-            return mesh;
+            return material;
         }
+
 
         /// <summary>
         /// Build a Unity Material from MaterialData
         /// </summary>
         /// <param name="mtlData">material data</param>
         /// <returns>Unity material</returns>
-        private Material BuildMaterial(MaterialData mtlData, ModelReferences modelRefs)
+        protected Material BuildMaterial(MaterialData mtlData, ModelReferences modelRefs)
         {
             bool specularMode = false;// (md.specularTex != null);
             ModelUtil.MtlBlendMode mode = mtlData.overallAlpha < 1.0f ? ModelUtil.MtlBlendMode.TRANSPARENT : ModelUtil.MtlBlendMode.OPAQUE;
