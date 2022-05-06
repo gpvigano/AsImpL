@@ -31,7 +31,11 @@ namespace AsImpL
             UnityWebRequest uwr = UnityWebRequest.Get(uri);
             yield return uwr.SendWebRequest();
 
+#if UNITY_2020_2_OR_NEWER
+            if (uwr.result == UnityWebRequest.Result.ConnectionError)
+#else
             if (uwr.isNetworkError || uwr.isHttpError)
+#endif
             {
                 if (notifyErrors)
                 {
@@ -71,7 +75,11 @@ namespace AsImpL
             {
                 yield return uwr.SendWebRequest();
 
+#if UNITY_2020_2_OR_NEWER
+                if (uwr.result == UnityWebRequest.Result.ConnectionError)
+#else
                 if (uwr.isNetworkError || uwr.isHttpError)
+#endif
                 {
                     Debug.LogError(uwr.error);
                     yield return null;
