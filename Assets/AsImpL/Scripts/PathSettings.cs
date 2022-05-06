@@ -10,6 +10,7 @@ namespace AsImpL
         DataPath,
         DataPathParent,
         PersistentDataPath,
+        StreamingAssetsPath,
         CurrentPath
     }
 
@@ -46,6 +47,8 @@ namespace AsImpL
                         return Application.dataPath + "/../";
                     case RootPathEnum.PersistentDataPath:
                         return Application.persistentDataPath + "/";
+                    case RootPathEnum.StreamingAssetsPath:
+                        return Application.streamingAssetsPath + "/";
                 }
                 return "";
             }
