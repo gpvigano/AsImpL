@@ -356,6 +356,9 @@ namespace AsImpL
                             dataSet.AddMaterialName(DataSet.FixMaterialName(parameters));
                         }
                         break;
+                    default:
+                        Debug.LogWarning("OBJ element not supported: " + p[0]);
+                        break;
                 }
             }
             objLoadingProgress.percentage = LOAD_PHASE_PERC;
